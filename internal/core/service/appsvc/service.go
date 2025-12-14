@@ -1,6 +1,6 @@
 package service
 
-import "rogue/internal/domain/ports"
+import "rogue/internal/core/ports"
 
 type Service struct {
 	leaderboard ports.LeaderboardRepository

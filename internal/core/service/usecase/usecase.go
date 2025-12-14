@@ -7,8 +7,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"rogue/internal/domain/game"
-	"rogue/internal/domain/ports"
+	"rogue/internal/core/domain/game"
+	"rogue/internal/core/ports"
 )
 
 type InputKind uint8

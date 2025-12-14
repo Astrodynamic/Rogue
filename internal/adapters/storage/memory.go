@@ -4,7 +4,7 @@ import (
 	"sort"
 	"sync"
 
-	"rogue/internal/domain/ports"
+	"rogue/internal/core/ports"
 )
 
 type InMemory struct {

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"log"
 
-	"rogue/internal/app/usecase"
-	"rogue/internal/domain/game"
+	"rogue/internal/core/domain/game"
+	"rogue/internal/core/service/usecase"
 	"rogue/internal/platform/tcellx"
 
 	"github.com/gdamore/tcell/v2"

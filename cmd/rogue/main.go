@@ -7,9 +7,9 @@ import (
 
 	"rogue/internal/adapters/storage"
 	"rogue/internal/adapters/tui"
-	"rogue/internal/app/service"
-	"rogue/internal/app/usecase"
-	"rogue/internal/domain/game"
+	"rogue/internal/core/domain/game"
+	appsvc "rogue/internal/core/service/appsvc"
+	"rogue/internal/core/service/usecase"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 	flag.Parse()
 
 	st := storage.NewJSON(*storePath)
-	svc := service.New(st, st)
+	svc := appsvc.New(st, st)
 	uc := usecase.New(svc, *seed, game.Config{})
 
 	if err := tui.Run(uc, tui.Options{Logger: logger}); err != nil {

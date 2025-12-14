@@ -1,6 +1,6 @@
 package ports
 
-import "rogue/internal/domain/game"
+import "rogue/internal/core/domain/game"
 
 type RunResult struct {
 	Name         string

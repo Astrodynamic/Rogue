@@ -1,6 +1,6 @@
 package usecase
 
-import "rogue/internal/domain/ports"
+import "rogue/internal/core/ports"
 
 // App is the usecase-facing contract (application boundary).
 // The usecase depends on this interface, not on concrete adapters, to keep clean architecture/DDD:
