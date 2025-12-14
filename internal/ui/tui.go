@@ -1,11 +1,17 @@
 package tui
 
+// TUI imports game types (Tile, Enemy, Point, etc.) used in ViewModel.
+// In strict Clean Architecture this would be a violation (adapter knows domain).
+// In Go this is a pragmatic tradeoff: duplicating 15+ value types just for
+// isolation adds complexity without real benefit. The key rule is preserved:
+// TUI never CALLS domain logic, only reads data through ViewModel.
+
 import (
 	"errors"
 	"log"
 
-	"rogue/internal/core/domain/game"
-	"rogue/internal/core/service/usecase"
+	"rogue/internal/app"
+	"rogue/internal/game"
 	"rogue/internal/platform/tcellx"
 
 	"github.com/gdamore/tcell/v2"
@@ -15,8 +21,8 @@ type Options struct {
 	Logger *log.Logger
 }
 
-func Run(uc usecase.Controller, opts Options) (err error) {
-	if uc == nil {
+func Run(ctrl app.Controller, opts Options) (err error) {
+	if ctrl == nil {
 		return errors.New("nil usecase")
 	}
 	if opts.Logger == nil {
@@ -39,9 +45,9 @@ func Run(uc usecase.Controller, opts Options) (err error) {
 	// Account for UI chrome: sidebar + borders + top bar.
 	worldW := sw - 35
 	worldH := sh - 6
-	uc.SetWorldSize(worldW, worldH)
+	ctrl.SetWorldSize(worldW, worldH)
 
-	vm, _, err := uc.Handle(usecase.Input{Kind: usecase.InputNone})
+	vm, _, err := ctrl.Handle(app.Input{Kind: app.InputNone})
 	if err != nil {
 		return err
 	}
@@ -55,11 +61,11 @@ func Run(uc usecase.Controller, opts Options) (err error) {
 			render(s, vm)
 		case *tcell.EventKey:
 			in := mapKey(e, vm.Mode)
-			if in.Kind == usecase.InputNone {
+			if in.Kind == app.InputNone {
 				continue
 			}
 			var quit bool
-			vm, quit, err = uc.Handle(in)
+			vm, quit, err = ctrl.Handle(in)
 			if err != nil {
 				return err
 			}
@@ -71,86 +77,86 @@ func Run(uc usecase.Controller, opts Options) (err error) {
 	}
 }
 
-func mapKey(e *tcell.EventKey, mode usecase.Mode) usecase.Input {
+func mapKey(e *tcell.EventKey, mode app.Mode) app.Input {
 	switch e.Key() {
 	case tcell.KeyCtrlC, tcell.KeyEscape:
-		return usecase.Input{Kind: usecase.InputQuit}
+		return app.Input{Kind: app.InputQuit}
 	case tcell.KeyCtrlS:
-		return usecase.Input{Kind: usecase.InputSave}
+		return app.Input{Kind: app.InputSave}
 	case tcell.KeyEnter:
-		return usecase.Input{Kind: usecase.InputConfirmYes}
+		return app.Input{Kind: app.InputConfirmYes}
 	case tcell.KeyBackspace, tcell.KeyBackspace2:
-		return usecase.Input{Kind: usecase.InputBackspace}
+		return app.Input{Kind: app.InputBackspace}
 	case tcell.KeyRune:
 		// During name entry, treat all printable runes as text (do not bind gameplay keys).
-		if mode == usecase.ModeEnterName {
+		if mode == app.ModeEnterName {
 			r := e.Rune()
 			if r >= 32 && r != 127 {
-				return usecase.Input{Kind: usecase.InputText, Rune: r}
+				return app.Input{Kind: app.InputText, Rune: r}
 			}
-			return usecase.Input{Kind: usecase.InputNone}
+			return app.Input{Kind: app.InputNone}
 		}
 		switch e.Rune() {
 		case ' ':
-			return usecase.Input{Kind: usecase.InputAttack}
+			return app.Input{Kind: app.InputAttack}
 		case 'q', 'Q':
-			return usecase.Input{Kind: usecase.InputQuit}
+			return app.Input{Kind: app.InputQuit}
 		case 'w', 'W':
-			return usecase.Input{Kind: usecase.InputUp}
+			return app.Input{Kind: app.InputUp}
 		case 's', 'S':
-			return usecase.Input{Kind: usecase.InputDown}
+			return app.Input{Kind: app.InputDown}
 		case 'a', 'A':
-			return usecase.Input{Kind: usecase.InputLeft}
+			return app.Input{Kind: app.InputLeft}
 		case 'd', 'D':
-			return usecase.Input{Kind: usecase.InputRight}
+			return app.Input{Kind: app.InputRight}
 		case 'h', 'H':
-			return usecase.Input{Kind: usecase.InputInvWeapon}
+			return app.Input{Kind: app.InputInvWeapon}
 		case 'j', 'J':
-			return usecase.Input{Kind: usecase.InputInvFood}
+			return app.Input{Kind: app.InputInvFood}
 		case 'k', 'K':
-			return usecase.Input{Kind: usecase.InputInvElixir}
+			return app.Input{Kind: app.InputInvElixir}
 		case 'e', 'E':
-			return usecase.Input{Kind: usecase.InputInvScroll}
+			return app.Input{Kind: app.InputInvScroll}
 		case 't', 'T':
-			return usecase.Input{Kind: usecase.InputViewStats}
+			return app.Input{Kind: app.InputViewStats}
 		case 'l', 'L':
-			return usecase.Input{Kind: usecase.InputViewLeaderboard}
+			return app.Input{Kind: app.InputViewLeaderboard}
 		case '?':
-			return usecase.Input{Kind: usecase.InputHelp}
+			return app.Input{Kind: app.InputHelp}
 		case 'y', 'Y':
-			return usecase.Input{Kind: usecase.InputConfirmYes}
+			return app.Input{Kind: app.InputConfirmYes}
 		case 'n', 'N':
-			return usecase.Input{Kind: usecase.InputConfirmNo}
+			return app.Input{Kind: app.InputConfirmNo}
 		case '0':
-			return usecase.Input{Kind: usecase.InputDigit0}
+			return app.Input{Kind: app.InputDigit0}
 		case '1':
-			return usecase.Input{Kind: usecase.InputDigit1}
+			return app.Input{Kind: app.InputDigit1}
 		case '2':
-			return usecase.Input{Kind: usecase.InputDigit2}
+			return app.Input{Kind: app.InputDigit2}
 		case '3':
-			return usecase.Input{Kind: usecase.InputDigit3}
+			return app.Input{Kind: app.InputDigit3}
 		case '4':
-			return usecase.Input{Kind: usecase.InputDigit4}
+			return app.Input{Kind: app.InputDigit4}
 		case '5':
-			return usecase.Input{Kind: usecase.InputDigit5}
+			return app.Input{Kind: app.InputDigit5}
 		case '6':
-			return usecase.Input{Kind: usecase.InputDigit6}
+			return app.Input{Kind: app.InputDigit6}
 		case '7':
-			return usecase.Input{Kind: usecase.InputDigit7}
+			return app.Input{Kind: app.InputDigit7}
 		case '8':
-			return usecase.Input{Kind: usecase.InputDigit8}
+			return app.Input{Kind: app.InputDigit8}
 		case '9':
-			return usecase.Input{Kind: usecase.InputDigit9}
+			return app.Input{Kind: app.InputDigit9}
 		default:
 			// Ignore other keys in play modes.
-			return usecase.Input{Kind: usecase.InputNone}
+			return app.Input{Kind: app.InputNone}
 		}
 	default:
-		return usecase.Input{Kind: usecase.InputNone}
+		return app.Input{Kind: app.InputNone}
 	}
 }
 
-func render(s tcell.Screen, vm usecase.ViewModel) {
+func render(s tcell.Screen, vm app.ViewModel) {
 	s.Clear()
 	w, h := s.Size()
 	if w <= 0 || h <= 0 {
@@ -216,7 +222,7 @@ func truncate(s string, max int) string {
 	return string(r[:max])
 }
 
-func drawMap(s tcell.Screen, ox, oy, mw, mh, sw, sh int, vm usecase.ViewModel) {
+func drawMap(s tcell.Screen, ox, oy, mw, mh, sw, sh int, vm app.ViewModel) {
 	roomTile := make([][]bool, vm.MapH)
 	for y := 0; y < vm.MapH; y++ {
 		roomTile[y] = make([]bool, vm.MapW)
@@ -295,7 +301,7 @@ func drawMap(s tcell.Screen, ox, oy, mw, mh, sw, sh int, vm usecase.ViewModel) {
 	}
 }
 
-func drawSidebar(s tcell.Screen, ox, oy, w, h int, vm usecase.ViewModel) {
+func drawSidebar(s tcell.Screen, ox, oy, w, h int, vm app.ViewModel) {
 	y := oy
 	line := func(txt string, st tcell.Style) {
 		if h <= 0 {
@@ -334,7 +340,7 @@ func drawSidebar(s tcell.Screen, ox, oy, w, h int, vm usecase.ViewModel) {
 	line("Weapons : "+itoa(vm.Backpack.Count(game.ItemWeapon)), tcell.StyleDefault)
 }
 
-func drawLog(s tcell.Screen, ox, oy, w, h int, vm usecase.ViewModel) {
+func drawLog(s tcell.Screen, ox, oy, w, h int, vm app.ViewModel) {
 	if h <= 0 || w <= 0 {
 		return
 	}
@@ -347,7 +353,7 @@ func drawLog(s tcell.Screen, ox, oy, w, h int, vm usecase.ViewModel) {
 	}
 }
 
-func drawModal(s tcell.Screen, sw, sh int, vm usecase.ViewModel) {
+func drawModal(s tcell.Screen, sw, sh int, vm app.ViewModel) {
 	lines := []string{vm.MenuTitle}
 	if len(vm.MenuItems) > 0 {
 		for i := range vm.MenuItems {
@@ -389,7 +395,7 @@ func drawModal(s tcell.Screen, sw, sh int, vm usecase.ViewModel) {
 	}
 }
 
-func tileGlyph(t game.Tile, visible bool, x, y int, vm usecase.ViewModel) (rune, tcell.Style) {
+func tileGlyph(t game.Tile, visible bool, x, y int, vm app.ViewModel) (rune, tcell.Style) {
 	st := tcell.StyleDefault
 	if visible {
 		st = st.Foreground(tcell.ColorWhite)
@@ -466,7 +472,7 @@ func clampInt(v, lo, hi int) int {
 	return v
 }
 
-func drawTopBar(s tcell.Screen, x, y, w int, vm usecase.ViewModel) {
+func drawTopBar(s tcell.Screen, x, y, w int, vm app.ViewModel) {
 	st := tcell.StyleDefault.Background(tcell.ColorBlue).Foreground(tcell.ColorWhite).Bold(true)
 	fill(s, x, y, w, 1, ' ', st)
 	title := vm.Title + "  |  Level " + itoa(vm.Level) + "  |  Treasure " + itoa(vm.Backpack.Treasure)

@@ -1,4 +1,4 @@
-package usecase
+package app
 
 import (
 	"errors"
@@ -7,8 +7,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"rogue/internal/core/domain/game"
-	"rogue/internal/core/ports"
+	"rogue/internal/game"
 )
 
 type InputKind uint8
@@ -98,8 +97,8 @@ type ViewModel struct {
 	BoardLines []string
 }
 
-type Usecase struct {
-	svc App
+type App struct {
+	storage Storage
 
 	rng  *rand.Rand
 	sess *game.GameSession
@@ -121,304 +120,305 @@ type Usecase struct {
 
 // SetWorldSize updates the default world size used when starting a NEW session.
 // Loaded sessions keep their saved map size.
-func (u *Usecase) SetWorldSize(width, height int) {
-	u.cfg = game.Config{Width: width, Height: height}.Normalize()
+func (a *App) SetWorldSize(width, height int) {
+	a.cfg = game.Config{Width: width, Height: height}.Normalize()
 	// If we're still in slot selection (pre-run), keep the seed but regenerate the initial level for a nicer first impression.
-	if u.mode == ModeSelectSlot && u.sess != nil {
-		u.sess = game.NewSession(u.sess.Seed, u.cfg)
+	if a.mode == ModeSelectSlot && a.sess != nil {
+		a.sess = game.NewSession(a.sess.Seed, a.cfg)
 	}
 }
 
-func New(svc App, seed int64, cfg game.Config) *Usecase {
+// New creates a new game application instance.
+func New(storage Storage, seed int64, cfg game.Config) *App {
 	if seed == 0 {
 		seed = time.Now().UnixNano()
 	}
 	rng := rand.New(rand.NewSource(seed))
-	return &Usecase{
-		svc:  svc,
-		rng:  rng,
-		sess: game.NewSession(seed, cfg),
-		mode: ModeSelectSlot,
-		cfg:  cfg.Normalize(),
+	return &App{
+		storage: storage,
+		rng:     rng,
+		sess:    game.NewSession(seed, cfg),
+		mode:    ModeSelectSlot,
+		cfg:     cfg.Normalize(),
 	}
 }
 
-func (u *Usecase) Handle(in Input) (ViewModel, bool, error) {
-	if u.sess == nil {
+func (a *App) Handle(in Input) (ViewModel, bool, error) {
+	if a.sess == nil {
 		return ViewModel{}, true, errors.New("nil session")
 	}
 
-	switch u.mode {
+	switch a.mode {
 	case ModeSelectSlot:
 		if in.Kind == InputQuit {
-			return u.view(), true, nil
+			return a.view(), true, nil
 		}
 		if slot, ok := digitIndex(in); ok && slot >= 1 && slot <= 3 {
-			u.selectedSlot = slot
-			_, has, _ := u.svc.LoadSession(slot)
-			u.selectedHasSave = has
-			u.mode = ModeSlotAction
-			return u.view(), false, nil
+			a.selectedSlot = slot
+			_, has, _ := a.storage.LoadSession(slot)
+			a.selectedHasSave = has
+			a.mode = ModeSlotAction
+			return a.view(), false, nil
 		}
-		return u.view(), false, nil
+		return a.view(), false, nil
 	case ModeSlotAction:
 		if in.Kind == InputQuit {
-			return u.view(), true, nil
+			return a.view(), true, nil
 		}
 		// 1=Continue/New, 2=New (overwrite), 3=Delete, 0=Back
 		if d, ok := digitIndex(in); ok {
 			switch d {
 			case 0:
-				u.mode = ModeSelectSlot
-				return u.view(), false, nil
+				a.mode = ModeSelectSlot
+				return a.view(), false, nil
 			case 1:
-				if u.selectedHasSave {
-					u.activeSlot = u.selectedSlot
-					if saved, ok2, err := u.svc.LoadSession(u.activeSlot); err == nil && ok2 {
-						u.sess = game.FromSnapshot(saved.Snapshot)
-						u.rng = rand.New(rand.NewSource(u.sess.Seed))
-						u.name = saved.Name
-						if normalizeName(u.name) == "" {
-							u.mode = ModeEnterName
+				if a.selectedHasSave {
+					a.activeSlot = a.selectedSlot
+					if saved, ok2, err := a.storage.LoadSession(a.activeSlot); err == nil && ok2 {
+						a.sess = game.FromSnapshot(saved.Snapshot)
+						a.rng = rand.New(rand.NewSource(a.sess.Seed))
+						a.name = saved.Name
+						if normalizeName(a.name) == "" {
+							a.mode = ModeEnterName
 						} else {
-							u.mode = ModePlay
+							a.mode = ModePlay
 						}
-						u.sess.Messages = append(u.sess.Messages, "Loaded slot "+itoa(u.activeSlot)+".")
-						return u.view(), false, nil
+						a.sess.Messages = append(a.sess.Messages, "Loaded slot "+itoa(a.activeSlot)+".")
+						return a.view(), false, nil
 					}
-					u.mode = ModeEnterName
-					return u.view(), false, nil
+					a.mode = ModeEnterName
+					return a.view(), false, nil
 				}
 				// Empty slot -> start new
-				u.activeSlot = u.selectedSlot
-				u.mode = ModeEnterName
-				return u.view(), false, nil
+				a.activeSlot = a.selectedSlot
+				a.mode = ModeEnterName
+				return a.view(), false, nil
 			case 2:
-				if u.selectedHasSave {
-					u.mode = ModeConfirmOverwrite
-					return u.view(), false, nil
+				if a.selectedHasSave {
+					a.mode = ModeConfirmOverwrite
+					return a.view(), false, nil
 				}
-				u.activeSlot = u.selectedSlot
-				u.mode = ModeEnterName
-				return u.view(), false, nil
+				a.activeSlot = a.selectedSlot
+				a.mode = ModeEnterName
+				return a.view(), false, nil
 			case 3:
-				if u.selectedHasSave {
-					u.mode = ModeConfirmDelete
-					return u.view(), false, nil
+				if a.selectedHasSave {
+					a.mode = ModeConfirmDelete
+					return a.view(), false, nil
 				}
-				return u.view(), false, nil
+				return a.view(), false, nil
 			}
 		}
-		return u.view(), false, nil
+		return a.view(), false, nil
 	case ModeConfirmOverwrite:
 		if in.Kind == InputQuit {
-			return u.view(), true, nil
+			return a.view(), true, nil
 		}
 		if in.Kind == InputConfirmNo {
-			u.mode = ModeSlotAction
-			return u.view(), false, nil
+			a.mode = ModeSlotAction
+			return a.view(), false, nil
 		}
 		if in.Kind == InputConfirmYes {
-			u.activeSlot = u.selectedSlot
-			_ = u.svc.ClearSession(u.activeSlot)
-			u.selectedHasSave = false
-			u.mode = ModeEnterName
-			return u.view(), false, nil
+			a.activeSlot = a.selectedSlot
+			_ = a.storage.ClearSession(a.activeSlot)
+			a.selectedHasSave = false
+			a.mode = ModeEnterName
+			return a.view(), false, nil
 		}
-		return u.view(), false, nil
+		return a.view(), false, nil
 	case ModeConfirmDelete:
 		if in.Kind == InputQuit {
-			return u.view(), true, nil
+			return a.view(), true, nil
 		}
 		if in.Kind == InputConfirmNo {
-			u.mode = ModeSlotAction
-			return u.view(), false, nil
+			a.mode = ModeSlotAction
+			return a.view(), false, nil
 		}
 		if in.Kind == InputConfirmYes {
-			_ = u.svc.ClearSession(u.selectedSlot)
-			u.selectedHasSave = false
-			u.mode = ModeSelectSlot
-			return u.view(), false, nil
+			_ = a.storage.ClearSession(a.selectedSlot)
+			a.selectedHasSave = false
+			a.mode = ModeSelectSlot
+			return a.view(), false, nil
 		}
-		return u.view(), false, nil
+		return a.view(), false, nil
 	case ModeStats:
 		if in.Kind == InputQuit {
-			return u.view(), true, nil
+			return a.view(), true, nil
 		}
-		u.mode = ModePlay
-		return u.view(), false, nil
+		a.mode = ModePlay
+		return a.view(), false, nil
 	case ModeLeaderboard:
 		if in.Kind == InputQuit {
-			return u.view(), true, nil
+			return a.view(), true, nil
 		}
-		u.mode = ModePlay
-		return u.view(), false, nil
+		a.mode = ModePlay
+		return a.view(), false, nil
 	case ModeHelp:
 		if in.Kind == InputQuit {
-			return u.view(), true, nil
+			return a.view(), true, nil
 		}
-		u.mode = ModePlay
-		return u.view(), false, nil
+		a.mode = ModePlay
+		return a.view(), false, nil
 	case ModeEnterName:
 		switch in.Kind {
 		case InputQuit:
-			return u.view(), true, nil
+			return a.view(), true, nil
 		case InputConfirmYes:
-			u.name = normalizeName(u.name)
-			if u.name == "" {
-				u.name = "player"
+			a.name = normalizeName(a.name)
+			if a.name == "" {
+				a.name = "player"
 			}
-			if u.activeSlot == 0 {
-				u.activeSlot = 1
+			if a.activeSlot == 0 {
+				a.activeSlot = 1
 			}
 			seed := time.Now().UnixNano()
-			u.rng = rand.New(rand.NewSource(seed))
-			u.sess = game.NewSession(seed, u.cfg)
-			u.mode = ModePlay
-			return u.view(), false, nil
+			a.rng = rand.New(rand.NewSource(seed))
+			a.sess = game.NewSession(seed, a.cfg)
+			a.mode = ModePlay
+			return a.view(), false, nil
 		case InputBackspace:
-			u.name = backspace(u.name)
-			return u.view(), false, nil
+			a.name = backspace(a.name)
+			return a.view(), false, nil
 		case InputText:
-			if len([]rune(u.name)) < 16 && isNameRune(in.Rune) {
-				u.name += string(in.Rune)
+			if len([]rune(a.name)) < 16 && isNameRune(in.Rune) {
+				a.name += string(in.Rune)
 			}
-			return u.view(), false, nil
+			return a.view(), false, nil
 		default:
-			return u.view(), false, nil
+			return a.view(), false, nil
 		}
 	case ModeSelectWeapon, ModeSelectFood, ModeSelectElixir, ModeSelectScroll:
 		idx, ok := digitIndex(in)
 		if !ok {
 			if in.Kind == InputQuit || in.Kind == InputConfirmNo {
-				u.mode = ModePlay
+				a.mode = ModePlay
 			}
-			return u.view(), in.Kind == InputQuit, nil
+			return a.view(), in.Kind == InputQuit, nil
 		}
-		u.applySelection(idx)
-		u.mode = ModePlay
-		return u.view(), false, nil
+		a.applySelection(idx)
+		a.mode = ModePlay
+		return a.view(), false, nil
 	case ModeGameOver:
 		// Any key restarts.
-		u.startNewRun()
-		return u.view(), false, nil
+		a.startNewRun()
+		return a.view(), false, nil
 	case ModeWin:
 		// Any key exits.
-		return u.view(), true, nil
+		return a.view(), true, nil
 	}
 
 	// Play mode.
 	switch in.Kind {
 	case InputQuit:
-		u.saveNow(false)
-		return u.view(), true, nil
+		a.saveNow(false)
+		return a.view(), true, nil
 	case InputSave:
-		u.saveNow(true)
+		a.saveNow(true)
 	case InputHelp:
-		u.mode = ModeHelp
+		a.mode = ModeHelp
 	case InputUp:
-		u.step(game.Action{Kind: game.ActionMove, Dx: 0, Dy: -1})
+		a.step(game.Action{Kind: game.ActionMove, Dx: 0, Dy: -1})
 	case InputDown:
-		u.step(game.Action{Kind: game.ActionMove, Dx: 0, Dy: 1})
+		a.step(game.Action{Kind: game.ActionMove, Dx: 0, Dy: 1})
 	case InputLeft:
-		u.step(game.Action{Kind: game.ActionMove, Dx: -1, Dy: 0})
+		a.step(game.Action{Kind: game.ActionMove, Dx: -1, Dy: 0})
 	case InputRight:
-		u.step(game.Action{Kind: game.ActionMove, Dx: 1, Dy: 0})
+		a.step(game.Action{Kind: game.ActionMove, Dx: 1, Dy: 0})
 	case InputAttack:
-		u.step(game.Action{Kind: game.ActionAttack})
+		a.step(game.Action{Kind: game.ActionAttack})
 	case InputInvWeapon:
-		u.mode = ModeSelectWeapon
-		u.pending = game.ActionEquipWeapon
+		a.mode = ModeSelectWeapon
+		a.pending = game.ActionEquipWeapon
 	case InputInvFood:
-		u.mode = ModeSelectFood
-		u.pending = game.ActionUseFood
+		a.mode = ModeSelectFood
+		a.pending = game.ActionUseFood
 	case InputInvElixir:
-		u.mode = ModeSelectElixir
-		u.pending = game.ActionUseElixir
+		a.mode = ModeSelectElixir
+		a.pending = game.ActionUseElixir
 	case InputInvScroll:
-		u.mode = ModeSelectScroll
-		u.pending = game.ActionUseScroll
+		a.mode = ModeSelectScroll
+		a.pending = game.ActionUseScroll
 	case InputViewStats:
-		u.mode = ModeStats
+		a.mode = ModeStats
 	case InputViewLeaderboard:
-		u.mode = ModeLeaderboard
+		a.mode = ModeLeaderboard
 	}
 
-	return u.view(), false, nil
+	return a.view(), false, nil
 }
 
-func (u *Usecase) step(a game.Action) {
-	prevLevel := u.sess.LevelDepth
-	advanced, dead, won, _ := u.sess.Step(u.rng, a)
-	if advanced && u.sess.LevelDepth != prevLevel {
+func (a *App) step(action game.Action) {
+	prevLevel := a.sess.LevelDepth
+	advanced, dead, won, _ := a.sess.Step(a.rng, action)
+	if advanced && a.sess.LevelDepth != prevLevel {
 		// Autosave only on level transitions (reaching the exit).
-		u.saveNow(false)
+		a.saveNow(false)
 	}
 	if won {
-		u.finishRun(true)
-		u.mode = ModeWin
+		a.finishRun(true)
+		a.mode = ModeWin
 	}
 	if dead {
-		u.finishRun(false)
-		u.mode = ModeGameOver
+		a.finishRun(false)
+		a.mode = ModeGameOver
 	}
 }
 
-func (u *Usecase) saveNow(showMessage bool) {
-	if u.svc == nil || u.sess == nil {
+func (a *App) saveNow(showMessage bool) {
+	if a.storage == nil || a.sess == nil {
 		return
 	}
-	name := normalizeName(u.name)
+	name := normalizeName(a.name)
 	if name == "" {
 		// Don't create anonymous saves; name entry flow happens first anyway.
 		return
 	}
-	if u.activeSlot == 0 {
-		u.activeSlot = 1
+	if a.activeSlot == 0 {
+		a.activeSlot = 1
 	}
-	_ = u.svc.SaveSession(u.activeSlot, ports.SavedSession{Snapshot: u.sess.Snapshot(), Name: name})
+	_ = a.storage.SaveSession(a.activeSlot, SavedSession{Snapshot: a.sess.Snapshot(), Name: name})
 	if showMessage {
-		u.sess.Messages = append(u.sess.Messages, "Saved (slot "+itoa(u.activeSlot)+").")
+		a.sess.Messages = append(a.sess.Messages, "Saved (slot "+itoa(a.activeSlot)+").")
 	}
 }
 
-func (u *Usecase) finishRun(won bool) {
-	name := normalizeName(u.name)
+func (a *App) finishRun(won bool) {
+	name := normalizeName(a.name)
 	if name == "" {
 		name = "player"
 	}
-	_ = u.svc.RecordRun(ports.RunResult{
+	_ = a.storage.RecordRun(RunResult{
 		Name:         name,
-		DeepestLevel: u.sess.Stats.DeepestLevelReached,
-		Treasure:     u.sess.Stats.TotalTreasure,
-		Stats:        u.sess.Stats,
+		DeepestLevel: a.sess.Stats.DeepestLevelReached,
+		Treasure:     a.sess.Stats.TotalTreasure,
+		Stats:        a.sess.Stats,
 	})
 	if won {
-		u.sess.Messages = append(u.sess.Messages, "You won! Press any key to exit.")
+		a.sess.Messages = append(a.sess.Messages, "You won! Press any key to exit.")
 	} else {
-		u.sess.Messages = append(u.sess.Messages, "Game over. Press any key to restart.")
+		a.sess.Messages = append(a.sess.Messages, "Game over. Press any key to restart.")
 	}
 }
 
-func (u *Usecase) startNewRun() {
-	u.mode = ModeSelectSlot
-	u.activeSlot = 0
+func (a *App) startNewRun() {
+	a.mode = ModeSelectSlot
+	a.activeSlot = 0
 }
 
-func (u *Usecase) applySelection(idx int) {
-	switch u.pending {
+func (a *App) applySelection(idx int) {
+	switch a.pending {
 	case game.ActionEquipWeapon:
 		if idx == 0 {
-			u.step(game.Action{Kind: game.ActionUnequipWeapon})
+			a.step(game.Action{Kind: game.ActionUnequipWeapon})
 			return
 		}
-		u.step(game.Action{Kind: game.ActionEquipWeapon, Idx: idx - 1})
+		a.step(game.Action{Kind: game.ActionEquipWeapon, Idx: idx - 1})
 	case game.ActionUseFood:
-		u.step(game.Action{Kind: game.ActionUseFood, Idx: idx - 1})
+		a.step(game.Action{Kind: game.ActionUseFood, Idx: idx - 1})
 	case game.ActionUseElixir:
-		u.step(game.Action{Kind: game.ActionUseElixir, Idx: idx - 1})
+		a.step(game.Action{Kind: game.ActionUseElixir, Idx: idx - 1})
 	case game.ActionUseScroll:
-		u.step(game.Action{Kind: game.ActionUseScroll, Idx: idx - 1})
+		a.step(game.Action{Kind: game.ActionUseScroll, Idx: idx - 1})
 	}
 }
 
@@ -449,40 +449,40 @@ func digitIndex(in Input) (int, bool) {
 	}
 }
 
-func (u *Usecase) view() ViewModel {
-	vis := u.sess.ComputeVisible()
+func (a *App) view() ViewModel {
+	vis := a.sess.ComputeVisible()
 	var wp *game.Item
-	if wid := u.sess.Player.Equipment.Get(game.SlotWeapon); wid != 0 {
-		if it, ok := u.sess.Backpack.FindByID(wid); ok && it.Type == game.ItemWeapon {
+	if wid := a.sess.Player.Equipment.Get(game.SlotWeapon); wid != 0 {
+		if it, ok := a.sess.Backpack.FindByID(wid); ok && it.Type == game.ItemWeapon {
 			cp := it
 			wp = &cp
 		}
 	}
-	mw := len(u.sess.Level.Tiles[0])
-	mh := len(u.sess.Level.Tiles)
+	mw := len(a.sess.Level.Tiles[0])
+	mh := len(a.sess.Level.Tiles)
 	vm := ViewModel{
 		Title:     "Rogue",
 		Help:      "Move WASD  Attack Space  Inv h/j/k/e  Save Ctrl+S  (auto on exit+quit)  Stats t  Board l  Help ?  Quit q",
-		Mode:      u.mode,
-		Level:     u.sess.LevelDepth,
+		Mode:      a.mode,
+		Level:     a.sess.LevelDepth,
 		MapW:      mw,
 		MapH:      mh,
-		Tiles:     u.sess.Level.Tiles,
-		Explored:  u.sess.Explored,
+		Tiles:     a.sess.Level.Tiles,
+		Explored:  a.sess.Explored,
 		Visible:   vis,
-		PlayerPos: u.sess.PlayerPos,
-		Player:    u.sess.Player,
+		PlayerPos: a.sess.PlayerPos,
+		Player:    a.sess.Player,
 		Weapon:    wp,
-		Backpack:  u.sess.Backpack,
-		Enemies:   append([]game.Enemy(nil), u.sess.Enemies...),
-		Rooms:     u.sess.Level.Rooms,
-		Messages:  append([]string(nil), u.sess.Messages...),
+		Backpack:  a.sess.Backpack,
+		Enemies:   append([]game.Enemy(nil), a.sess.Enemies...),
+		Rooms:     a.sess.Level.Rooms,
+		Messages:  append([]string(nil), a.sess.Messages...),
 	}
 
-	switch u.mode {
+	switch a.mode {
 	case ModeSelectSlot:
 		vm.MenuTitle = "Select save slot (1-3). Empty slot starts a new game."
-		if slots, err := u.svc.ListSaveSlots(); err == nil {
+		if slots, err := a.storage.ListSaveSlots(); err == nil {
 			items := make([]string, 0, len(slots))
 			for _, sl := range slots {
 				if sl.Empty {
@@ -496,38 +496,38 @@ func (u *Usecase) view() ViewModel {
 			vm.MenuItems = []string{"Slot 1", "Slot 2", "Slot 3"}
 		}
 	case ModeSlotAction:
-		if u.selectedHasSave {
-			vm.MenuTitle = "Slot " + itoa(u.selectedSlot) + ": 1=Continue  2=New(overwrite)  3=Delete  0=Back"
+		if a.selectedHasSave {
+			vm.MenuTitle = "Slot " + itoa(a.selectedSlot) + ": 1=Continue  2=New(overwrite)  3=Delete  0=Back"
 		} else {
-			vm.MenuTitle = "Slot " + itoa(u.selectedSlot) + ": 1=New  0=Back"
+			vm.MenuTitle = "Slot " + itoa(a.selectedSlot) + ": 1=New  0=Back"
 		}
 	case ModeEnterName:
 		vm.MenuTitle = "Enter name (any printable), Enter=OK, Backspace=delete:"
-		vm.MenuItems = []string{u.name}
+		vm.MenuItems = []string{a.name}
 	case ModeConfirmOverwrite:
-		vm.MenuTitle = "Overwrite slot " + itoa(u.selectedSlot) + "? (y/n)"
+		vm.MenuTitle = "Overwrite slot " + itoa(a.selectedSlot) + "? (y/n)"
 	case ModeConfirmDelete:
-		vm.MenuTitle = "Delete save in slot " + itoa(u.selectedSlot) + "? (y/n)"
+		vm.MenuTitle = "Delete save in slot " + itoa(a.selectedSlot) + "? (y/n)"
 	case ModeSelectWeapon:
 		vm.MenuTitle = "Select weapon (0=unequip, 1-9):"
-		vm.MenuItems = weaponsMenu(u.sess.Backpack.List(game.ItemWeapon))
+		vm.MenuItems = weaponsMenu(a.sess.Backpack.List(game.ItemWeapon))
 	case ModeSelectFood:
 		vm.MenuTitle = "Select food (1-9):"
-		vm.MenuItems = itemsMenu(u.sess.Backpack.List(game.ItemFood))
+		vm.MenuItems = itemsMenu(a.sess.Backpack.List(game.ItemFood))
 	case ModeSelectElixir:
 		vm.MenuTitle = "Select elixir (1-9):"
-		vm.MenuItems = itemsMenu(u.sess.Backpack.List(game.ItemElixir))
+		vm.MenuItems = itemsMenu(a.sess.Backpack.List(game.ItemElixir))
 	case ModeSelectScroll:
 		vm.MenuTitle = "Select scroll (1-9):"
-		vm.MenuItems = itemsMenu(u.sess.Backpack.List(game.ItemScroll))
+		vm.MenuItems = itemsMenu(a.sess.Backpack.List(game.ItemScroll))
 	case ModeStats:
 		vm.MenuTitle = "Statistics (press any key to close)"
-		if rows, err := u.svc.AllRuns(); err == nil {
+		if rows, err := a.storage.AllRuns(); err == nil {
 			vm.StatsLines = statsBoardLines(rows)
 		}
 	case ModeLeaderboard:
 		vm.MenuTitle = "Leaderboard (press any key to close)"
-		if rows, err := u.svc.AllRuns(); err == nil {
+		if rows, err := a.storage.AllRuns(); err == nil {
 			vm.BoardLines = boardLines(rows)
 		}
 	case ModeHelp:
@@ -573,7 +573,7 @@ func statsLines(s game.Stats) []string {
 	}
 }
 
-func statsBoardLines(rows []ports.RunResult) []string {
+func statsBoardLines(rows []RunResult) []string {
 	out := make([]string, 0, len(rows))
 	for i := range rows {
 		name := rows[i].Name
@@ -596,7 +596,7 @@ func statsBoardLines(rows []ports.RunResult) []string {
 	return out
 }
 
-func boardLines(rows []ports.RunResult) []string {
+func boardLines(rows []RunResult) []string {
 	out := make([]string, 0, len(rows))
 	for i := range rows {
 		name := rows[i].Name

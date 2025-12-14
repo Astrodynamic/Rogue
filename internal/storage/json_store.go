@@ -7,7 +7,7 @@ import (
 	"sort"
 	"sync"
 
-	"rogue/internal/core/ports"
+	"rogue/internal/app"
 )
 
 type JSONStore struct {
@@ -17,11 +17,11 @@ type JSONStore struct {
 }
 
 type fileData struct {
-	Saves map[string]ports.SavedSession `json:"saves,omitempty"`
-	Runs  []ports.RunResult             `json:"runs,omitempty"`
+	Saves map[string]app.SavedSession `json:"saves,omitempty"`
+	Runs  []app.RunResult             `json:"runs,omitempty"`
 
 	// Backward compatibility: older versions stored a single session under "saved".
-	Saved *ports.SavedSession `json:"saved,omitempty"`
+	Saved *app.SavedSession `json:"saved,omitempty"`
 }
 
 func NewJSON(path string) *JSONStore {
@@ -47,7 +47,7 @@ func (s *JSONStore) loadLocked() error {
 	}
 	// Migrate legacy "saved" to slot 1.
 	if d.Saves == nil && d.Saved != nil {
-		d.Saves = map[string]ports.SavedSession{"1": *d.Saved}
+		d.Saves = map[string]app.SavedSession{"1": *d.Saved}
 		d.Saved = nil
 	}
 	s.data = d
@@ -66,7 +66,7 @@ func (s *JSONStore) saveLocked() error {
 	return os.Rename(tmp, s.path)
 }
 
-func (s *JSONStore) Record(r ports.RunResult) error {
+func (s *JSONStore) RecordRun(r app.RunResult) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if err := s.loadLocked(); err != nil {
@@ -79,7 +79,7 @@ func (s *JSONStore) Record(r ports.RunResult) error {
 	return s.saveLocked()
 }
 
-func (s *JSONStore) Top(n int) ([]ports.RunResult, error) {
+func (s *JSONStore) TopRuns(n int) ([]app.RunResult, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if err := s.loadLocked(); err != nil {
@@ -88,18 +88,18 @@ func (s *JSONStore) Top(n int) ([]ports.RunResult, error) {
 	if n <= 0 || n > len(s.data.Runs) {
 		n = len(s.data.Runs)
 	}
-	out := make([]ports.RunResult, n)
+	out := make([]app.RunResult, n)
 	copy(out, s.data.Runs[:n])
 	return out, nil
 }
 
-func (s *JSONStore) All() ([]ports.RunResult, error) { return s.Top(0) }
+func (s *JSONStore) AllRuns() ([]app.RunResult, error) { return s.TopRuns(0) }
 
-func (s *JSONStore) Save(sess ports.SavedSession) error {
-	return s.SaveSlot(1, sess)
+func (s *JSONStore) Save(sess app.SavedSession) error {
+	return s.SaveSession(1, sess)
 }
 
-func (s *JSONStore) SaveSlot(slot int, sess ports.SavedSession) error {
+func (s *JSONStore) SaveSession(slot int, sess app.SavedSession) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if slot < 1 || slot > 3 {
@@ -109,31 +109,31 @@ func (s *JSONStore) SaveSlot(slot int, sess ports.SavedSession) error {
 		return err
 	}
 	if s.data.Saves == nil {
-		s.data.Saves = map[string]ports.SavedSession{}
+		s.data.Saves = map[string]app.SavedSession{}
 	}
 	key := itoa(slot)
 	s.data.Saves[key] = sess
 	return s.saveLocked()
 }
 
-func (s *JSONStore) LoadSlot(slot int) (ports.SavedSession, bool, error) {
+func (s *JSONStore) LoadSession(slot int) (app.SavedSession, bool, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if slot < 1 || slot > 3 {
-		return ports.SavedSession{}, false, nil
+		return app.SavedSession{}, false, nil
 	}
 	if err := s.loadLocked(); err != nil {
-		return ports.SavedSession{}, false, err
+		return app.SavedSession{}, false, err
 	}
 	if s.data.Saves == nil {
-		return ports.SavedSession{}, false, nil
+		return app.SavedSession{}, false, nil
 	}
 	key := itoa(slot)
 	val, ok := s.data.Saves[key]
 	return val, ok, nil
 }
 
-func (s *JSONStore) ClearSlot(slot int) error {
+func (s *JSONStore) ClearSession(slot int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if slot < 1 || slot > 3 {
@@ -149,24 +149,24 @@ func (s *JSONStore) ClearSlot(slot int) error {
 	return s.saveLocked()
 }
 
-func (s *JSONStore) ListSlots() ([]ports.SaveSlot, error) {
+func (s *JSONStore) ListSaveSlots() ([]app.SaveSlot, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if err := s.loadLocked(); err != nil {
 		return nil, err
 	}
-	out := make([]ports.SaveSlot, 0, 3)
+	out := make([]app.SaveSlot, 0, 3)
 	for slot := 1; slot <= 3; slot++ {
 		if s.data.Saves == nil {
-			out = append(out, ports.SaveSlot{Slot: slot, Empty: true})
+			out = append(out, app.SaveSlot{Slot: slot, Empty: true})
 			continue
 		}
 		val, ok := s.data.Saves[itoa(slot)]
 		if !ok {
-			out = append(out, ports.SaveSlot{Slot: slot, Empty: true})
+			out = append(out, app.SaveSlot{Slot: slot, Empty: true})
 			continue
 		}
-		out = append(out, ports.SaveSlot{
+		out = append(out, app.SaveSlot{
 			Slot:     slot,
 			Name:     val.Name,
 			Level:    val.Snapshot.LevelDepth,

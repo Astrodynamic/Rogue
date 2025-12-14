@@ -14,5 +14,3 @@ func NewScreen() (tcell.Screen, error) {
 	s.Clear()
 	return s, nil
 }
-
-
