@@ -79,9 +79,8 @@ func (s *GameSession) ComputeVisible() [][]bool {
 	}
 
 	// If near a room entrance, reveal FOV into that room using ray casting + Bresenham.
-	dirs := [...]Point{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
-	for _, d := range dirs {
-		np := Point{X: p.X + d.X, Y: p.Y + d.Y}
+	for _, d := range Dirs4 {
+		np := p.Add(d)
 		rid, ok := s.roomAt(np)
 		if !ok {
 			continue

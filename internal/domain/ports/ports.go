@@ -1,6 +1,6 @@
 package ports
 
-import "github.com/Astrodynamic/Rogue/internal/domain/game"
+import "rogue/internal/domain/game"
 
 type RunResult struct {
 	Name         string

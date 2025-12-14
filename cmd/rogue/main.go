@@ -5,11 +5,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/Astrodynamic/Rogue/internal/adapters/storage"
-	"github.com/Astrodynamic/Rogue/internal/adapters/tui"
-	"github.com/Astrodynamic/Rogue/internal/app/service"
-	"github.com/Astrodynamic/Rogue/internal/app/usecase"
-	"github.com/Astrodynamic/Rogue/internal/domain/game"
+	"rogue/internal/adapters/storage"
+	"rogue/internal/adapters/tui"
+	"rogue/internal/app/service"
+	"rogue/internal/app/usecase"
+	"rogue/internal/domain/game"
 )
 
 func main() {

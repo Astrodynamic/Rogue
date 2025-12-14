@@ -19,11 +19,10 @@ func ShortestPathNext(tiles [][]Tile, occupied map[Point]bool, start, goal Point
 	q = append(q, start)
 	seen[start] = true
 
-	dirs := [...]Point{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
 	for qi := 0; qi < len(q); qi++ {
 		cur := q[qi]
-		for _, d := range dirs {
-			np := Point{X: cur.X + d.X, Y: cur.Y + d.Y}
+		for _, d := range Dirs4 {
+			np := cur.Add(d)
 			if !inBounds(np, w, h) || seen[np] {
 				continue
 			}

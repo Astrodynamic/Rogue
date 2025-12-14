@@ -92,12 +92,12 @@ func (s *GameSession) equipWeapon(rng *rand.Rand, idx int) {
 }
 
 func (s *GameSession) dropWeaponAdjacent(rng *rand.Rand, w Item) {
-	dirs := [...]Point{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
+	dirs := Dirs4
 	rng.Shuffle(len(dirs), func(i, j int) { dirs[i], dirs[j] = dirs[j], dirs[i] })
 	mw := len(s.Level.Tiles[0])
 	mh := len(s.Level.Tiles)
 	for _, d := range dirs {
-		p := Point{X: s.PlayerPos.X + d.X, Y: s.PlayerPos.Y + d.Y}
+		p := s.PlayerPos.Add(d)
 		if !inBounds(p, mw, mh) {
 			continue
 		}

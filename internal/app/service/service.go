@@ -1,6 +1,6 @@
 package service
 
-import "github.com/Astrodynamic/Rogue/internal/domain/ports"
+import "rogue/internal/domain/ports"
 
 type Service struct {
 	leaderboard ports.LeaderboardRepository

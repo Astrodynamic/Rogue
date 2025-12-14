@@ -106,10 +106,9 @@ func (s *GameSession) enemyWander(rng *rand.Rand, e *Enemy, occ map[Point]bool) 
 		return
 	case EnemyOgre:
 		// Move two tiles per turn within room when wandering.
-		dirs := [...]Point{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
 		for step := 0; step < 2; step++ {
-			d := dirs[rng.Intn(len(dirs))]
-			np := Point{X: e.Pos.X + d.X, Y: e.Pos.Y + d.Y}
+			d := Dirs4[rng.Intn(len(Dirs4))]
+			np := e.Pos.Add(d)
 			if !tryMove(np) {
 				return
 			}
@@ -118,10 +117,9 @@ func (s *GameSession) enemyWander(rng *rand.Rand, e *Enemy, occ map[Point]bool) 
 	}
 
 	// Default random 4-dir step.
-	dirs := [...]Point{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
 	for attempts := 0; attempts < 4; attempts++ {
-		d := dirs[rng.Intn(len(dirs))]
-		np := Point{X: e.Pos.X + d.X, Y: e.Pos.Y + d.Y}
+		d := Dirs4[rng.Intn(len(Dirs4))]
+		np := e.Pos.Add(d)
 		if tryMove(np) {
 			return
 		}

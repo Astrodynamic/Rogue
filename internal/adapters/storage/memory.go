@@ -4,7 +4,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/Astrodynamic/Rogue/internal/domain/ports"
+	"rogue/internal/domain/ports"
 )
 
 type InMemory struct {

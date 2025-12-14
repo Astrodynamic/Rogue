@@ -4,9 +4,10 @@ import (
 	"errors"
 	"log"
 
-	"github.com/Astrodynamic/Rogue/internal/app/usecase"
-	"github.com/Astrodynamic/Rogue/internal/domain/game"
-	"github.com/Astrodynamic/Rogue/internal/platform/tcellx"
+	"rogue/internal/app/usecase"
+	"rogue/internal/domain/game"
+	"rogue/internal/platform/tcellx"
+
 	"github.com/gdamore/tcell/v2"
 )
 
@@ -74,6 +75,8 @@ func mapKey(e *tcell.EventKey, mode usecase.Mode) usecase.Input {
 	switch e.Key() {
 	case tcell.KeyCtrlC, tcell.KeyEscape:
 		return usecase.Input{Kind: usecase.InputQuit}
+	case tcell.KeyCtrlS:
+		return usecase.Input{Kind: usecase.InputSave}
 	case tcell.KeyEnter:
 		return usecase.Input{Kind: usecase.InputConfirmYes}
 	case tcell.KeyBackspace, tcell.KeyBackspace2:

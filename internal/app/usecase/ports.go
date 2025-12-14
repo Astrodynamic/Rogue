@@ -1,6 +1,6 @@
 package usecase
 
-import "github.com/Astrodynamic/Rogue/internal/domain/ports"
+import "rogue/internal/domain/ports"
 
 // App is the usecase-facing contract (application boundary).
 // The usecase depends on this interface, not on concrete adapters, to keep clean architecture/DDD:

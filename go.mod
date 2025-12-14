@@ -1,4 +1,4 @@
-module github.com/Astrodynamic/Rogue
+module rogue
 
 go 1.24
 

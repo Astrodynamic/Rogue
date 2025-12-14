@@ -7,8 +7,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/Astrodynamic/Rogue/internal/domain/game"
-	"github.com/Astrodynamic/Rogue/internal/domain/ports"
+	"rogue/internal/domain/game"
+	"rogue/internal/domain/ports"
 )
 
 type InputKind uint8
@@ -20,6 +20,7 @@ const (
 	InputLeft
 	InputRight
 	InputQuit
+	InputSave
 	InputInvWeapon
 	InputInvFood
 	InputInvElixir
@@ -308,7 +309,10 @@ func (u *Usecase) Handle(in Input) (ViewModel, bool, error) {
 	// Play mode.
 	switch in.Kind {
 	case InputQuit:
+		u.saveNow(false)
 		return u.view(), true, nil
+	case InputSave:
+		u.saveNow(true)
 	case InputHelp:
 		u.mode = ModeHelp
 	case InputUp:
@@ -343,14 +347,9 @@ func (u *Usecase) Handle(in Input) (ViewModel, bool, error) {
 func (u *Usecase) step(a game.Action) {
 	prevLevel := u.sess.LevelDepth
 	advanced, dead, won, _ := u.sess.Step(u.rng, a)
-	if advanced {
-		// Per spec: save progress after each level is completed (i.e., when player reaches exit and auto-advances).
-		if u.sess.LevelDepth != prevLevel {
-			if u.activeSlot == 0 {
-				u.activeSlot = 1
-			}
-			_ = u.svc.SaveSession(u.activeSlot, ports.SavedSession{Snapshot: u.sess.Snapshot(), Name: normalizeName(u.name)})
-		}
+	if advanced && u.sess.LevelDepth != prevLevel {
+		// Autosave only on level transitions (reaching the exit).
+		u.saveNow(false)
 	}
 	if won {
 		u.finishRun(true)
@@ -359,6 +358,24 @@ func (u *Usecase) step(a game.Action) {
 	if dead {
 		u.finishRun(false)
 		u.mode = ModeGameOver
+	}
+}
+
+func (u *Usecase) saveNow(showMessage bool) {
+	if u.svc == nil || u.sess == nil {
+		return
+	}
+	name := normalizeName(u.name)
+	if name == "" {
+		// Don't create anonymous saves; name entry flow happens first anyway.
+		return
+	}
+	if u.activeSlot == 0 {
+		u.activeSlot = 1
+	}
+	_ = u.svc.SaveSession(u.activeSlot, ports.SavedSession{Snapshot: u.sess.Snapshot(), Name: name})
+	if showMessage {
+		u.sess.Messages = append(u.sess.Messages, "Saved (slot "+itoa(u.activeSlot)+").")
 	}
 }
 
@@ -442,7 +459,7 @@ func (u *Usecase) view() ViewModel {
 	mh := len(u.sess.Level.Tiles)
 	vm := ViewModel{
 		Title:     "Rogue",
-		Help:      "Move WASD  Inv h/j/k/e  Stats t  Board l  Help ?  Quit q",
+		Help:      "Move WASD  Inv h/j/k/e  Save Ctrl+S  (auto on exit+quit)  Stats t  Board l  Help ?  Quit q",
 		Mode:      u.mode,
 		Level:     u.sess.LevelDepth,
 		MapW:      mw,
@@ -605,10 +622,11 @@ func helpLines() []string {
 		"Inventory:",
 		"- Walk onto items to pick up (if backpack has space).",
 		"- h: weapon, j: food, k: elixir, e: scroll (pick 1-9).",
+		"- Ctrl+S: save now.",
 		"",
 		"Enemies:",
 		"- z Zombie: high HP.",
-		"- v Vampire: first hit always misses; drains max HP.",
+		"- v Vampire: first hit always misses; drains Max HP on hit.",
 		"- g Ghost: teleports in rooms; sometimes invisible.",
 		"- O Ogre: very strong; 2 tiles/turn in rooms; rests after attack then guaranteed hit.",
 		"- s Snake-Mage: diagonal movement; may put you to sleep for 1 turn.",

@@ -63,13 +63,16 @@ func (s *GameSession) enemyAttack(rng *rand.Rand, e *Enemy) {
 
 	switch e.Type {
 	case EnemyVampire:
-		// Reduce max health on successful attack.
+		// Spec: vampire reduces the player's maximum health on a successful attack.
+		// Clamp to at least 1 so the run remains playable.
 		if s.Player.MaxHealth > 1 {
-			s.Player.MaxHealth--
+			s.Player.MaxHealth -= 1
 			if s.Player.Health > s.Player.MaxHealth {
 				s.Player.Health = s.Player.MaxHealth
 			}
-			s.addMsg("Vampire drains your max HP!")
+			s.addMsg("Vampire drains your vitality! Max HP -1.")
+		} else {
+			s.addMsg("Vampire drains your vitality!")
 		}
 	case EnemySnakeMage:
 		// Chance to put player to sleep for one turn.
