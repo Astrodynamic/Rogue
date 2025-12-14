@@ -73,3 +73,15 @@ func (s *GameSession) doMove(rng *rand.Rand, dx, dy int) {
 		s.advanceLevel(rng)
 	}
 }
+
+func (s *GameSession) doAttack(rng *rand.Rand) {
+	// Attack enemy in adjacent cell (4 directions). If multiple, attack first found.
+	for _, d := range Dirs4 {
+		adj := s.PlayerPos.Add(d)
+		if ei, ok := s.enemyIndexAt(adj); ok {
+			s.playerAttack(rng, ei)
+			return
+		}
+	}
+	s.addMsg("No enemy nearby to attack.")
+}

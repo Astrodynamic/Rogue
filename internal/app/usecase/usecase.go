@@ -19,6 +19,7 @@ const (
 	InputDown
 	InputLeft
 	InputRight
+	InputAttack
 	InputQuit
 	InputSave
 	InputInvWeapon
@@ -323,6 +324,8 @@ func (u *Usecase) Handle(in Input) (ViewModel, bool, error) {
 		u.step(game.Action{Kind: game.ActionMove, Dx: -1, Dy: 0})
 	case InputRight:
 		u.step(game.Action{Kind: game.ActionMove, Dx: 1, Dy: 0})
+	case InputAttack:
+		u.step(game.Action{Kind: game.ActionAttack})
 	case InputInvWeapon:
 		u.mode = ModeSelectWeapon
 		u.pending = game.ActionEquipWeapon
@@ -459,7 +462,7 @@ func (u *Usecase) view() ViewModel {
 	mh := len(u.sess.Level.Tiles)
 	vm := ViewModel{
 		Title:     "Rogue",
-		Help:      "Move WASD  Inv h/j/k/e  Save Ctrl+S  (auto on exit+quit)  Stats t  Board l  Help ?  Quit q",
+		Help:      "Move WASD  Attack Space  Inv h/j/k/e  Save Ctrl+S  (auto on exit+quit)  Stats t  Board l  Help ?  Quit q",
 		Mode:      u.mode,
 		Level:     u.sess.LevelDepth,
 		MapW:      mw,
@@ -608,7 +611,7 @@ func boardLines(rows []ports.RunResult) []string {
 func helpLines() []string {
 	return []string{
 		"Combat:",
-		"- To deal damage: MOVE INTO an enemy tile (this starts an attack).",
+		"- To deal damage: MOVE INTO an enemy tile OR press SPACE to attack adjacent enemy.",
 		"- Each of your turns triggers enemy turns.",
 		"- Hit chance depends on Dexterity.",
 		"- Damage scales with Strength and weapon bonus (+Str).",

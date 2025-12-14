@@ -54,6 +54,9 @@ func (s *GameSession) Step(rng *rand.Rand, a Action) (advanced bool, gameOver bo
 	case ActionMove:
 		s.doMove(rng, a.Dx, a.Dy)
 		advanced = true
+	case ActionAttack:
+		s.doAttack(rng)
+		advanced = true
 	case ActionUseFood:
 		s.useFood(a.Idx)
 		advanced = true

@@ -91,6 +91,8 @@ func mapKey(e *tcell.EventKey, mode usecase.Mode) usecase.Input {
 			return usecase.Input{Kind: usecase.InputNone}
 		}
 		switch e.Rune() {
+		case ' ':
+			return usecase.Input{Kind: usecase.InputAttack}
 		case 'q', 'Q':
 			return usecase.Input{Kind: usecase.InputQuit}
 		case 'w', 'W':

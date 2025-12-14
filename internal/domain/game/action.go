@@ -5,6 +5,7 @@ type ActionKind uint8
 const (
 	ActionNone ActionKind = iota
 	ActionMove
+	ActionAttack
 	ActionUseFood
 	ActionUseElixir
 	ActionUseScroll
