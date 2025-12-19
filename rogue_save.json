@@ -8435,7 +8435,8 @@
           "Ogre defeated. Treasure +19, XP +15.",
           "You bump into a wall.",
           "You bump into a wall.",
-          "You bump into a wall."
+          "You bump into a wall.",
+          "Loaded slot 1."
         ]
       },
       "Name": "kirill_1"
@@ -16712,6 +16713,22 @@
         "HitsDealt": 58,
         "HitsReceived": 78,
         "TilesTraveled": 3096
+      }
+    },
+    {
+      "Name": "kirill_1",
+      "DeepestLevel": 9,
+      "Treasure": 474,
+      "Stats": {
+        "TotalTreasure": 474,
+        "DeepestLevelReached": 9,
+        "DefeatedEnemies": 14,
+        "FoodConsumed": 31,
+        "ElixirsDrunk": 2,
+        "ScrollsRead": 4,
+        "HitsDealt": 54,
+        "HitsReceived": 78,
+        "TilesTraveled": 3146
       }
     },
     {

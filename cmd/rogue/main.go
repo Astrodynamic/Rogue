@@ -5,10 +5,10 @@ import (
 	"log"
 	"os"
 
-	"rogue/internal/app"
-	"rogue/internal/game"
-	"rogue/internal/storage"
-	tui "rogue/internal/ui"
+	"rogue/internal/service"
+	"rogue/internal/domain"
+	"rogue/internal/adapters/storage"
+	ui "rogue/internal/adapters/ui"
 )
 
 func main() {
@@ -21,9 +21,9 @@ func main() {
 	flag.Parse()
 
 	st := storage.NewJSON(*storePath)
-	gameApp := app.New(st, *seed, game.Config{})
+	gameApp := service.New(st, *seed, domain.Config{})
 
-	if err := tui.Run(gameApp, tui.Options{Logger: logger}); err != nil {
+	if err := ui.Run(gameApp, ui.Options{Logger: logger}); err != nil {
 		logger.Printf("fatal: %v", err)
 		os.Exit(1)
 	}
