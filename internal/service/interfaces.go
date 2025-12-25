@@ -1,17 +1,22 @@
 package service
 
+import "rogue/internal/domain"
+
 type Command int
 
 const (
 	CmdNone Command = iota
 	CmdQuit
-	CmdMove
+	CmdMoveUp
+	CmdMoveDown
+	CmdMoveLeft
+	CmdMoveRight
 )
 
 type UI interface {
 	Init() error
 	Close()
 
-	Draw(text string)
-	PollInput() Command
+	Draw(world *domain.World)
+	Input() Command
 }

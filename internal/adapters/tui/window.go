@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"rogue/internal/domain"
 	"rogue/internal/service"
 
 	"github.com/gdamore/tcell/v2"
@@ -32,28 +33,63 @@ func (w *Window) Close() {
 	}
 }
 
-func (w *Window) Draw(text string) {
+func (w *Window) Draw(world *domain.World) {
 	w.screen.Clear()
 
-	// Простейший вывод текста для теста (в центре экрана)
-	// (В реальности тут будет цикл по тайлам)
-	for i, r := range text {
-		w.screen.SetContent(i+1, 1, r, nil, tcell.StyleDefault)
+	lvl := world.Level
+	for y := 0; y < lvl.Height; y++ {
+		for x := 0; x < lvl.Width; x++ {
+			tile := lvl.Tiles[y][x]
+			var char rune
+			var style tcell.Style
+			switch tile.Kind {
+			case domain.TileWall:
+				char = '#'
+				style = tcell.StyleDefault.Foreground(tcell.ColorGray)
+			case domain.TileFloor:
+				char = '.'
+				style = tcell.StyleDefault.Foreground(tcell.ColorDarkGray)
+			}
+			w.screen.SetContent(x, y, char, nil, style)
+		}
 	}
+
+	player := world.Player
+	w.screen.SetContent(player.Point.X, player.Point.Y, '@', nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
 
 	w.screen.Show()
 }
 
-func (w *Window) PollInput() service.Command {
+func (w *Window) Input() service.Command {
 	ev := w.screen.PollEvent()
 
 	switch ev := ev.(type) {
 	case *tcell.EventKey:
-		if ev.Key() == tcell.KeyEscape || ev.Rune() == 'q' {
+		switch ev.Key() {
+		case tcell.KeyEscape:
 			return service.CmdQuit
+		case tcell.KeyUp:
+			return service.CmdMoveUp
+		case tcell.KeyDown:
+			return service.CmdMoveDown
+		case tcell.KeyLeft:
+			return service.CmdMoveLeft
+		case tcell.KeyRight:
+			return service.CmdMoveRight
 		}
-		// Любая другая кнопка считаем за движение для теста
-		return service.CmdMove
+
+		switch ev.Rune() {
+		case 'q', 'Q':
+			return service.CmdQuit
+		case 'w', 'W':
+			return service.CmdMoveUp
+		case 's', 'S':
+			return service.CmdMoveDown
+		case 'a', 'A':
+			return service.CmdMoveLeft
+		case 'd', 'D':
+			return service.CmdMoveRight
+		}
 	}
 	return service.CmdNone
 }

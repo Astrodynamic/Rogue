@@ -608,34 +608,6 @@ func boardLines(rows []RunResult) []string {
 	return out
 }
 
-func helpLines() []string {
-	return []string{
-		"Combat:",
-		"- To deal damage: MOVE INTO an enemy tile OR press SPACE to attack adjacent enemy.",
-		"- Each of your turns triggers enemy turns.",
-		"- Hit chance depends on Dexterity.",
-		"- Damage scales with Strength and weapon bonus (+Str).",
-		"- XP is earned on kills and levels up your hero (more HP/Str/Dex).",
-		"",
-		"Weapons:",
-		"- Weapons have a +Str bonus shown like Sword (+2).",
-		"- Your weapon is an equipped slot referencing a backpack entry.",
-		"- When you equip a different weapon, the previously equipped one is DROPPED (removed from backpack).",
-		"",
-		"Inventory:",
-		"- Walk onto items to pick up (if backpack has space).",
-		"- h: weapon, j: food, k: elixir, e: scroll (pick 1-9).",
-		"- Ctrl+S: save now.",
-		"",
-		"Enemies:",
-		"- z Zombie: high HP.",
-		"- v Vampire: first hit always misses; drains Max HP on hit.",
-		"- g Ghost: teleports in rooms; sometimes invisible.",
-		"- O Ogre: very strong; 2 tiles/turn in rooms; rests after attack then guaranteed hit.",
-		"- s Snake-Mage: diagonal movement; may put you to sleep for 1 turn.",
-	}
-}
-
 func isNameRune(r rune) bool {
 	// Accept any printable rune, so users can type names freely (including symbols like !:?)).
 	// Reject controls and DEL.

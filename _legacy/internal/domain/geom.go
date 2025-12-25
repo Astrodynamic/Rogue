@@ -1,10 +1,5 @@
 package domain
 
-type Point struct {
-	X int
-	Y int
-}
-
 type Rect struct {
 	X int
 	Y int
