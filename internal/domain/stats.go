@@ -1,5 +1,7 @@
 package domain
 
 type Stats struct {
-	Health int
+	Health    int
+	Dexterity int
+	Strength  int
 }

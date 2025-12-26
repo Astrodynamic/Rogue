@@ -5,11 +5,11 @@ type Point struct {
 	Y int
 }
 
-func (p Point) Add(d Point) Point {
+func (p *Point) Add(d Point) Point {
 	return Point{X: p.X + d.X, Y: p.Y + d.Y}
 }
 
-func (p Point) Sub(d Point) Point {
+func (p *Point) Sub(d Point) Point {
 	return Point{X: p.X - d.X, Y: p.Y - d.Y}
 }
 

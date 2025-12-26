@@ -6,6 +6,7 @@ const (
 	TileNone TileKind = iota
 	TileWall
 	TileFloor
+	TileCorridor
 )
 
 type TileFlags uint8

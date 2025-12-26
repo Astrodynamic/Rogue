@@ -13,8 +13,12 @@ type Game struct {
 func NewGame(ui UI) *Game {
 	h, w := 25, 80
 
+	world := domain.NewWorld(w, h)
+
+	NewGenerator().Generate(world)
+
 	return &Game{
-		World:     domain.NewWorld(h, w),
+		World:     world,
 		isRunning: true,
 		ui:        ui,
 	}
@@ -32,12 +36,12 @@ func (g *Game) handle(cmd Command) {
 	case CmdQuit:
 		g.isRunning = false
 	case CmdMoveUp:
-		g.onPlayerMove(domain.DirUp)
+		g.onMove(&g.World.Player.Actor, domain.DirUp)
 	case CmdMoveDown:
-		g.onPlayerMove(domain.DirDown)
+		g.onMove(&g.World.Player.Actor, domain.DirDown)
 	case CmdMoveLeft:
-		g.onPlayerMove(domain.DirLeft)
+		g.onMove(&g.World.Player.Actor, domain.DirLeft)
 	case CmdMoveRight:
-		g.onPlayerMove(domain.DirRight)
+		g.onMove(&g.World.Player.Actor, domain.DirRight)
 	}
 }
