@@ -36,12 +36,12 @@ func (g *Game) handle(cmd Command) {
 	case CmdQuit:
 		g.isRunning = false
 	case CmdMoveUp:
-		g.onMove(&g.World.Player.Actor, domain.DirUp)
+		g.onMove(&g.World.Player.Actor, domain.DirSU)
 	case CmdMoveDown:
-		g.onMove(&g.World.Player.Actor, domain.DirDown)
+		g.onMove(&g.World.Player.Actor, domain.DirSD)
 	case CmdMoveLeft:
-		g.onMove(&g.World.Player.Actor, domain.DirLeft)
+		g.onMove(&g.World.Player.Actor, domain.DirLS)
 	case CmdMoveRight:
-		g.onMove(&g.World.Player.Actor, domain.DirRight)
+		g.onMove(&g.World.Player.Actor, domain.DirRS)
 	}
 }

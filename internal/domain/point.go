@@ -14,12 +14,12 @@ func (p *Point) Sub(d Point) Point {
 }
 
 var (
-	DirUp        = Point{+0, -1}
-	DirUpLeft    = Point{-1, -1}
-	DirUpRight   = Point{+1, -1}
-	DirDown      = Point{+0, +1}
-	DirDownLeft  = Point{-1, +1}
-	DirDownRight = Point{+1, +1}
-	DirLeft      = Point{-1, +0}
-	DirRight     = Point{+1, +0}
+	DirSU = Point{+0, -1}
+	DirUL = Point{-1, -1}
+	DirUR = Point{+1, -1}
+	DirSD = Point{+0, +1}
+	DirDL = Point{-1, +1}
+	DirDR = Point{+1, +1}
+	DirLS = Point{-1, +0}
+	DirRS = Point{+1, +0}
 )

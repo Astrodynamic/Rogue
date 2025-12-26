@@ -99,18 +99,38 @@ func (g *Generator) neighbors(index int) []int {
 func (g *Generator) GenerateCorridor(level *domain.Level, a, b int) {
 	corridor := domain.NewCorridor()
 
-	aPoint := level.Rooms[a].Center()
-	bPoint := level.Rooms[b].Center()
-	mPoint := level.Rooms[a].Center()
+	aRoom := level.Rooms[a]
+	bRoom := level.Rooms[b]
+
+	aPoint := aRoom.Center()
+	bPoint := bRoom.Center()
+	mPoint := aRoom.Center()
 
 	if g.rng.IntN(2) == 0 {
-		mPoint.Y = bPoint.Y
-	} else {
 		mPoint.X = bPoint.X
+	} else {
+		mPoint.Y = bPoint.Y
 	}
 
 	g.GenerateLine(&corridor, aPoint, mPoint)
 	g.GenerateLine(&corridor, mPoint, bPoint)
+
+	l, r := 0, len(corridor.Points)-1
+	for l < r {
+		if !aRoom.Contains(corridor.Points[l+1]) {
+			break
+		}
+		l++
+	}
+
+	for l < r {
+		if !bRoom.Contains(corridor.Points[r-1]) {
+			break
+		}
+		r--
+	}
+
+	corridor.Points = corridor.Points[l : r+1]
 
 	level.AddCorridor(corridor)
 }
