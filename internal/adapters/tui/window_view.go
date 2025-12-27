@@ -21,7 +21,7 @@ func (w *Window) DrawLevel(level *domain.Level) {
 			case domain.TileWall:
 				char, style = w.runeWall(level.Tiles, x, y)
 			case domain.TileFloor:
-				char = '.'
+				char = '·'
 				style = tcell.StyleDefault.Foreground(tcell.ColorDarkGray)
 			case domain.TileCorridor:
 				char = '∙'
@@ -29,6 +29,9 @@ func (w *Window) DrawLevel(level *domain.Level) {
 			case domain.TileExit:
 				char = '>'
 				style = tcell.StyleDefault.Foreground(tcell.ColorYellow)
+			default:
+				char = ' '
+				style = tcell.StyleDefault
 			}
 			w.screen.SetContent(x, y, char, nil, style)
 		}

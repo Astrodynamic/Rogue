@@ -9,14 +9,13 @@ func (g *Game) onMove(actor *domain.Actor, dir domain.Point) {
 		return
 	}
 
-	if g.World.Level.Tiles[next.Y][next.X].Kind == domain.TileWall {
+	switch g.World.Level.Tiles[next.Y][next.X].Kind {
+	case domain.TileWall:
 		return
-	}
-
-	if g.World.Level.Tiles[next.Y][next.X].Kind == domain.TileExit {
+	case domain.TileExit:
 		NewGenerator().Generate(g.World)
 		return
+	default:
+		actor.Move(dir)
 	}
-
-	actor.Move(dir)
 }

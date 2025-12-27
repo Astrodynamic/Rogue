@@ -11,9 +11,7 @@ type Game struct {
 }
 
 func NewGame(ui UI) *Game {
-	h, w := 25, 80
-
-	world := domain.NewWorld(w, h)
+	world := domain.NewWorld(domain.Width, domain.Height)
 
 	NewGenerator().Generate(world)
 
