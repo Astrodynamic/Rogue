@@ -21,6 +21,7 @@ func NewGenerator() *Generator {
 func (g *Generator) Generate(world *domain.World) {
 	g.GenerateLevel(world.Level)
 	g.GenerateStartPosition(world)
+	world.Depth++
 }
 
 func (g *Generator) GenerateStartPosition(world *domain.World) {

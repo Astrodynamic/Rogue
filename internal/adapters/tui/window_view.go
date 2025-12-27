@@ -12,8 +12,8 @@ func (w *Window) DrawWorld(world *domain.World) {
 }
 
 func (w *Window) DrawLevel(level *domain.Level) {
-	for y := 0; y < level.Height; y++ {
-		for x := 0; x < level.Width; x++ {
+	for y := level.Y; y < level.Y+level.H; y++ {
+		for x := level.X; x < level.X+level.W; x++ {
 			tile := level.Tiles[y][x]
 			var char rune
 			var style tcell.Style

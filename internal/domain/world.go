@@ -10,6 +10,6 @@ func NewWorld(width, height int) *World {
 	return &World{
 		Level:  NewLevel(width, height),
 		Player: NewPlayer(),
-		Depth:  1,
+		Depth:  0,
 	}
 }

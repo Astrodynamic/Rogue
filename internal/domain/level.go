@@ -1,8 +1,7 @@
 package domain
 
 type Level struct {
-	Width     int
-	Height    int
+	Rect
 	Tiles     [][]Tile
 	Rooms     []Room
 	Corridors []Corridor
@@ -16,10 +15,23 @@ func NewLevel(width, height int) *Level {
 	}
 
 	return &Level{
-		Width: width, Height: height, Tiles: tiles,
+		Rect:      NewRect(0, 0, width, height),
+		Tiles:     tiles,
 		Rooms:     make([]Room, 0),
 		Corridors: make([]Corridor, 0),
 		Exits:     make([]Point, 0),
+	}
+}
+
+func (l *Level) Clear() {
+	l.ClearTiles()
+}
+
+func (l *Level) ClearTiles() {
+	for y := l.Y; y < l.Y+l.H; y++ {
+		for x := l.X; x < l.X+l.W; x++ {
+			l.Tiles[y][x].Clear()
+		}
 	}
 }
 
@@ -57,7 +69,7 @@ func (l *Level) FillCorridor(corridor Corridor) {
 					continue
 				}
 
-				if point.Y+y < 0 || point.Y+y >= l.Height || point.X+x < 0 || point.X+x >= l.Width {
+				if point.Y+y < 0 || point.Y+y >= l.H || point.X+x < 0 || point.X+x >= l.W {
 					continue
 				}
 

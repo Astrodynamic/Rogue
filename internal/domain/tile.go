@@ -20,3 +20,8 @@ type Tile struct {
 	Kind  TileKind
 	Flags TileFlags
 }
+
+func (t *Tile) Clear() {
+	t.Kind = TileNone
+	t.Flags = 0
+}

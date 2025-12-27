@@ -5,6 +5,7 @@ import (
 )
 
 func (g *Generator) GenerateLevel(level *domain.Level) {
+	level.Clear()
 	g.GenerateRooms(level)
 	g.GenerateCorridors(level)
 	g.GenerateExit(level)
@@ -13,8 +14,8 @@ func (g *Generator) GenerateLevel(level *domain.Level) {
 func (g *Generator) GenerateRooms(level *domain.Level) {
 	level.Rooms = level.Rooms[:0]
 
-	secW := level.Width / 3
-	secH := level.Height / 3
+	secW := level.W / 3
+	secH := level.H / 3
 
 	for sy := 0; sy < 3; sy++ {
 		for sx := 0; sx < 3; sx++ {
