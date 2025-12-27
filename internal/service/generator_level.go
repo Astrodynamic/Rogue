@@ -120,14 +120,14 @@ func (g *Generator) GenerateCorridor(level *domain.Level, a, b int) {
 
 	l, r := 0, len(corridor.Points)-1
 	for l < r {
-		if !aRoom.Contains(corridor.Points[l+1]) {
+		if !aRoom.Contains(corridor.Points[l]) {
 			break
 		}
 		l++
 	}
 
 	for l < r {
-		if !bRoom.Contains(corridor.Points[r-1]) {
+		if !bRoom.Contains(corridor.Points[r]) {
 			break
 		}
 		r--
