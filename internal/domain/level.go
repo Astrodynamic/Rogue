@@ -6,6 +6,7 @@ type Level struct {
 	Tiles     [][]Tile
 	Rooms     []Room
 	Corridors []Corridor
+	Exits     []Point
 }
 
 func NewLevel(width, height int) *Level {
@@ -18,6 +19,7 @@ func NewLevel(width, height int) *Level {
 		Width: width, Height: height, Tiles: tiles,
 		Rooms:     make([]Room, 0),
 		Corridors: make([]Corridor, 0),
+		Exits:     make([]Point, 0),
 	}
 }
 
@@ -66,4 +68,13 @@ func (l *Level) FillCorridor(corridor Corridor) {
 			}
 		}
 	}
+}
+
+func (l *Level) AddExit(exit Point) {
+	l.Exits = append(l.Exits, exit)
+	l.FillExit(exit)
+}
+
+func (l *Level) FillExit(exit Point) {
+	l.Tiles[exit.Y][exit.X] = Tile{Kind: TileExit}
 }

@@ -7,6 +7,7 @@ const (
 	TileWall
 	TileFloor
 	TileCorridor
+	TileExit
 )
 
 type TileFlags uint8

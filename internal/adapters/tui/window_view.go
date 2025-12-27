@@ -26,6 +26,9 @@ func (w *Window) DrawLevel(level *domain.Level) {
 			case domain.TileCorridor:
 				char = '∙'
 				style = tcell.StyleDefault.Foreground(tcell.ColorDarkGray)
+			case domain.TileExit:
+				char = '>'
+				style = tcell.StyleDefault.Foreground(tcell.ColorYellow)
 			}
 			w.screen.SetContent(x, y, char, nil, style)
 		}

@@ -1,10 +1,13 @@
 package service
 
-import "rogue/internal/domain"
+import (
+	"rogue/internal/domain"
+)
 
 func (g *Generator) GenerateLevel(level *domain.Level) {
 	g.GenerateRooms(level)
 	g.GenerateCorridors(level)
+	g.GenerateExit(level)
 }
 
 func (g *Generator) GenerateRooms(level *domain.Level) {
@@ -162,4 +165,13 @@ func (g *Generator) GenerateLine(corridor *domain.Corridor, a, b domain.Point) {
 		}
 	}
 	corridor.AddPoint(b)
+}
+
+func (g *Generator) GenerateExit(level *domain.Level) {
+	room := level.Rooms[g.rng.IntN(len(level.Rooms))]
+	exit := domain.Point{
+		X: g.rng.IntN(room.W-2) + room.X + 1,
+		Y: g.rng.IntN(room.H-2) + room.Y + 1,
+	}
+	level.AddExit(exit)
 }
