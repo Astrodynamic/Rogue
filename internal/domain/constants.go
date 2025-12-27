@@ -1,3 +1,5 @@
 package domain
 
-const ()
+const (
+	Depth = 10
+)

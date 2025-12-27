@@ -20,4 +20,10 @@ func NewGenerator() *Generator {
 
 func (g *Generator) Generate(world *domain.World) {
 	g.GenerateLevel(world.Level)
+	g.GenerateStartPosition(world)
+}
+
+func (g *Generator) GenerateStartPosition(world *domain.World) {
+	room := world.Level.Rooms[g.rng.IntN(len(world.Level.Rooms))]
+	world.Player.Point = room.Center()
 }
