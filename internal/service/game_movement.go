@@ -14,8 +14,9 @@ func (g *Game) onMove(actor *domain.Actor, dir domain.Point) {
 		return
 	case domain.TileExit:
 		NewGenerator().Generate(g.World)
-		return
 	default:
 		actor.Move(dir)
 	}
+
+	g.UpdateVisibility()
 }

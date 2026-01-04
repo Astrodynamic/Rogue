@@ -44,9 +44,9 @@ func (l *Level) FillRoom(room Room) {
 	for y := room.Y; y < room.Y+room.H; y++ {
 		for x := room.X; x < room.X+room.W; x++ {
 			if x == room.X || y == room.Y || x == room.X+room.W-1 || y == room.Y+room.H-1 {
-				l.Tiles[y][x] = Tile{Kind: TileWall}
+				l.Tiles[y][x].SetKind(TileWall)
 			} else {
-				l.Tiles[y][x] = Tile{Kind: TileFloor}
+				l.Tiles[y][x].SetKind(TileFloor)
 			}
 		}
 	}
@@ -59,7 +59,7 @@ func (l *Level) AddCorridor(corridor Corridor) {
 
 func (l *Level) FillCorridor(corridor Corridor) {
 	for _, point := range corridor.Points {
-		l.Tiles[point.Y][point.X] = Tile{Kind: TileCorridor}
+		l.Tiles[point.Y][point.X].SetKind(TileCorridor)
 	}
 
 	for _, point := range corridor.Points {
@@ -75,7 +75,7 @@ func (l *Level) FillCorridor(corridor Corridor) {
 
 				tile := &l.Tiles[point.Y+y][point.X+x]
 				if tile.Kind == TileNone {
-					*tile = Tile{Kind: TileWall}
+					(*tile).SetKind(TileWall)
 				}
 			}
 		}
@@ -88,5 +88,42 @@ func (l *Level) AddExit(exit Point) {
 }
 
 func (l *Level) FillExit(exit Point) {
-	l.Tiles[exit.Y][exit.X] = Tile{Kind: TileExit}
+	l.Tiles[exit.Y][exit.X].SetKind(TileExit)
+}
+
+func (l *Level) BlocksSight(p Point) bool {
+	if !l.Contains(p) {
+		return true
+	}
+	return l.Tiles[p.Y][p.X].TestFlags(TileOpaque)
+}
+
+func (l *Level) SetVisible(p Point, visible bool) {
+	if !l.Contains(p) {
+		return
+	}
+
+	if visible {
+		l.Tiles[p.Y][p.X].SetFlags(TileVisible, true)
+	} else {
+		l.Tiles[p.Y][p.X].SetFlags(TileVisible, false)
+	}
+}
+
+func (l *Level) ClearVisible() {
+	for y := l.Y; y < l.Y+l.H; y++ {
+		for x := l.X; x < l.X+l.W; x++ {
+			l.Tiles[y][x].SetFlags(TileVisible, false)
+		}
+	}
+}
+
+func (l *Level) UpdateExplored() {
+	for y := l.Y; y < l.Y+l.H; y++ {
+		for x := l.X; x < l.X+l.W; x++ {
+			if l.Tiles[y][x].TestFlags(TileVisible) {
+				l.Tiles[y][x].SetFlags(TileExplored, true)
+			}
+		}
+	}
 }

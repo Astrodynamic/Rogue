@@ -6,6 +6,7 @@ import (
 
 type Game struct {
 	World     *domain.World
+	FOV       *FOV
 	isRunning bool
 	ui        UI
 }
@@ -15,11 +16,20 @@ func NewGame(ui UI) *Game {
 
 	NewGenerator().Generate(world)
 
-	return &Game{
+	game := &Game{
 		World:     world,
+		FOV:       NewFOV(),
 		isRunning: true,
 		ui:        ui,
 	}
+
+	game.UpdateVisibility()
+
+	return game
+}
+
+func (g *Game) UpdateVisibility() {
+	g.FOV.Update(g.World.Level, g.World.Player.Point)
 }
 
 func (g *Game) Run() {
