@@ -1,7 +1,27 @@
 package domain
 
-type IItem interface {
+type ItemKind int
+
+const (
+	ItemFood ItemKind = iota
+	ItemElixir
+	ItemScroll
+	ItemWeapon
+	ItemTreasure
+)
+
+type Item interface {
+	Type() ItemKind
+	Stackable() bool
+	MaxStack() int
+	Equals(other Item) bool
+	Use() ItemUseResult
 }
 
-type Item struct {
+type ItemUseResult struct {
+	Success  bool
+	Consumed bool
+	Message  string
+	Error    error
+	Effects  []Effect
 }
