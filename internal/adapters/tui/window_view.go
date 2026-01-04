@@ -8,6 +8,7 @@ import (
 
 func (w *Window) DrawWorld(world *domain.World) {
 	w.DrawLevel(world)
+	w.DrawItems(world)
 	w.DrawPlayer(world.Player)
 }
 
@@ -110,6 +111,44 @@ func (w *Window) runeExit() (rune, tcell.Style) {
 
 func (w *Window) runeNone() (rune, tcell.Style) {
 	return ' ', tcell.StyleDefault
+}
+
+func (w *Window) DrawItems(world *domain.World) {
+	level := world.Level
+	for pos, item := range level.Items {
+		if !level.Contains(pos) {
+			continue
+		}
+
+		tile := level.Tiles[pos.Y][pos.X]
+		if !tile.TestFlags(domain.TileExplored) {
+			continue
+		}
+
+		if !tile.TestFlags(domain.TileVisible) {
+			continue
+		}
+
+		char, style := w.runeItem(item)
+		w.screen.SetContent(pos.X, pos.Y, char, nil, style)
+	}
+}
+
+func (w *Window) runeItem(item domain.Item) (rune, tcell.Style) {
+	switch item.Type() {
+	case domain.ItemFood:
+		return 'f', tcell.StyleDefault.Foreground(tcell.ColorGreen)
+	case domain.ItemElixir:
+		return 'e', tcell.StyleDefault.Foreground(tcell.ColorBlue)
+	case domain.ItemScroll:
+		return 's', tcell.StyleDefault.Foreground(tcell.ColorPurple)
+	case domain.ItemWeapon:
+		return 'w', tcell.StyleDefault.Foreground(tcell.ColorRed)
+	case domain.ItemTreasure:
+		return '$', tcell.StyleDefault.Foreground(tcell.ColorYellow)
+	default:
+		return '?', tcell.StyleDefault.Foreground(tcell.ColorWhite)
+	}
 }
 
 func (w *Window) DrawPlayer(player *domain.Player) {

@@ -6,6 +6,7 @@ type Level struct {
 	Rooms     []Room
 	Corridors []Corridor
 	Exits     []Point
+	Items     map[Point]Item
 }
 
 func NewLevel(width, height int) *Level {
@@ -20,6 +21,7 @@ func NewLevel(width, height int) *Level {
 		Rooms:     make([]Room, 0),
 		Corridors: make([]Corridor, 0),
 		Exits:     make([]Point, 0),
+		Items:     make(map[Point]Item),
 	}
 }
 
@@ -126,4 +128,22 @@ func (l *Level) UpdateExplored() {
 			}
 		}
 	}
+}
+
+func (l *Level) AddItem(p Point, item Item) {
+	if l.Contains(p) && (l.Tiles[p.Y][p.X].Kind == TileFloor || l.Tiles[p.Y][p.X].Kind == TileCorridor) {
+		l.Items[p] = item
+	}
+}
+
+func (l *Level) RemoveItem(p Point) Item {
+	item, exists := l.Items[p]
+	if exists {
+		delete(l.Items, p)
+	}
+	return item
+}
+
+func (l *Level) GetItem(p Point) Item {
+	return l.Items[p]
 }

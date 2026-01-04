@@ -16,7 +16,23 @@ func (g *Game) onMove(actor *domain.Actor, dir domain.Point) {
 		NewGenerator().Generate(g.World)
 	default:
 		actor.Move(dir)
+		g.pickupItem(actor, next)
 	}
 
 	g.UpdateVisibility()
+}
+
+func (g *Game) pickupItem(actor *domain.Actor, pos domain.Point) {
+	item := g.World.Level.GetItem(pos)
+	if item == nil {
+		return
+	}
+
+	if !actor.Backpack.HasSpace(item) {
+		return
+	}
+
+	if actor.Backpack.Add(item) {
+		g.World.Level.RemoveItem(pos)
+	}
 }

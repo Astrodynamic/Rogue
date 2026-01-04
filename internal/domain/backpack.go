@@ -38,12 +38,8 @@ func (b *Backpack) Add(item Item) bool {
 		return false
 	}
 
-	if stacks, exists := b.stacks[itemType]; exists {
-		if len(stacks) >= 9 {
-			return false
-		}
-	} else {
-		b.stacks[itemType] = make([]*ItemStack, 0, 9)
+	if _, exists := b.stacks[itemType]; !exists {
+		b.stacks[itemType] = make([]*ItemStack, 0)
 	}
 
 	newStack := NewItemStack(item)
@@ -98,11 +94,12 @@ func (b *Backpack) Count(itemKind ItemKind) int {
 	return total
 }
 
-func (b *Backpack) HasSpace(itemKind ItemKind) bool {
+func (b *Backpack) HasSpace(item Item) bool {
+	itemKind := item.Type()
 
 	if stacks, exists := b.stacks[itemKind]; exists {
 		for _, stack := range stacks {
-			if stack.CanAdd(stack.Item) {
+			if stack.CanAdd(item) {
 				return true
 			}
 		}
@@ -110,7 +107,7 @@ func (b *Backpack) HasSpace(itemKind ItemKind) bool {
 		if b.CountUniqueItems() >= MaxUniqueItems {
 			return false
 		}
-		return len(stacks) < 9
+		return true
 	}
 
 	if b.CountUniqueItems() >= MaxUniqueItems {
