@@ -12,6 +12,7 @@ const (
 
 type Item interface {
 	Type() ItemKind
+	Name() string
 	Stackable() bool
 	MaxStack() int
 	Equals(other Item) bool

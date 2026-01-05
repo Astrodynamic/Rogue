@@ -6,17 +6,51 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-func (w *Window) DrawWorld(world *domain.World) {
-	w.DrawLevel(world)
-	w.DrawItems(world)
-	w.DrawPlayer(world.Player)
+func (w *Window) DrawMap(world *domain.World, rect domain.Rect) {
+	level := world.Level
+	player := world.Player
+
+	offsetX := player.Point.X - rect.W/2
+	offsetY := player.Point.Y - rect.H/2
+
+	if offsetX < 0 {
+		offsetX = 0
+	}
+	if offsetY < 0 {
+		offsetY = 0
+	}
+	if offsetX+rect.W > level.W {
+		offsetX = level.W - rect.W
+	}
+	if offsetY+rect.H > level.H {
+		offsetY = level.H - rect.H
+	}
+
+	w.DrawWorld(world, rect, offsetX, offsetY)
 }
 
-func (w *Window) DrawLevel(world *domain.World) {
+func (w *Window) DrawWorld(world *domain.World, rect domain.Rect, offsetX, offsetY int) {
+	w.DrawLevel(world, rect, offsetX, offsetY)
+	w.DrawItems(world, rect, offsetX, offsetY)
+	w.DrawPlayer(world.Player, rect, offsetX, offsetY)
+}
+
+func (w *Window) DrawLevel(world *domain.World, rect domain.Rect, offsetX, offsetY int) {
 	level := world.Level
-	for y := level.Y; y < level.Y+level.H; y++ {
-		for x := level.X; x < level.X+level.W; x++ {
-			tile := level.Tiles[y][x]
+
+	for y := 0; y < rect.H && y+rect.Y < w.layout.Screen.H; y++ {
+		levelY := offsetY + y
+		if levelY < 0 || levelY >= level.H {
+			continue
+		}
+
+		for x := 0; x < rect.W && x+rect.X < w.layout.Screen.W; x++ {
+			levelX := offsetX + x
+			if levelX < 0 || levelX >= level.W {
+				continue
+			}
+
+			tile := level.Tiles[levelY][levelX]
 
 			if !tile.TestFlags(domain.TileExplored) {
 				continue
@@ -26,12 +60,12 @@ func (w *Window) DrawLevel(world *domain.World) {
 			var style tcell.Style
 
 			if !tile.TestFlags(domain.TileVisible) {
-				char, style = w.runeWall(level.Tiles, x, y)
+				char, style = w.runeWall(level.Tiles, levelX, levelY)
 				style = style.Foreground(tcell.ColorDarkSlateGray)
 			} else {
 				switch tile.Kind {
 				case domain.TileWall:
-					char, style = w.runeWall(level.Tiles, x, y)
+					char, style = w.runeWall(level.Tiles, levelX, levelY)
 				case domain.TileFloor:
 					char, style = w.runeFloor()
 				case domain.TileCorridor:
@@ -43,9 +77,53 @@ func (w *Window) DrawLevel(world *domain.World) {
 				}
 			}
 
-			w.screen.SetContent(x, y, char, nil, style)
+			w.screen.SetContent(rect.X+x, rect.Y+y, char, nil, style)
 		}
 	}
+}
+
+func (w *Window) DrawItems(world *domain.World, rect domain.Rect, offsetX, offsetY int) {
+	level := world.Level
+
+	for pos, item := range level.Items {
+		if !level.Contains(pos) {
+			continue
+		}
+
+		tile := level.Tiles[pos.Y][pos.X]
+		if !tile.TestFlags(domain.TileExplored) {
+			continue
+		}
+
+		if !tile.TestFlags(domain.TileVisible) {
+			continue
+		}
+
+		screenItemX := pos.X - offsetX + rect.X
+		screenItemY := pos.Y - offsetY + rect.Y
+
+		screenPos := domain.Point{X: screenItemX, Y: screenItemY}
+		if !rect.Contains(screenPos) {
+			continue
+		}
+
+		char, style := w.runeItem(item)
+		w.screen.SetContent(screenItemX, screenItemY, char, nil, style)
+	}
+}
+
+func (w *Window) DrawPlayer(player *domain.Player, rect domain.Rect, offsetX, offsetY int) {
+	screenPlayerX := player.Point.X - offsetX + rect.X
+	screenPlayerY := player.Point.Y - offsetY + rect.Y
+
+	screenPos := domain.Point{X: screenPlayerX, Y: screenPlayerY}
+	if !rect.Contains(screenPos) {
+		return
+	}
+
+	char := '@'
+	style := tcell.StyleDefault.Foreground(tcell.ColorWhite).Bold(true)
+	w.screen.SetContent(screenPlayerX, screenPlayerY, char, nil, style)
 }
 
 func (w *Window) runeWall(tiles [][]domain.Tile, x, y int) (rune, tcell.Style) {
@@ -113,27 +191,6 @@ func (w *Window) runeNone() (rune, tcell.Style) {
 	return ' ', tcell.StyleDefault
 }
 
-func (w *Window) DrawItems(world *domain.World) {
-	level := world.Level
-	for pos, item := range level.Items {
-		if !level.Contains(pos) {
-			continue
-		}
-
-		tile := level.Tiles[pos.Y][pos.X]
-		if !tile.TestFlags(domain.TileExplored) {
-			continue
-		}
-
-		if !tile.TestFlags(domain.TileVisible) {
-			continue
-		}
-
-		char, style := w.runeItem(item)
-		w.screen.SetContent(pos.X, pos.Y, char, nil, style)
-	}
-}
-
 func (w *Window) runeItem(item domain.Item) (rune, tcell.Style) {
 	switch item.Type() {
 	case domain.ItemFood:
@@ -149,8 +206,4 @@ func (w *Window) runeItem(item domain.Item) (rune, tcell.Style) {
 	default:
 		return '?', tcell.StyleDefault.Foreground(tcell.ColorWhite)
 	}
-}
-
-func (w *Window) DrawPlayer(player *domain.Player) {
-	w.screen.SetContent(player.Point.X, player.Point.Y, '@', nil, tcell.StyleDefault.Foreground(tcell.ColorWhite).Bold(true))
 }

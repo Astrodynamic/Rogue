@@ -8,6 +8,10 @@ func (f *Food) Type() ItemKind {
 	return ItemFood
 }
 
+func (f *Food) Name() string {
+	return "Food"
+}
+
 func (f *Food) Stackable() bool {
 	return true
 }
@@ -31,7 +35,7 @@ func (f *Food) Use() ItemUseResult {
 	return ItemUseResult{
 		Success:  true,
 		Consumed: true,
-		Message:  "Food consumed",
+		Message:  f.Name() + " consumed",
 		Effects: []Effect{
 			&HealthEffect{
 				BaseEffect: BaseEffect{

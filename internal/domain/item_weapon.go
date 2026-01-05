@@ -8,6 +8,10 @@ func (w *Weapon) Type() ItemKind {
 	return ItemWeapon
 }
 
+func (w *Weapon) Name() string {
+	return "Weapon"
+}
+
 func (w *Weapon) Stackable() bool {
 	return false
 }
@@ -31,7 +35,7 @@ func (w *Weapon) Use() ItemUseResult {
 	return ItemUseResult{
 		Success:  true,
 		Consumed: false,
-		Message:  "Weapon equipped",
+		Message:  w.Name() + " equipped",
 		Effects:  nil,
 	}
 }

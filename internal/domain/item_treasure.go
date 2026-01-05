@@ -8,6 +8,10 @@ func (t *Treasure) Type() ItemKind {
 	return ItemTreasure
 }
 
+func (t *Treasure) Name() string {
+	return "Treasure"
+}
+
 func (t *Treasure) Stackable() bool {
 	return true
 }
@@ -32,7 +36,7 @@ func (t *Treasure) Use() ItemUseResult {
 	return ItemUseResult{
 		Success:  false,
 		Consumed: false,
-		Message:  "Treasure cannot be used",
+		Message:  t.Name() + " cannot be used",
 		Effects:  nil,
 	}
 }

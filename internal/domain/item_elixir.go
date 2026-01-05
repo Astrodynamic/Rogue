@@ -19,6 +19,10 @@ func (e *Elixir) Type() ItemKind {
 	return ItemElixir
 }
 
+func (e *Elixir) Name() string {
+	return "Elixir"
+}
+
 func (e *Elixir) Stackable() bool {
 	return true
 }
@@ -74,7 +78,7 @@ func (e *Elixir) Use() ItemUseResult {
 	return ItemUseResult{
 		Success:  true,
 		Consumed: true,
-		Message:  "Elixir consumed",
+		Message:  e.Name() + " consumed",
 		Effects:  []Effect{effect},
 	}
 }

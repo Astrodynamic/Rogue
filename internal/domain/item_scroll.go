@@ -18,6 +18,10 @@ func (s *Scroll) Type() ItemKind {
 	return ItemScroll
 }
 
+func (s *Scroll) Name() string {
+	return "Scroll"
+}
+
 func (s *Scroll) Stackable() bool {
 	return true
 }
@@ -73,7 +77,7 @@ func (s *Scroll) Use() ItemUseResult {
 	return ItemUseResult{
 		Success:  true,
 		Consumed: true,
-		Message:  "Scroll used",
+		Message:  s.Name() + " used",
 		Effects:  []Effect{effect},
 	}
 }
