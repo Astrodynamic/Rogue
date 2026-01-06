@@ -17,3 +17,7 @@ func (e *MaxHealthEffect) Revert(target *Actor) error {
 	target.Stats.Apply(revert)
 	return nil
 }
+
+func (e *MaxHealthEffect) Tick(target *Actor) bool {
+	return e.BaseEffect.Tick(target)
+}

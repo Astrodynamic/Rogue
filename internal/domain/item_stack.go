@@ -30,6 +30,17 @@ func (s *ItemStack) Add(item Item) bool {
 	if !s.CanAdd(item) {
 		return false
 	}
+	
+	if s.Item.Type() == ItemTreasure {
+		if treasure, ok := s.Item.(*Treasure); ok {
+			if newTreasure, ok := item.(*Treasure); ok {
+				treasure.Value += newTreasure.Value
+				return true
+			}
+		}
+		return false
+	}
+	
 	s.Count++
 	return true
 }

@@ -39,3 +39,7 @@ func (w *Weapon) Use() ItemUseResult {
 		Effects:  nil,
 	}
 }
+
+func (w *Weapon) GetStats() Stats {
+	return Stats{Strength: w.Strength}
+}

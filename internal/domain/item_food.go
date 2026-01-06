@@ -46,3 +46,7 @@ func (f *Food) Use() ItemUseResult {
 		},
 	}
 }
+
+func (f *Food) GetStats() Stats {
+	return Stats{Health: f.Health}
+}

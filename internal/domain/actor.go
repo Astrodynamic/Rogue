@@ -67,7 +67,7 @@ func (a *Actor) TickEffects() {
 	var expired []Effect
 
 	for _, effect := range a.Effects {
-		if effect.Tick() {
+		if effect.Tick(a) {
 			expired = append(expired, effect)
 		}
 	}
@@ -95,4 +95,8 @@ func (a *Actor) UseItem(item Item) ItemUseResult {
 	}
 
 	return result
+}
+
+func (a *Actor) GetEffectiveStats() Stats {
+	return a.Stats
 }

@@ -51,26 +51,46 @@ func (g *Generator) generateRandomItem(depth int) domain.Item {
 		return &domain.Food{
 			Health: 10 + depth*2,
 		}
-	case roll < 40:
+	case roll < 35:
 		elixirType := domain.ElixirKind(g.rng.IntN(4))
 		return &domain.Elixir{
 			ElixirKind: elixirType,
 			Amount:     5 + depth,
 			Duration:   5 + depth/2,
 		}
-	case roll < 60:
+	case roll < 50:
 		scrollType := domain.ScrollKind(g.rng.IntN(4))
 		return &domain.Scroll{
 			ScrollKind: scrollType,
 			Amount:     3 + depth,
 		}
-	case roll < 75:
+	case roll < 60:
 		return &domain.Treasure{
 			Value: 10 + depth*5,
 		}
-	case roll < 90:
+	case roll < 75:
 		return &domain.Weapon{
 			Strength: 2 + depth/2,
+		}
+	case roll < 90:
+		armorParts := []domain.ActorPart{domain.ActorPartHead, domain.ActorPartBody, domain.ActorPartLegs}
+		partIndex := g.rng.IntN(len(armorParts))
+		part := armorParts[partIndex]
+
+		stats := domain.Stats{}
+		statRoll := g.rng.IntN(3)
+		switch statRoll {
+		case 0:
+			stats.Strength = 1 + depth/3
+		case 1:
+			stats.Dexterity = 1 + depth/3
+		case 2:
+			stats.MaxHealth = 2 + depth/2
+		}
+
+		return &domain.Armor{
+			ArmorPart: part,
+			Stats:     stats,
 		}
 	default:
 		return nil

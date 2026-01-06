@@ -82,3 +82,18 @@ func (e *Elixir) Use() ItemUseResult {
 		Effects:  []Effect{effect},
 	}
 }
+
+func (e *Elixir) GetStats() Stats {
+	switch e.ElixirKind {
+	case ElixirHealth:
+		return Stats{Health: e.Amount}
+	case ElixirMaxHealth:
+		return Stats{MaxHealth: e.Amount}
+	case ElixirDexterity:
+		return Stats{Dexterity: e.Amount}
+	case ElixirStrength:
+		return Stats{Strength: e.Amount}
+	default:
+		return Stats{}
+	}
+}

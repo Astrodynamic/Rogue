@@ -4,7 +4,7 @@ type Effect interface {
 	Apply(target *Actor) error
 	Revert(target *Actor) error
 	Duration() int
-	Tick() bool
+	Tick(target *Actor) bool
 }
 
 type BaseEffect struct {
@@ -15,7 +15,7 @@ func (e *BaseEffect) Duration() int {
 	return e.duration
 }
 
-func (e *BaseEffect) Tick() bool {
+func (e *BaseEffect) Tick(target *Actor) bool {
 	if e.duration > 0 {
 		e.duration--
 		return e.duration == 0

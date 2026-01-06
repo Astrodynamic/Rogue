@@ -19,6 +19,7 @@ func (g *Game) onMove(actor *domain.Actor, dir domain.Point) {
 		g.pickupItem(actor, next)
 	}
 
+	actor.TickEffects()
 	g.UpdateVisibility()
 }
 

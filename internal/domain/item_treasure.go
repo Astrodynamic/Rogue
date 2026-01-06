@@ -21,14 +21,7 @@ func (t *Treasure) MaxStack() int {
 }
 
 func (t *Treasure) Equals(other Item) bool {
-	if other.Type() != ItemTreasure {
-		return false
-	}
-	otherTreasure, ok := other.(*Treasure)
-	if !ok {
-		return false
-	}
-	return t.Value == otherTreasure.Value
+	return other.Type() == ItemTreasure
 }
 
 func (t *Treasure) Use() ItemUseResult {
@@ -39,4 +32,8 @@ func (t *Treasure) Use() ItemUseResult {
 		Message:  t.Name() + " cannot be used",
 		Effects:  nil,
 	}
+}
+
+func (t *Treasure) GetStats() Stats {
+	return Stats{}
 }

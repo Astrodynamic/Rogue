@@ -7,6 +7,7 @@ const (
 	ItemElixir
 	ItemScroll
 	ItemWeapon
+	ItemArmor
 	ItemTreasure
 )
 
@@ -17,6 +18,7 @@ type Item interface {
 	MaxStack() int
 	Equals(other Item) bool
 	Use() ItemUseResult
+	GetStats() Stats
 }
 
 type ItemUseResult struct {

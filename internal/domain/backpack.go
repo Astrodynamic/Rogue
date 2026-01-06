@@ -136,13 +136,10 @@ func (b *Backpack) Use(itemKind ItemKind, stackIndex int, actor *Actor) ItemUseR
 }
 
 func (b *Backpack) GetTotalTreasure() int {
-	total := 0
-	if stacks, exists := b.stacks[ItemTreasure]; exists {
-		for _, stack := range stacks {
-			if treasure, ok := stack.Item.(*Treasure); ok {
-				total += treasure.Value * stack.Count
-			}
+	if stacks, exists := b.stacks[ItemTreasure]; exists && len(stacks) > 0 {
+		if treasure, ok := stacks[0].Item.(*Treasure); ok {
+			return treasure.Value
 		}
 	}
-	return total
+	return 0
 }

@@ -81,3 +81,18 @@ func (s *Scroll) Use() ItemUseResult {
 		Effects:  []Effect{effect},
 	}
 }
+
+func (s *Scroll) GetStats() Stats {
+	switch s.ScrollKind {
+	case ScrollHealth:
+		return Stats{Health: s.Amount}
+	case ScrollMaxHealth:
+		return Stats{MaxHealth: s.Amount}
+	case ScrollDexterity:
+		return Stats{Dexterity: s.Amount}
+	case ScrollStrength:
+		return Stats{Strength: s.Amount}
+	default:
+		return Stats{}
+	}
+}
