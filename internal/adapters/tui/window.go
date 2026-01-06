@@ -11,6 +11,7 @@ type Layout struct {
 	Screen    domain.Rect
 	Map       domain.Rect
 	Stats     domain.Rect
+	Equipment domain.Rect
 	Inventory domain.Rect
 	Log       domain.Rect
 }
@@ -51,6 +52,7 @@ func (w *Window) Draw(world *domain.World) {
 
 	w.DrawMap(world, w.layout.Map)
 	w.DrawStats(world, w.layout.Stats)
+	w.DrawEquipment(world.Player, w.layout.Equipment)
 	w.DrawInventory(world.Player, w.layout.Inventory)
 	w.DrawLog(w.layout.Log)
 
@@ -70,11 +72,13 @@ func (w *Window) resize() {
 	mapW := wW - panelW
 	mapH := wH - logH
 	statsH := 6
-	invH := mapH - statsH
+	equipmentH := 8
+	invH := mapH - statsH - equipmentH
 
 	w.layout.Map = domain.NewRect(0, 0, mapW, mapH)
 	w.layout.Stats = domain.NewRect(mapW, 0, panelW, statsH)
-	w.layout.Inventory = domain.NewRect(mapW, statsH, panelW, invH)
+	w.layout.Equipment = domain.NewRect(mapW, statsH, panelW, equipmentH)
+	w.layout.Inventory = domain.NewRect(mapW, statsH+equipmentH, panelW, invH)
 	w.layout.Log = domain.NewRect(0, mapH, wW, logH)
 }
 
