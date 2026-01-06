@@ -70,16 +70,16 @@ func (w *Window) resize() {
 	panelW := panelWidth(wW)
 	logH := logHeight(wH)
 	mapW := wW - panelW
-	mapH := wH - logH
+	mapH := wH
 	statsH := 6
 	equipmentH := 8
-	invH := mapH - statsH - equipmentH
+	invH := wH - statsH - equipmentH - logH
 
 	w.layout.Map = domain.NewRect(0, 0, mapW, mapH)
 	w.layout.Stats = domain.NewRect(mapW, 0, panelW, statsH)
 	w.layout.Equipment = domain.NewRect(mapW, statsH, panelW, equipmentH)
 	w.layout.Inventory = domain.NewRect(mapW, statsH+equipmentH, panelW, invH)
-	w.layout.Log = domain.NewRect(0, mapH, wW, logH)
+	w.layout.Log = domain.NewRect(mapW, statsH+equipmentH+invH, panelW, logH)
 }
 
 func panelWidth(width int) int {
@@ -91,9 +91,9 @@ func panelWidth(width int) int {
 
 func logHeight(height int) int {
 	if height < 30 {
-		return 5
+		return 10
 	}
-	return 8
+	return 15
 }
 
 func (w *Window) Input() service.Command {
