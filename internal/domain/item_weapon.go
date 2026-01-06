@@ -43,3 +43,7 @@ func (w *Weapon) Use() ItemUseResult {
 func (w *Weapon) GetStats() Stats {
 	return Stats{Strength: w.Strength}
 }
+
+func (w *Weapon) EquipPart() ActorPart {
+	return ActorPartHand
+}

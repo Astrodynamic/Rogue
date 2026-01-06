@@ -57,3 +57,7 @@ func (a *Armor) Use() ItemUseResult {
 func (a *Armor) GetStats() Stats {
 	return a.Stats
 }
+
+func (a *Armor) EquipPart() ActorPart {
+	return a.ArmorPart
+}

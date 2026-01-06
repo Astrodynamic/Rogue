@@ -19,17 +19,11 @@ func (e *Equipment) Set(part ActorPart, item Item) {
 }
 
 func GetEquipPart(item Item) (ActorPart, bool) {
-	switch item.Type() {
-	case ItemWeapon:
-		return ActorPartHand, true
-	case ItemArmor:
-		if armor, ok := item.(*Armor); ok {
-			return armor.ArmorPart, true
-		}
-		return 0, false
-	default:
+	equippable, ok := item.(Equippable)
+	if !ok {
 		return 0, false
 	}
+	return equippable.EquipPart(), true
 }
 
 func (e *Equipment) Equip(part ActorPart, item Item) Item {

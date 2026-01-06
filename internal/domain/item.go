@@ -21,6 +21,10 @@ type Item interface {
 	GetStats() Stats
 }
 
+type Equippable interface {
+	EquipPart() ActorPart
+}
+
 type ItemUseResult struct {
 	Success  bool
 	Consumed bool
