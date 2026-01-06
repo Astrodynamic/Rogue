@@ -47,13 +47,13 @@ func (w *Window) Close() {
 	}
 }
 
-func (w *Window) Draw(world *domain.World) {
+func (w *Window) Draw(world *domain.World, selection service.SelectionState) {
 	w.screen.Clear()
 
 	w.DrawMap(world, w.layout.Map)
 	w.DrawStats(world, w.layout.Stats)
-	w.DrawEquipment(world.Player, w.layout.Equipment)
-	w.DrawInventory(world.Player, w.layout.Inventory)
+	w.DrawEquipment(world.Player, w.layout.Equipment, selection)
+	w.DrawInventory(world.Player, w.layout.Inventory, selection)
 	w.DrawLog(w.layout.Log)
 
 	w.screen.Show()

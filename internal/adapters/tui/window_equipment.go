@@ -1,10 +1,12 @@
 package tui
 
 import (
+	"fmt"
 	"rogue/internal/domain"
+	"rogue/internal/service"
 )
 
-func (w *Window) DrawEquipment(player *domain.Player, rect domain.Rect) {
+func (w *Window) DrawEquipment(player *domain.Player, rect domain.Rect, selection service.SelectionState) {
 	w.drawBox(rect, "Equipment")
 
 	line := 1
@@ -22,6 +24,7 @@ func (w *Window) DrawEquipment(player *domain.Player, rect domain.Rect) {
 		domain.ActorPartLegs: "Legs",
 	}
 
+	equippedIndex := 0
 	for _, part := range parts {
 		if line >= rect.H-2 {
 			return
@@ -30,17 +33,35 @@ func (w *Window) DrawEquipment(player *domain.Player, rect domain.Rect) {
 		item := player.Equipment.Get(part)
 		partName := partNames[part]
 
+		isSelected := false
+		if selection.Model != nil && selection.Model.IsActive() {
+			selectedItem := selection.Model.SelectedItem()
+			if equipInfo, ok := selectedItem.(*service.EquipmentSelectionItem); ok {
+				isSelected = equipInfo.Part == part && selection.Model.SelectedIndex() == equippedIndex
+			}
+		}
+
+		var text string
 		if item == nil {
-			w.drawText(rect, line, "%s: -", partName)
+			text = fmt.Sprintf("%s: -", partName)
 		} else {
 			itemName := item.Name()
 			properties := w.formatItemProperties(item)
 			if properties != "" {
-				w.drawText(rect, line, "%s: %s %s", partName, itemName, properties)
+				text = fmt.Sprintf("%s: %s %s", partName, itemName, properties)
 			} else {
-				w.drawText(rect, line, "%s: %s", partName, itemName)
+				text = fmt.Sprintf("%s: %s", partName, itemName)
 			}
 		}
+
+		if isSelected {
+			w.drawTextHighlighted(rect, line, text)
+		} else {
+			w.drawText(rect, line, text)
+		}
 		line++
+		if item != nil {
+			equippedIndex++
+		}
 	}
 }

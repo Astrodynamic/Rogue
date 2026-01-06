@@ -147,3 +147,21 @@ func (l *Level) RemoveItem(p Point) Item {
 func (l *Level) GetItem(p Point) Item {
 	return l.Items[p]
 }
+
+func (l *Level) GetAdjacentDropPoint(from Point) Point {
+	for _, dir := range Dirs8 {
+		pos := from.Add(dir)
+		if !l.Contains(pos) {
+			continue
+		}
+		tile := l.Tiles[pos.Y][pos.X]
+		if tile.Kind != TileFloor && tile.Kind != TileCorridor {
+			continue
+		}
+		if l.GetItem(pos) != nil {
+			continue
+		}
+		return pos
+	}
+	return Point{X: -1, Y: -1}
+}

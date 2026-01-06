@@ -38,12 +38,19 @@ func (w *Window) drawBox(rect domain.Rect, title string) {
 
 func (w *Window) drawText(rect domain.Rect, line int, format string, args ...interface{}) {
 	text := fmt.Sprintf(format, args...)
+	w.drawTextRaw(rect, line, text, tcell.StyleDefault.Foreground(tcell.ColorWhite))
+}
+
+func (w *Window) drawTextHighlighted(rect domain.Rect, line int, text string) {
+	w.drawTextRaw(rect, line, text, tcell.StyleDefault.Reverse(true))
+}
+
+func (w *Window) drawTextRaw(rect domain.Rect, line int, text string, style tcell.Style) {
 	width := rect.W - 2
 	if len(text) > width {
 		text = text[:width]
 	}
 
-	style := tcell.StyleDefault.Foreground(tcell.ColorWhite)
 	x := rect.X + 1
 	y := rect.Y + line
 	for i, r := range text {

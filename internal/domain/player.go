@@ -60,3 +60,11 @@ func (p *Player) GetEffectiveStats() Stats {
 	effective.AddStrength(equipment.Strength)
 	return effective
 }
+
+func (p *Player) DropItem(itemKind ItemKind, stackIndex int) Item {
+	return p.Backpack.Remove(itemKind, stackIndex)
+}
+
+func (p *Player) DropEquipment(part ActorPart) Item {
+	return p.Equipment.Unequip(part)
+}

@@ -11,12 +11,26 @@ const (
 	CmdMoveDown
 	CmdMoveLeft
 	CmdMoveRight
+	CmdUseWeapon
+	CmdUseFood
+	CmdUseElixir
+	CmdUseScroll
+	CmdDropItem
+	CmdDropEquipment
+	CmdSelectUp
+	CmdSelectDown
+	CmdSelectConfirm
+	CmdSelectCancel
 )
+
+type SelectionState struct {
+	Model *SelectionModel
+}
 
 type UI interface {
 	Init() error
 	Close()
 
-	Draw(world *domain.World)
+	Draw(world *domain.World, selection SelectionState)
 	Input() Command
 }

@@ -9,15 +9,13 @@ import (
 func (w *Window) KeyMap(key tcell.Key) service.Command {
 	switch key {
 	case tcell.KeyEscape:
-		return service.CmdQuit
+		return service.CmdSelectCancel
 	case tcell.KeyUp:
-		return service.CmdMoveUp
+		return service.CmdSelectUp
 	case tcell.KeyDown:
-		return service.CmdMoveDown
-	case tcell.KeyLeft:
-		return service.CmdMoveLeft
-	case tcell.KeyRight:
-		return service.CmdMoveRight
+		return service.CmdSelectDown
+	case tcell.KeyEnter:
+		return service.CmdSelectConfirm
 	}
 	return service.CmdNone
 }
@@ -34,6 +32,18 @@ func (w *Window) RuneMap(rune rune) service.Command {
 		return service.CmdMoveLeft
 	case 'd', 'D':
 		return service.CmdMoveRight
+	case 'h', 'H':
+		return service.CmdUseWeapon
+	case 'j', 'J':
+		return service.CmdUseFood
+	case 'k', 'K':
+		return service.CmdUseElixir
+	case 'e', 'E':
+		return service.CmdUseScroll
+	case 'x', 'X':
+		return service.CmdDropItem
+	case 'u', 'U':
+		return service.CmdDropEquipment
 	}
 	return service.CmdNone
 }
