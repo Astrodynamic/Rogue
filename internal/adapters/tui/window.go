@@ -17,9 +17,11 @@ type Layout struct {
 }
 
 type Window struct {
-	screen tcell.Screen
-	log    *Log
-	layout Layout
+	screen         tcell.Screen
+	log            *Log
+	layout         Layout
+	showStatistics bool
+	statisticsData []*domain.PlaythroughStatistics
 }
 
 func NewWindow() *Window {
@@ -50,13 +52,30 @@ func (w *Window) Close() {
 func (w *Window) Draw(world *domain.World, selection service.SelectionState) {
 	w.screen.Clear()
 
-	w.DrawMap(world, w.layout.Map)
-	w.DrawStats(world, w.layout.Stats)
-	w.DrawEquipment(world.Player, w.layout.Equipment, selection)
-	w.DrawInventory(world.Player, w.layout.Inventory, selection)
-	w.DrawLog(w.layout.Log)
+	if w.showStatistics {
+		w.drawStatisticsView(w.statisticsData, w.layout.Screen)
+	} else {
+		w.DrawMap(world, w.layout.Map)
+		w.DrawStats(world, w.layout.Stats)
+		w.DrawEquipment(world.Player, w.layout.Equipment, selection)
+		w.DrawInventory(world.Player, w.layout.Inventory, selection)
+		w.DrawLog(w.layout.Log)
+	}
 
 	w.screen.Show()
+}
+
+func (w *Window) DrawStatistics(playthroughs []*domain.PlaythroughStatistics) {
+	w.showStatistics = true
+	w.statisticsData = playthroughs
+	w.screen.Clear()
+	w.drawStatisticsView(playthroughs, w.layout.Screen)
+	w.screen.Show()
+}
+
+func (w *Window) HideStatistics() {
+	w.showStatistics = false
+	w.statisticsData = nil
 }
 
 func (w *Window) resize() {

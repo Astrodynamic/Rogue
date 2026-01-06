@@ -46,6 +46,16 @@ func (h *UseItemHandler) OnConfirm(item SelectionItem) bool {
 		if !result.Success {
 			return false
 		}
+		if result.Consumed {
+			switch h.itemKind {
+			case domain.ItemFood:
+				h.game.RecordFoodConsumed()
+			case domain.ItemElixir:
+				h.game.RecordElixirDrunk()
+			case domain.ItemScroll:
+				h.game.RecordScrollRead()
+			}
+		}
 	}
 
 	h.game.UpdateVisibility()

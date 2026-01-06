@@ -21,8 +21,9 @@ func NewGenerator() *Generator {
 func (g *Generator) Generate(world *domain.World) {
 	g.GenerateLevel(world.Level)
 	room := g.GenerateStartPosition(world)
-	g.GenerateItems(world.Level, world.Depth, room)
-	world.Depth++
+	depth := world.GetDepth()
+	g.GenerateItems(world.Level, depth, room)
+	world.GameState.AdvanceLevel()
 }
 
 func (g *Generator) GenerateStartPosition(world *domain.World) *domain.Room {

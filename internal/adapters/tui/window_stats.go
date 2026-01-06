@@ -15,5 +15,5 @@ func (w *Window) DrawStats(world *domain.World, rect domain.Rect) {
 	line++
 	w.drawText(rect, line, "Strength: %d", player.Strength)
 	line++
-	w.drawText(rect, line, "Depth: %d", world.Depth)
+	w.drawText(rect, line, "Depth: %d", world.GetDepth())
 }

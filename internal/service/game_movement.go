@@ -13,9 +13,11 @@ func (g *Game) onMove(actor *domain.Actor, dir domain.Point) {
 	case domain.TileWall:
 		return
 	case domain.TileExit:
+		g.SaveStatistics()
 		NewGenerator().Generate(g.World)
 	default:
 		actor.Move(dir)
+		g.RecordTileTraveled()
 		g.pickupItem(actor, next)
 	}
 
@@ -34,6 +36,11 @@ func (g *Game) pickupItem(actor *domain.Actor, pos domain.Point) {
 	}
 
 	if actor.Backpack.Add(item) {
+		if item.Type() == domain.ItemTreasure {
+			if treasure, ok := item.(*domain.Treasure); ok {
+				g.RecordTreasureCollected(treasure.Value)
+			}
+		}
 		g.World.Level.RemoveItem(pos)
 	}
 }

@@ -23,6 +23,8 @@ const (
 	CmdSelectDown
 	CmdSelectConfirm
 	CmdSelectCancel
+	CmdShowStatistics
+	CmdBackToGame
 )
 
 type SelectionState struct {
@@ -34,5 +36,7 @@ type UI interface {
 	Close()
 
 	Draw(world *domain.World, selection SelectionState)
+	DrawStatistics(playthroughs []*domain.PlaythroughStatistics)
+	HideStatistics()
 	Input() Command
 }

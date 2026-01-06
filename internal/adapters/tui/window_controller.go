@@ -9,6 +9,9 @@ import (
 func (w *Window) KeyMap(key tcell.Key) service.Command {
 	switch key {
 	case tcell.KeyEscape:
+		if w.showStatistics {
+			return service.CmdBackToGame
+		}
 		return service.CmdSelectCancel
 	case tcell.KeyUp:
 		return service.CmdSelectUp
@@ -48,6 +51,8 @@ func (w *Window) RuneMap(rune rune) service.Command {
 		return service.CmdUnequipItem
 	case 'x', 'X':
 		return service.CmdDropItem
+	case 't', 'T':
+		return service.CmdShowStatistics
 	}
 	return service.CmdNone
 }
