@@ -53,3 +53,22 @@ func (e *Equipment) GetTotalStats() Stats {
 	}
 	return total
 }
+
+func GetAllParts() []ActorPart {
+	return []ActorPart{
+		ActorPartHead,
+		ActorPartBody,
+		ActorPartHand,
+		ActorPartLegs,
+	}
+}
+
+func GetPartName(part ActorPart) string {
+	partNames := map[ActorPart]string{
+		ActorPartHead: "Head",
+		ActorPartBody: "Body",
+		ActorPartHand: "Hand",
+		ActorPartLegs: "Legs",
+	}
+	return partNames[part]
+}

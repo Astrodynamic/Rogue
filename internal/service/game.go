@@ -63,16 +63,20 @@ func (g *Game) handle(cmd Command) {
 	case CmdSelectUp, CmdSelectDown, CmdSelectConfirm, CmdSelectCancel:
 	case CmdUseWeapon:
 		g.startItemSelection(domain.ItemWeapon, false)
+	case CmdUseArmor:
+		g.startItemSelection(domain.ItemArmor, false)
 	case CmdUseFood:
 		g.startItemSelection(domain.ItemFood, false)
 	case CmdUseElixir:
 		g.startItemSelection(domain.ItemElixir, false)
 	case CmdUseScroll:
 		g.startItemSelection(domain.ItemScroll, false)
+	case CmdEquipItem:
+		g.startEquipItemSelection()
+	case CmdUnequipItem:
+		g.startUnequipItemSelection()
 	case CmdDropItem:
 		g.startDropItemSelection()
-	case CmdDropEquipment:
-		g.startDropEquipmentSelection()
 	}
 }
 
@@ -158,13 +162,38 @@ func (g *Game) startDropItemSelection() {
 	g.selection = NewSelectionModel(selectionItems, NewDropItemHandler(g))
 }
 
-func (g *Game) startDropEquipmentSelection() {
-	parts := []domain.ActorPart{
-		domain.ActorPartHead,
-		domain.ActorPartBody,
-		domain.ActorPartHand,
-		domain.ActorPartLegs,
+func (g *Game) startEquipItemSelection() {
+	equippableKinds := []domain.ItemKind{
+		domain.ItemWeapon,
+		domain.ItemArmor,
 	}
+
+	selectionItems := make([]SelectionItem, 0)
+	for _, kind := range equippableKinds {
+		stacks := g.World.Player.Backpack.GetStacks(kind)
+		for stackIndex, stack := range stacks {
+			if item := stack.Peek(); item != nil {
+				_, canEquip := domain.GetEquipPart(item)
+				if canEquip {
+					selectionItems = append(selectionItems, &ItemSelectionItem{
+						Item:       item,
+						ItemKind:   kind,
+						StackIndex: stackIndex,
+					})
+				}
+			}
+		}
+	}
+
+	if len(selectionItems) == 0 {
+		return
+	}
+
+	g.selection = NewSelectionModel(selectionItems, NewEquipItemHandler(g))
+}
+
+func (g *Game) startUnequipItemSelection() {
+	parts := domain.GetAllParts()
 
 	selectionItems := make([]SelectionItem, 0)
 	for _, part := range parts {

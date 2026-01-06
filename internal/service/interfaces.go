@@ -12,11 +12,13 @@ const (
 	CmdMoveLeft
 	CmdMoveRight
 	CmdUseWeapon
+	CmdUseArmor
 	CmdUseFood
 	CmdUseElixir
 	CmdUseScroll
+	CmdEquipItem
+	CmdUnequipItem
 	CmdDropItem
-	CmdDropEquipment
 	CmdSelectUp
 	CmdSelectDown
 	CmdSelectConfirm

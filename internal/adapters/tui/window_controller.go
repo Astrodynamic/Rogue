@@ -34,16 +34,20 @@ func (w *Window) RuneMap(rune rune) service.Command {
 		return service.CmdMoveRight
 	case 'h', 'H':
 		return service.CmdUseWeapon
+	case 'r', 'R':
+		return service.CmdUseArmor
 	case 'j', 'J':
 		return service.CmdUseFood
 	case 'k', 'K':
 		return service.CmdUseElixir
 	case 'e', 'E':
 		return service.CmdUseScroll
+	case 'i', 'I':
+		return service.CmdEquipItem
+	case 'u', 'U':
+		return service.CmdUnequipItem
 	case 'x', 'X':
 		return service.CmdDropItem
-	case 'u', 'U':
-		return service.CmdDropEquipment
 	}
 	return service.CmdNone
 }

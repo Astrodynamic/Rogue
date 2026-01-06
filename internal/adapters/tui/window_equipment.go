@@ -10,34 +10,30 @@ func (w *Window) DrawEquipment(player *domain.Player, rect domain.Rect, selectio
 	w.drawBox(rect, "Equipment")
 
 	line := 1
-	parts := []domain.ActorPart{
-		domain.ActorPartHead,
-		domain.ActorPartBody,
-		domain.ActorPartHand,
-		domain.ActorPartLegs,
+	parts := domain.GetAllParts()
+
+	selectionPartMap := make(map[domain.ActorPart]int)
+	if selection.Model != nil && selection.Model.IsActive() {
+		items := selection.Model.Items()
+		for i, selItem := range items {
+			if equipInfo, ok := selItem.(*service.EquipmentSelectionItem); ok {
+				selectionPartMap[equipInfo.Part] = i
+			}
+		}
 	}
 
-	partNames := map[domain.ActorPart]string{
-		domain.ActorPartHead: "Head",
-		domain.ActorPartBody: "Body",
-		domain.ActorPartHand: "Hand",
-		domain.ActorPartLegs: "Legs",
-	}
-
-	equippedIndex := 0
 	for _, part := range parts {
 		if line >= rect.H-2 {
 			return
 		}
 
 		item := player.Equipment.Get(part)
-		partName := partNames[part]
+		partName := domain.GetPartName(part)
 
 		isSelected := false
-		if selection.Model != nil && selection.Model.IsActive() {
-			selectedItem := selection.Model.SelectedItem()
-			if equipInfo, ok := selectedItem.(*service.EquipmentSelectionItem); ok {
-				isSelected = equipInfo.Part == part && selection.Model.SelectedIndex() == equippedIndex
+		if selection.Model != nil && selection.Model.IsActive() && item != nil {
+			if selIndex, exists := selectionPartMap[part]; exists {
+				isSelected = selection.Model.SelectedIndex() == selIndex
 			}
 		}
 
@@ -60,8 +56,5 @@ func (w *Window) DrawEquipment(player *domain.Player, rect domain.Rect, selectio
 			w.drawText(rect, line, text)
 		}
 		line++
-		if item != nil {
-			equippedIndex++
-		}
 	}
 }

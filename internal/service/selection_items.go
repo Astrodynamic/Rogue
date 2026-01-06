@@ -22,13 +22,7 @@ type EquipmentSelectionItem struct {
 }
 
 func (e *EquipmentSelectionItem) DisplayText() string {
-	partNames := map[domain.ActorPart]string{
-		domain.ActorPartHead: "Head",
-		domain.ActorPartBody: "Body",
-		domain.ActorPartHand: "Hand",
-		domain.ActorPartLegs: "Legs",
-	}
-	partName := partNames[e.Part]
+	partName := domain.GetPartName(e.Part)
 	if e.Item == nil {
 		return partName + ": -"
 	}

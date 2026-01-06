@@ -93,7 +93,16 @@ func (w *Window) DrawInventory(player *domain.Player, rect domain.Rect, selectio
 		domain.ItemTreasure,
 	}
 
-	itemIndex := 0
+	selectionItemMap := make(map[domain.Item]int)
+	if selection.Model != nil && selection.Model.IsActive() {
+		items := selection.Model.Items()
+		for i, selItem := range items {
+			if itemInfo, ok := selItem.(*service.ItemSelectionItem); ok {
+				selectionItemMap[itemInfo.Item] = i
+			}
+		}
+	}
+
 	for _, kind := range itemKinds {
 		if kind == domain.ItemTreasure {
 			totalTreasure := player.Backpack.GetTotalTreasure()
@@ -128,13 +137,8 @@ func (w *Window) DrawInventory(player *domain.Player, rect domain.Rect, selectio
 
 			isSelected := false
 			if selection.Model != nil && selection.Model.IsActive() {
-				items := selection.Model.Items()
-				if itemIndex < len(items) {
-					if itemInfo, ok := items[itemIndex].(*service.ItemSelectionItem); ok {
-						if itemInfo.Item == item {
-							isSelected = selection.Model.SelectedIndex() == itemIndex
-						}
-					}
+				if selIndex, exists := selectionItemMap[item]; exists {
+					isSelected = selection.Model.SelectedIndex() == selIndex
 				}
 			}
 
@@ -151,17 +155,6 @@ func (w *Window) DrawInventory(player *domain.Player, rect domain.Rect, selectio
 				w.drawText(rect, line, text)
 			}
 			line++
-
-			if selection.Model != nil && selection.Model.IsActive() {
-				items := selection.Model.Items()
-				if itemIndex < len(items) {
-					if itemInfo, ok := items[itemIndex].(*service.ItemSelectionItem); ok && itemInfo.Item == item {
-						itemIndex++
-					}
-				}
-			} else {
-				itemIndex++
-			}
 		}
 	}
 }

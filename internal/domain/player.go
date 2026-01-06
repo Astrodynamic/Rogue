@@ -68,3 +68,18 @@ func (p *Player) DropItem(itemKind ItemKind, stackIndex int) Item {
 func (p *Player) DropEquipment(part ActorPart) Item {
 	return p.Equipment.Unequip(part)
 }
+
+func (p *Player) HandleOldItemOnEquip(oldItem Item, level *Level, playerPos Point) bool {
+	if oldItem == nil {
+		return true
+	}
+	if !p.Backpack.Add(oldItem) {
+		dropPos := level.GetAdjacentDropPoint(playerPos)
+		if dropPos.X >= 0 {
+			level.AddItem(dropPos, oldItem)
+		} else {
+			return false
+		}
+	}
+	return true
+}
