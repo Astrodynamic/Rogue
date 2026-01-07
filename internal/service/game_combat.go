@@ -106,8 +106,7 @@ func (g *Game) processDefaultEnemyAttack(enemyActor, playerActor *domain.Actor, 
 
 func (g *Game) handleEnemyDeath(enemy domain.Enemy, enemyPos domain.Point) {
 	depth := g.World.GetDepth()
-	generator := NewGenerator()
-	treasure := generator.GenerateTreasureFromEnemyWithDepth(enemy, depth)
+	treasure := g.generator.GenerateTreasureFromEnemyWithDepth(enemy, depth)
 
 	if treasure != nil {
 		g.World.Level.AddItem(enemyPos, treasure)
@@ -120,6 +119,6 @@ func (g *Game) handlePlayerDeath() {
 	g.SaveStatistics()
 	world := domain.NewWorld(domain.Width, domain.Height)
 	g.World = world
-	NewGenerator().Generate(g.World)
+	g.generator.Generate(g.World)
 	g.UpdateVisibility()
 }

@@ -4,138 +4,147 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-func (w *Window) DrawStartMenu(hasSave bool) {
+func (w *Window) DrawStartMenu(hasSave bool, currentOption int) {
 	w.screen.Clear()
 	wW, wH := w.screen.Size()
 
-	// Title with decorative box
-	title := "ROGUE"
-	subtitle := "A Dungeon Crawler Adventure"
-	
-	titleBoxWidth := len(title) + 4
-	titleBoxHeight := 5
-	titleBoxX := (wW - titleBoxWidth) / 2
-	titleBoxY := wH/2 - 8
-
-	// Draw title box
-	titleStyle := tcell.StyleDefault.Foreground(tcell.ColorRed).Bold(true)
-	borderStyle := tcell.StyleDefault.Foreground(tcell.ColorDarkRed)
-	
-	// Top border
-	for i := 0; i < titleBoxWidth; i++ {
-		if i == 0 {
-			w.screen.SetContent(titleBoxX+i, titleBoxY, '╔', nil, borderStyle)
-		} else if i == titleBoxWidth-1 {
-			w.screen.SetContent(titleBoxX+i, titleBoxY, '╗', nil, borderStyle)
-		} else {
-			w.screen.SetContent(titleBoxX+i, titleBoxY, '═', nil, borderStyle)
-		}
+	titleLines := []string{
+		"          _____                   _______                   _____                    _____                    _____          ",
+		"         /\\    \\                 /::\\    \\                 /\\    \\                  /\\    \\                  /\\    \\         ",
+		"        /::\\    \\               /::::\\    \\               /::\\    \\                /::\\____\\                /::\\    \\        ",
+		"       /::::\\    \\             /::::::\\    \\             /::::\\    \\              /:::/    /               /::::\\    \\       ",
+		"      /::::::\\    \\           /::::::::\\    \\           /::::::\\    \\            /:::/    /               /::::::\\    \\      ",
+		"     /:::/\\:::\\    \\         /:::/~~\\:::\\    \\         /:::/\\:::\\    \\          /:::/    /               /:::/\\:::\\    \\     ",
+		"    /:::/__\\:::\\    \\       /:::/    \\:::\\    \\       /:::/  \\:::\\    \\        /:::/    /               /:::/__\\:::\\    \\    ",
+		"   /::::\\   \\:::\\    \\     /:::/    / \\:::\\    \\     /:::/    \\:::\\    \\      /:::/    /               /::::\\   \\:::\\    \\   ",
+		"  /::::::\\   \\:::\\    \\   /:::/____/   \\:::\\____\\   /:::/    / \\:::\\    \\    /:::/    /      _____    /::::::\\   \\:::\\    \\  ",
+		" /:::/\\:::\\   \\:::\\____\\ |:::|    |     |:::|    | /:::/    /   \\:::\\ ___\\  /:::/____/      /\\    \\  /:::/\\:::\\   \\:::\\    \\ ",
+		"/:::/  \\:::\\   \\:::|    ||:::|____|     |:::|    |/:::/____/  ___\\:::|    ||:::|    /      /::\\____\\/:::/__\\:::\\   \\:::\\____\\",
+		"\\::/   |::::\\  /:::|____| \\:::\\    \\   /:::/    / \\:::\\    \\ /\\  /:::|____||:::|____\\     /:::/    /\\:::\\   \\:::\\   \\::/    /",
+		" \\/____|:::::\\/:::/    /   \\:::\\    \\ /:::/    /   \\:::\\    /::\\ \\::/    /  \\:::\\    \\   /:::/    /  \\:::\\   \\:::\\   \\/____/ ",
+		"       |:::::::::/    /     \\:::\\    /:::/    /     \\:::\\   \\:::\\ \\/____/    \\:::\\    \\ /:::/    /    \\:::\\   \\:::\\    \\     ",
+		"       |::|\\::::/    /       \\:::\\__/:::/    /       \\:::\\   \\:::\\____\\       \\:::\\    /:::/    /      \\:::\\   \\:::\\____\\    ",
+		"       |::| \\::/____/         \\::::::::/    /         \\:::\\  /:::/    /        \\:::\\__/:::/    /        \\:::\\   \\::/    /    ",
+		"       |::|  ~|                \\::::::/    /           \\:::\\/:::/    /          \\::::::::/    /          \\:::\\   \\/____/     ",
+		"       |::|   |                 \\::::/    /             \\::::::/    /            \\::::::/    /            \\:::\\    \\         ",
+		"       \\::|   |                  \\::/____/               \\::::/    /              \\::::/    /              \\:::\\____\\        ",
+		"        \\:|   |                   ~~                      \\::/____/                \\::/____/                \\::/    /        ",
+		"         \\|___|                                                                     ~~                       \\/____/         ",
 	}
-	
-	// Side borders and title
-	for i := 1; i < titleBoxHeight-1; i++ {
-		w.screen.SetContent(titleBoxX, titleBoxY+i, '║', nil, borderStyle)
-		w.screen.SetContent(titleBoxX+titleBoxWidth-1, titleBoxY+i, '║', nil, borderStyle)
-		
-		if i == 2 {
-			// Title text
-			titleX := titleBoxX + (titleBoxWidth-len(title))/2
-			for j, r := range title {
-				w.screen.SetContent(titleX+j, titleBoxY+i, r, nil, titleStyle)
+
+	titleWidth := len(titleLines[0])
+	titleHeight := len(titleLines)
+	titleX := (wW - titleWidth) / 2
+	titleY := (wH-titleHeight)/2 - 8
+
+	titleStyle := tcell.StyleDefault.Foreground(tcell.ColorRed).Bold(true)
+	for i, line := range titleLines {
+		if titleY+i >= 0 && titleY+i < wH {
+			for j, r := range line {
+				if titleX+j >= 0 && titleX+j < wW {
+					w.screen.SetContent(titleX+j, titleY+i, r, nil, titleStyle)
+				}
 			}
 		}
 	}
-	
-	// Bottom border
-	for i := 0; i < titleBoxWidth; i++ {
-		if i == 0 {
-			w.screen.SetContent(titleBoxX+i, titleBoxY+titleBoxHeight-1, '╚', nil, borderStyle)
-		} else if i == titleBoxWidth-1 {
-			w.screen.SetContent(titleBoxX+i, titleBoxY+titleBoxHeight-1, '╝', nil, borderStyle)
-		} else {
-			w.screen.SetContent(titleBoxX+i, titleBoxY+titleBoxHeight-1, '═', nil, borderStyle)
-		}
+
+	menuOptions := []string{
+		"NEW   GAME",
+		"LOAD  GAME",
+		"SCOREBOARD",
+		"EXIT  GAME",
 	}
 
-	// Subtitle
-	subtitleX := (wW - len(subtitle)) / 2
-	subtitleY := titleBoxY + titleBoxHeight + 1
-	subtitleStyle := tcell.StyleDefault.Foreground(tcell.ColorGray)
-	for i, r := range subtitle {
-		w.screen.SetContent(subtitleX+i, subtitleY, r, nil, subtitleStyle)
-	}
-
-	// Menu options
-	menuY := wH/2 + 2
-	keyStyle := tcell.StyleDefault.Foreground(tcell.ColorGreen).Bold(true)
-	optionStyle := tcell.StyleDefault.Foreground(tcell.ColorWhite)
-	selectedStyle := tcell.StyleDefault.Foreground(tcell.ColorYellow).Bold(true)
-
-	// Continue option
-	if hasSave {
-		option1 := "[ENTER]"
-		option1Text := " Continue saved game"
-		option1X := (wW - len(option1+option1Text)) / 2
-		
-		for i, r := range option1 {
-			w.screen.SetContent(option1X+i, menuY, r, nil, keyStyle)
-		}
-		for i, r := range option1Text {
-			w.screen.SetContent(option1X+len(option1)+i, menuY, r, nil, selectedStyle)
-		}
-		menuY += 2
-	}
-
-	// New game option
-	option2 := "[ESC]"
-	option2Text := " Start new game"
-	option2X := (wW - len(option2+option2Text)) / 2
-	
-	styleToUse := optionStyle
 	if !hasSave {
-		styleToUse = selectedStyle
-	}
-	
-	for i, r := range option2 {
-		w.screen.SetContent(option2X+i, menuY, r, nil, keyStyle)
-	}
-	for i, r := range option2Text {
-		w.screen.SetContent(option2X+len(option2)+i, menuY, r, nil, styleToUse)
-	}
-	menuY += 3
-
-	// Instructions
-	instructions := []string{
-		"Movement: W/A/S/D",
-		"Items: H/R/J/K/E",
-		"Equipment: I/U",
-		"Drop: X",
-		"Quit: Q",
-	}
-	
-	instructionsStyle := tcell.StyleDefault.Foreground(tcell.ColorDarkGray)
-	instructionsTitle := "Controls:"
-	instructionsTitleX := (wW - len(instructionsTitle)) / 2
-	for i, r := range instructionsTitle {
-		w.screen.SetContent(instructionsTitleX+i, menuY, r, nil, instructionsStyle)
-	}
-	menuY++
-
-	for _, instruction := range instructions {
-		instX := (wW - len(instruction)) / 2
-		for i, r := range instruction {
-			w.screen.SetContent(instX+i, menuY, r, nil, instructionsStyle)
+		menuOptions = []string{
+			"NEW   GAME",
+			"SCOREBOARD",
+			"EXIT  GAME",
 		}
-		menuY++
 	}
 
-	// Footer
-	footer := "Press Q to quit at any time"
-	footerX := (wW - len(footer)) / 2
-	footerY := wH - 2
-	footerStyle := tcell.StyleDefault.Foreground(tcell.ColorDarkGray)
-	for i, r := range footer {
-		w.screen.SetContent(footerX+i, footerY, r, nil, footerStyle)
+	menuWidth := 32
+	menuHeight := len(menuOptions) + 4
+	menuX := (wW - menuWidth) / 2
+	menuY := titleY + titleHeight + 3
+
+	borderStyle := tcell.StyleDefault.Foreground(tcell.ColorYellow)
+	menuStyle := tcell.StyleDefault.Foreground(tcell.ColorWhite)
+	selectedStyle := tcell.StyleDefault.Foreground(tcell.ColorGreen).Bold(true)
+
+	titleLine := "           GAME  MENU           "
+	menuTitleX := menuX + (menuWidth-len(titleLine))/2
+	for i, r := range titleLine {
+		if menuTitleX+i >= 0 && menuTitleX+i < wW {
+			w.screen.SetContent(menuTitleX+i, menuY, r, nil, borderStyle)
+		}
+	}
+
+	topBorder := "+------------------------------+"
+	for i, r := range topBorder {
+		if menuX+i >= 0 && menuX+i < wW {
+			w.screen.SetContent(menuX+i, menuY+1, r, nil, borderStyle)
+		}
+	}
+
+	for i := 0; i < len(menuOptions); i++ {
+		emptyLine := "|                              |"
+		for j, r := range emptyLine {
+			if menuX+j >= 0 && menuX+j < wW {
+				w.screen.SetContent(menuX+j, menuY+2+i, r, nil, borderStyle)
+			}
+		}
+
+		optionText := "|          " + menuOptions[i] + "          |"
+		optionStyle := menuStyle
+		if i == currentOption {
+			optionStyle = selectedStyle
+		}
+		for j, r := range optionText {
+			if menuX+j >= 0 && menuX+j < wW {
+				w.screen.SetContent(menuX+j, menuY+2+i, r, nil, optionStyle)
+			}
+		}
+
+		if i == currentOption {
+			arrowLeftX := menuX + 5
+			arrowRightX := menuX + menuWidth - 5
+			arrowY := menuY + 2 + i
+			if arrowY >= 0 && arrowY < wH {
+				w.screen.SetContent(arrowLeftX, arrowY, '<', nil, selectedStyle)
+				w.screen.SetContent(arrowLeftX+1, arrowY, '<', nil, selectedStyle)
+				w.screen.SetContent(arrowLeftX+2, arrowY, '<', nil, selectedStyle)
+				w.screen.SetContent(arrowRightX-2, arrowY, '>', nil, selectedStyle)
+				w.screen.SetContent(arrowRightX-1, arrowY, '>', nil, selectedStyle)
+				w.screen.SetContent(arrowRightX, arrowY, '>', nil, selectedStyle)
+			}
+		}
+	}
+
+	bottomBorder := "+------------------------------+"
+	for i, r := range bottomBorder {
+		if menuX+i >= 0 && menuX+i < wW {
+			w.screen.SetContent(menuX+i, menuY+len(menuOptions)+2, r, nil, borderStyle)
+		}
+	}
+
+	instructionsStyle := tcell.StyleDefault.Foreground(tcell.ColorDarkGray)
+	instructionsY := menuY + menuHeight + 2
+
+	instructions := []string{
+		"Use W/S to navigate, ENTER to select",
+		"Press Q to quit",
+	}
+
+	for i, instruction := range instructions {
+		if instructionsY+i >= 0 && instructionsY+i < wH {
+			instX := (wW - len(instruction)) / 2
+			for j, r := range instruction {
+				if instX+j >= 0 && instX+j < wW {
+					w.screen.SetContent(instX+j, instructionsY+i, r, nil, instructionsStyle)
+				}
+			}
+		}
 	}
 
 	w.screen.Show()

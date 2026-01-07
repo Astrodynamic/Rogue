@@ -3,6 +3,7 @@ package domain
 type RandomGenerator interface {
 	Float64() float64
 	IntN(n int) int
+	Shuffle(n int, swap func(i, j int))
 }
 
 type CombatResolver interface {

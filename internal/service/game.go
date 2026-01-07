@@ -16,18 +16,17 @@ type Game struct {
 	selection       *SelectionModel
 	statisticsStore *storage.StatisticsStorage
 	gameStateStore  *storage.GameStateStorage
-	showStatistics  bool
-	showStartMenu   bool
 	rng             domain.RandomGenerator
+	generator       *Generator
 }
 
 func NewGame(ui UI) *Game {
 	gameStateStore := storage.NewGameStateStorage("saves")
-	hasSave := gameStateStore.HasSave()
 
 	seed := uint64(time.Now().UnixNano())
 	randSource := rand.New(rand.NewPCG(seed, seed))
 	rng := NewRandAdapter(randSource)
+	generator := NewGeneratorWithRNG(rng)
 
 	game := &Game{
 		FOV:             NewFOV(),
@@ -35,16 +34,8 @@ func NewGame(ui UI) *Game {
 		ui:              ui,
 		statisticsStore: storage.NewStatisticsStorage("saves"),
 		gameStateStore:  gameStateStore,
-		showStatistics:  false,
-		showStartMenu:   hasSave,
 		rng:             rng,
-	}
-
-	if !hasSave {
-		world := domain.NewWorld(domain.Width, domain.Height)
-		NewGenerator().Generate(world)
-		game.World = world
-		game.UpdateVisibility()
+		generator:       generator,
 	}
 
 	return game
@@ -54,6 +45,7 @@ func NewGameWithWorld(ui UI, world *domain.World) *Game {
 	seed := uint64(time.Now().UnixNano())
 	randSource := rand.New(rand.NewPCG(seed, seed))
 	rng := NewRandAdapter(randSource)
+	generator := NewGeneratorWithRNG(rng)
 
 	game := &Game{
 		World:           world,
@@ -62,9 +54,8 @@ func NewGameWithWorld(ui UI, world *domain.World) *Game {
 		ui:              ui,
 		statisticsStore: storage.NewStatisticsStorage("saves"),
 		gameStateStore:  storage.NewGameStateStorage("saves"),
-		showStatistics:  false,
-		showStartMenu:   false,
 		rng:             rng,
+		generator:       generator,
 	}
 
 	game.UpdateVisibility()
@@ -78,9 +69,9 @@ func (g *Game) UpdateVisibility() {
 
 func (g *Game) Run() {
 	for g.isRunning {
-		if g.showStartMenu {
-			g.ui.DrawStartMenu(g.HasSaveGame())
-		} else if g.showStatistics {
+		if g.ui.IsStartMenu() {
+			g.ui.DrawStartMenu(g.HasSaveGame(), g.ui.GetMenuOption())
+		} else if g.ui.IsStatistics() {
 			playthroughs, _ := g.statisticsStore.GetLeaderboard(0)
 			g.ui.DrawStatistics(playthroughs)
 		} else {

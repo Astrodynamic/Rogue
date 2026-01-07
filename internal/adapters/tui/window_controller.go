@@ -9,7 +9,7 @@ import (
 func (w *Window) KeyMap(key tcell.Key) service.Command {
 	switch key {
 	case tcell.KeyEscape:
-		if w.showStatistics {
+		if w.menuState.IsStatistics() {
 			return service.CmdBackToGame
 		}
 		return service.CmdSelectCancel
@@ -24,6 +24,10 @@ func (w *Window) KeyMap(key tcell.Key) service.Command {
 }
 
 func (w *Window) RuneMap(rune rune) service.Command {
+	if w.menuState.IsStatistics() {
+		return service.CmdNone
+	}
+
 	switch rune {
 	case 'q', 'Q':
 		return service.CmdQuit
@@ -51,8 +55,6 @@ func (w *Window) RuneMap(rune rune) service.Command {
 		return service.CmdUnequipItem
 	case 'x', 'X':
 		return service.CmdDropItem
-	case 't', 'T':
-		return service.CmdShowStatistics
 	}
 	return service.CmdNone
 }

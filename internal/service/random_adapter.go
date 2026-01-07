@@ -21,4 +21,8 @@ func (r *RandAdapter) IntN(n int) int {
 	return r.rng.IntN(n)
 }
 
+func (r *RandAdapter) Shuffle(n int, swap func(i, j int)) {
+	r.rng.Shuffle(n, swap)
+}
+
 var _ domain.RandomGenerator = (*RandAdapter)(nil)

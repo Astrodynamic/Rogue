@@ -5,12 +5,12 @@ import (
 )
 
 func (g *Game) handle(cmd Command) {
-	if g.showStartMenu {
+	if g.ui.IsStartMenu() {
 		g.handleStartMenu(cmd)
 		return
 	}
 
-	if g.showStatistics {
+	if g.ui.IsStatistics() {
 		g.handleStatisticsView(cmd)
 		return
 	}
@@ -24,34 +24,30 @@ func (g *Game) handle(cmd Command) {
 }
 
 func (g *Game) handleStartMenu(cmd Command) {
-	switch cmd {
-	case CmdSelectConfirm:
-		g.loadOrStartNewGame()
-	case CmdSelectCancel:
-		if g.HasSaveGame() {
+	g.ui.HandleMenuNavigation(cmd, g.HasSaveGame())
+
+	if cmd == CmdSelectConfirm {
+		menuCmd := g.ui.ProcessMenuSelection(g.HasSaveGame())
+		switch menuCmd {
+		case CmdNewGame:
 			g.startNewGame()
+		case CmdLoadGame:
+			g.loadGame()
+		case CmdShowStatistics:
+		case CmdQuit:
+			g.isRunning = false
 		}
 	}
 }
 
 func (g *Game) handleStatisticsView(cmd Command) {
-	switch cmd {
-	case CmdBackToGame, CmdSelectCancel:
-		g.showStatistics = false
-		g.ui.HideStatistics()
-		selection := SelectionState{
-			Model: g.selection,
-		}
-		g.ui.Draw(g.World, selection)
-	}
+	g.ui.HandleMenuNavigation(cmd, g.HasSaveGame())
 }
 
 func (g *Game) handleGameCommand(cmd Command) {
 	switch cmd {
 	case CmdQuit:
-		g.handleQuit()
-	case CmdShowStatistics:
-		g.showStatistics = true
+		g.returnToMenu()
 	case CmdMoveUp:
 		g.onMove(&g.World.Player.Actor, domain.DirSU)
 	case CmdMoveDown:
@@ -79,12 +75,12 @@ func (g *Game) handleGameCommand(cmd Command) {
 	}
 }
 
-func (g *Game) handleQuit() {
+func (g *Game) returnToMenu() {
 	g.SaveStatistics()
 	if g.World != nil {
 		g.SaveGameState()
 	}
-	g.isRunning = false
+	g.ui.ReturnToMenu()
 }
 
 func (g *Game) handleSelection(cmd Command) {

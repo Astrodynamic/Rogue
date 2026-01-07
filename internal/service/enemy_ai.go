@@ -1,7 +1,6 @@
 package service
 
 import (
-	"math/rand/v2"
 	"rogue/internal/domain"
 )
 
@@ -89,8 +88,8 @@ func (g *Game) findRandomTeleportPosition(level *domain.Level, currentPos domain
 
 	maxAttempts := 20
 	for i := 0; i < maxAttempts; i++ {
-		x := rand.IntN(currentRoom.W-2) + currentRoom.X + 1
-		y := rand.IntN(currentRoom.H-2) + currentRoom.Y + 1
+		x := g.rng.IntN(currentRoom.W-2) + currentRoom.X + 1
+		y := g.rng.IntN(currentRoom.H-2) + currentRoom.Y + 1
 		pos := domain.Point{X: x, Y: y}
 
 		if level.Tiles[y][x].Kind == domain.TileFloor {

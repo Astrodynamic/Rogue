@@ -60,7 +60,9 @@ func (g *Generator) GenerateCorridors(level *domain.Level) {
 		cur := stack[len(stack)-1]
 
 		neighbors := g.neighbors(cur)
-		g.rng.Shuffle(len(neighbors), func(i, j int) { neighbors[i], neighbors[j] = neighbors[j], neighbors[i] })
+		g.rng.Shuffle(len(neighbors), func(i, j int) {
+			neighbors[i], neighbors[j] = neighbors[j], neighbors[i]
+		})
 
 		next := -1
 		for _, nb := range neighbors {

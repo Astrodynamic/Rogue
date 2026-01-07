@@ -27,7 +27,7 @@ func (g *Game) onMove(actor *domain.Actor, dir domain.Point) {
 		}
 		g.SaveStatistics()
 		g.SaveGameState()
-		NewGenerator().Generate(g.World)
+		g.generator.Generate(g.World)
 		g.UpdateVisibility()
 		return
 	default:

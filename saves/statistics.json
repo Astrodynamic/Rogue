@@ -130,5 +130,65 @@
     "hits_received": 13,
     "tiles_traveled": 209,
     "timestamp": "2026-01-07T11:48:10.214094029+08:00"
+  },
+  {
+    "treasure_collected": 316,
+    "deepest_level": 2,
+    "enemies_defeated": 2,
+    "food_consumed": 0,
+    "elixirs_drunk": 0,
+    "scrolls_read": 0,
+    "hits_dealt": 15,
+    "hits_received": 13,
+    "tiles_traveled": 209,
+    "timestamp": "2026-01-07T11:56:41.700711133+08:00"
+  },
+  {
+    "treasure_collected": 316,
+    "deepest_level": 2,
+    "enemies_defeated": 2,
+    "food_consumed": 0,
+    "elixirs_drunk": 0,
+    "scrolls_read": 0,
+    "hits_dealt": 15,
+    "hits_received": 13,
+    "tiles_traveled": 209,
+    "timestamp": "2026-01-07T12:02:30.736398304+08:00"
+  },
+  {
+    "treasure_collected": 316,
+    "deepest_level": 2,
+    "enemies_defeated": 2,
+    "food_consumed": 0,
+    "elixirs_drunk": 0,
+    "scrolls_read": 0,
+    "hits_dealt": 15,
+    "hits_received": 13,
+    "tiles_traveled": 209,
+    "timestamp": "2026-01-07T12:03:04.974566886+08:00"
+  },
+  {
+    "treasure_collected": 787,
+    "deepest_level": 2,
+    "enemies_defeated": 5,
+    "food_consumed": 3,
+    "elixirs_drunk": 0,
+    "scrolls_read": 1,
+    "hits_dealt": 28,
+    "hits_received": 23,
+    "tiles_traveled": 577,
+    "timestamp": "2026-01-07T12:12:04.144500485+08:00"
+  },
+  {
+    "treasure_collected": 1003,
+    "deepest_level": 3,
+    "enemies_defeated": 6,
+    "food_consumed": 3,
+    "elixirs_drunk": 0,
+    "scrolls_read": 1,
+    "hits_dealt": 33,
+    "hits_received": 28,
+    "tiles_traveled": 658,
+    "timestamp": "2026-01-07T12:12:27.299336884+08:00"
   }
 ]

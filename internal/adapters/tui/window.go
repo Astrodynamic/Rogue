@@ -20,13 +20,14 @@ type Window struct {
 	screen         tcell.Screen
 	log            *Log
 	layout         Layout
-	showStatistics bool
+	menuState      *MenuState
 	statisticsData []*domain.PlaythroughStatistics
 }
 
 func NewWindow() *Window {
 	return &Window{
-		log: NewLog(10),
+		log:       NewLog(10),
+		menuState: NewMenuState(),
 	}
 }
 
@@ -51,31 +52,93 @@ func (w *Window) Close() {
 
 func (w *Window) Draw(world *domain.World, selection service.SelectionState) {
 	w.screen.Clear()
-
-	if w.showStatistics {
-		w.drawStatisticsView(w.statisticsData, w.layout.Screen)
-	} else {
-		w.DrawMap(world, w.layout.Map)
-		w.DrawStats(world, w.layout.Stats)
-		w.DrawEquipment(world.Player, w.layout.Equipment, selection)
-		w.DrawInventory(world.Player, w.layout.Inventory, selection)
-		w.DrawLog(w.layout.Log)
-	}
-
+	w.DrawMap(world, w.layout.Map)
+	w.DrawStats(world, w.layout.Stats)
+	w.DrawEquipment(world.Player, w.layout.Equipment, selection)
+	w.DrawInventory(world.Player, w.layout.Inventory, selection)
+	w.DrawLog(w.layout.Log)
 	w.screen.Show()
 }
 
 func (w *Window) DrawStatistics(playthroughs []*domain.PlaythroughStatistics) {
-	w.showStatistics = true
+	w.menuState.SetStatistics(true)
 	w.statisticsData = playthroughs
 	w.screen.Clear()
 	w.drawStatisticsView(playthroughs, w.layout.Screen)
 	w.screen.Show()
 }
 
-func (w *Window) HideStatistics() {
-	w.showStatistics = false
-	w.statisticsData = nil
+func (w *Window) IsStartMenu() bool {
+	return w.menuState.IsStartMenu()
+}
+
+func (w *Window) IsStatistics() bool {
+	return w.menuState.IsStatistics()
+}
+
+func (w *Window) GetMenuOption() int {
+	return w.menuState.GetMenuOption()
+}
+
+func (w *Window) HandleMenuNavigation(cmd service.Command, hasSave bool) {
+	maxOptions := 3
+	if hasSave {
+		maxOptions = 4
+	}
+
+	switch cmd {
+	case service.CmdSelectUp:
+		w.menuState.MoveUp(maxOptions)
+	case service.CmdSelectDown:
+		w.menuState.MoveDown(maxOptions)
+	case service.CmdBackToGame, service.CmdSelectCancel, service.CmdQuit:
+		if w.menuState.IsStatistics() {
+			w.menuState.Reset()
+		}
+	}
+}
+
+func (w *Window) ProcessMenuSelection(hasSave bool) service.Command {
+	option := w.menuState.GetMenuOption()
+	maxOptions := 3
+	if hasSave {
+		maxOptions = 4
+	}
+
+	if option == maxOptions-1 {
+		return service.CmdQuit
+	}
+
+	if hasSave {
+		switch option {
+		case 0:
+			w.menuState.SetStartMenu(false)
+			return service.CmdNewGame
+		case 1:
+			w.menuState.SetStartMenu(false)
+			return service.CmdLoadGame
+		case 2:
+			w.menuState.SetStartMenu(false)
+			w.menuState.SetStatistics(true)
+			return service.CmdShowStatistics
+		}
+	} else {
+		switch option {
+		case 0:
+			w.menuState.SetStartMenu(false)
+			return service.CmdNewGame
+		case 1:
+			w.menuState.SetStartMenu(false)
+			w.menuState.SetStatistics(true)
+			return service.CmdShowStatistics
+		}
+	}
+
+	return service.CmdNone
+}
+
+func (w *Window) ReturnToMenu() {
+	w.menuState.Reset()
 }
 
 func (w *Window) resize() {

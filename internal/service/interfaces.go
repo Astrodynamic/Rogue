@@ -23,8 +23,10 @@ const (
 	CmdSelectDown
 	CmdSelectConfirm
 	CmdSelectCancel
-	CmdShowStatistics
 	CmdBackToGame
+	CmdNewGame
+	CmdLoadGame
+	CmdShowStatistics
 )
 
 type SelectionState struct {
@@ -34,11 +36,15 @@ type SelectionState struct {
 type UI interface {
 	Init() error
 	Close()
-
 	Draw(world *domain.World, selection SelectionState)
 	DrawStatistics(playthroughs []*domain.PlaythroughStatistics)
-	HideStatistics()
-	DrawStartMenu(hasSave bool)
+	DrawStartMenu(hasSave bool, currentOption int)
 	AddLog(message string)
 	Input() Command
+	IsStartMenu() bool
+	IsStatistics() bool
+	GetMenuOption() int
+	HandleMenuNavigation(cmd Command, hasSave bool)
+	ProcessMenuSelection(hasSave bool) Command
+	ReturnToMenu()
 }

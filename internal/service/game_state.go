@@ -4,28 +4,22 @@ import (
 	"rogue/internal/domain"
 )
 
-func (g *Game) loadOrStartNewGame() {
-	if g.HasSaveGame() {
-		world, err := g.LoadGameState()
-		if err == nil && world != nil {
-			g.World = world
-			g.showStartMenu = false
-			g.UpdateVisibility()
-			g.ui.AddLog("Game loaded successfully!")
-		} else {
-			g.ui.AddLog("Failed to load game. Starting new game...")
-			g.startNewGame()
-		}
+func (g *Game) loadGame() {
+	world, err := g.LoadGameState()
+	if err == nil && world != nil {
+		g.World = world
+		g.UpdateVisibility()
+		g.ui.AddLog("Game loaded successfully!")
 	} else {
+		g.ui.AddLog("Failed to load game. Starting new game...")
 		g.startNewGame()
 	}
 }
 
 func (g *Game) startNewGame() {
 	world := domain.NewWorld(domain.Width, domain.Height)
-	NewGenerator().Generate(world)
+	g.generator.Generate(world)
 	g.World = world
-	g.showStartMenu = false
 	g.UpdateVisibility()
 }
 
@@ -35,7 +29,7 @@ func (g *Game) handleGameCompletion() {
 	g.ui.AddLog("Game completed. Starting new game...")
 	world := domain.NewWorld(domain.Width, domain.Height)
 	g.World = world
-	NewGenerator().Generate(g.World)
+	g.generator.Generate(g.World)
 	g.UpdateVisibility()
 }
 

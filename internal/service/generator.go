@@ -1,20 +1,16 @@
 package service
 
 import (
-	"math/rand/v2"
-	"time"
-
 	"rogue/internal/domain"
 )
 
 type Generator struct {
-	rng *rand.Rand
+	rng domain.RandomGenerator
 }
 
-func NewGenerator() *Generator {
-	seed := uint64(time.Now().UnixNano())
+func NewGeneratorWithRNG(rng domain.RandomGenerator) *Generator {
 	return &Generator{
-		rng: rand.New(rand.NewPCG(seed, seed)),
+		rng: rng,
 	}
 }
 
