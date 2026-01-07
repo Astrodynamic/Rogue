@@ -8,51 +8,51 @@ import (
 )
 
 type Game struct {
-	World           *domain.World
-	FOV             *FOV
-	isRunning       bool
-	ui              UI
-	selection       *SelectionModel
-	statisticsStore StatsStore
-	gameStateStore  StateStore
-	rng             domain.RandomGenerator
-	generator       *Generator
+	World     *domain.World
+	FOV       *FOV
+	isRunning bool
+	ui        UI
+	sel       *SelectionModel
+	stats     StatsStore
+	state     StateStore
+	rng       domain.RandomGenerator
+	gen       *Generator
 }
 
-func NewGame(ui UI, gameStateStore StateStore, statisticsStore StatsStore) *Game {
+func NewGame(ui UI, state StateStore, stats StatsStore) *Game {
 	seed := uint64(time.Now().UnixNano())
 	randSource := rand.New(rand.NewPCG(seed, seed))
 	rng := NewRandAdapter(randSource)
-	generator := NewGenWithRNG(rng)
+	gen := NewGenWithRNG(rng)
 
 	game := &Game{
-		FOV:             NewFOV(),
-		isRunning:       true,
-		ui:              ui,
-		statisticsStore: statisticsStore,
-		gameStateStore:  gameStateStore,
-		rng:             rng,
-		generator:       generator,
+		FOV:       NewFOV(),
+		isRunning: true,
+		ui:        ui,
+		stats:     stats,
+		state:     state,
+		rng:       rng,
+		gen:       gen,
 	}
 
 	return game
 }
 
-func NewGameWithW(ui UI, world *domain.World, gameStateStore StateStore, statisticsStore StatsStore) *Game {
+func NewGameWithW(ui UI, world *domain.World, state StateStore, stats StatsStore) *Game {
 	seed := uint64(time.Now().UnixNano())
 	randSource := rand.New(rand.NewPCG(seed, seed))
 	rng := NewRandAdapter(randSource)
-	generator := NewGenWithRNG(rng)
+	gen := NewGenWithRNG(rng)
 
 	game := &Game{
-		World:           world,
-		FOV:             NewFOV(),
-		isRunning:       true,
-		ui:              ui,
-		statisticsStore: statisticsStore,
-		gameStateStore:  gameStateStore,
-		rng:             rng,
-		generator:       generator,
+		World:     world,
+		FOV:       NewFOV(),
+		isRunning: true,
+		ui:        ui,
+		stats:     stats,
+		state:     state,
+		rng:       rng,
+		gen:       gen,
 	}
 
 	game.UpdateVisibility()
@@ -78,13 +78,13 @@ func (g *Game) Run() {
 			var emptyWorld *domain.World
 			g.ui.Draw(emptyWorld, SelectionState{})
 		} else if g.ui.IsStatistics() {
-			playthroughs, _ := g.statisticsStore.GetLeaderboard(0)
+			playthroughs, _ := g.stats.GetLeaderboard(0)
 			g.ui.DrawStatistics(playthroughs)
 		} else if g.World != nil {
-			selection := SelectionState{
-				Model: g.selection,
+			sel := SelectionState{
+				Model: g.sel,
 			}
-			g.ui.Draw(g.World, selection)
+			g.ui.Draw(g.World, sel)
 		}
 		g.handle(g.ui.Input())
 	}

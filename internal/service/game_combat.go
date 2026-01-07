@@ -5,8 +5,8 @@ import (
 	"rogue/internal/domain"
 )
 
-func (g *Game) initiateCombat(playerActor *domain.Actor, enemy domain.Enemy, enemyPos domain.Point) {
-	enemyActor := enemy.GetActor()
+func (g *Game) initiateCombat(pActor *domain.Actor, enemy domain.Enemy, ePos domain.Point) {
+	eActor := enemy.GetActor()
 	enemyName := enemy.Name()
 	resolver := NewCombatRes(g)
 
@@ -16,7 +16,7 @@ func (g *Game) initiateCombat(playerActor *domain.Actor, enemy domain.Enemy, ene
 		}
 	}
 
-	result := playerActor.AttackWithResolver(enemyActor, resolver)
+	result := pActor.AttackWithResolver(eActor, resolver)
 	g.RecordHitDealt()
 
 	if vampire, ok := enemy.(*domain.Vampire); ok {
@@ -30,7 +30,7 @@ func (g *Game) initiateCombat(playerActor *domain.Actor, enemy domain.Enemy, ene
 
 	if result.Hit && result.Killed {
 		g.ui.AddLog(fmt.Sprintf("Killed %s", enemyName))
-		g.handleEnemyDeath(enemy, enemyPos)
+		g.handleEnemyDeath(enemy, ePos)
 		g.RecordEnemyDefeated()
 		return
 	}
@@ -41,8 +41,8 @@ func (g *Game) initiateCombat(playerActor *domain.Actor, enemy domain.Enemy, ene
 		g.ui.AddLog("Miss")
 	}
 
-	if enemy.IsAlive() && enemyActor.State != domain.ActorStateSleep {
-		g.processEnemyAttack(enemy, enemyActor, resolver)
+	if enemy.IsAlive() && eActor.State != domain.ActorStateSleep {
+		g.processEnemyAttack(enemy, eActor, resolver)
 	}
 
 	g.UpdateVisibility()
@@ -56,16 +56,16 @@ func (g *Game) logAttackResult(result domain.CombatResult) {
 	}
 }
 
-func (g *Game) processEnemyAttack(enemy domain.Enemy, actor *domain.Actor, resolver domain.CombatResolver) {
-	playerActor := &g.World.Player.Actor
-	enemyResult := actor.AttackWithResolver(playerActor, resolver)
+func (g *Game) processEnemyAttack(enemy domain.Enemy, eActor *domain.Actor, resolver domain.CombatResolver) {
+	pActor := &g.World.Player.Actor
+	result := eActor.AttackWithResolver(pActor, resolver)
 
 	g.RecordHitReceived()
-	g.logAttackResult(enemyResult)
+	g.logAttackResult(result)
 
-	g.applyEnemyAttackEffects(enemy, enemyResult, playerActor)
+	g.applyEnemyAttackEffects(enemy, result, pActor)
 
-	if enemyResult.Killed {
+	if result.Killed {
 		g.handlePlayerDeath()
 		return
 	}
@@ -75,7 +75,7 @@ func (g *Game) processEnemyAttack(enemy domain.Enemy, actor *domain.Actor, resol
 	}
 }
 
-func (g *Game) applyEnemyAttackEffects(enemy domain.Enemy, result domain.CombatResult, playerActor *domain.Actor) {
+func (g *Game) applyEnemyAttackEffects(enemy domain.Enemy, result domain.CombatResult, pActor *domain.Actor) {
 	if !result.Hit {
 		return
 	}
@@ -83,26 +83,26 @@ func (g *Game) applyEnemyAttackEffects(enemy domain.Enemy, result domain.CombatR
 	switch enemy.(type) {
 	case *domain.SnakeMage:
 		if g.rng.IntN(domain.Combat.PercentBase) < domain.SnakeMageSleepCh {
-			playerActor.State = domain.ActorStateSleep
+			pActor.State = domain.ActorStateSleep
 			g.ui.AddLog("Sleep!")
 		}
 	case *domain.Vampire:
 		reductionEffect := domain.NewMaxHPEffect(-domain.VampireMaxHPRed, -1)
-		playerActor.AddEffect(reductionEffect)
+		pActor.AddEffect(reductionEffect)
 		g.ui.AddLog(fmt.Sprintf("MaxHP-%d", domain.VampireMaxHPRed))
 	}
 }
 
-func (g *Game) handleEnemyDeath(enemy domain.Enemy, enemyPos domain.Point) {
+func (g *Game) handleEnemyDeath(enemy domain.Enemy, ePos domain.Point) {
 	depth := g.World.GetDepth()
-	treasure := g.generator.GenerateTreasureFromEnemyWithDepth(enemy, depth)
+	treasure := g.gen.GenerateTreasureFromEnemyWithDepth(enemy, depth)
 
 	if treasure != nil {
-		g.World.Level.AddItem(enemyPos, treasure)
+		g.World.Level.AddItem(ePos, treasure)
 		g.ui.AddLog(fmt.Sprintf("Drop $%d", treasure.Value))
 	}
 
-	g.World.Level.RemoveEnemy(enemyPos)
+	g.World.Level.RemoveEnemy(ePos)
 }
 
 func (g *Game) handlePlayerDeath() {
@@ -110,6 +110,6 @@ func (g *Game) handlePlayerDeath() {
 	g.SaveStatistics()
 	world := domain.NewWorld(domain.WorldConfig.Width, domain.WorldConfig.Height, g.World.Player.Name)
 	g.World = world
-	g.generator.Generate(g.World)
+	g.gen.Generate(g.World)
 	g.UpdateVisibility()
 }

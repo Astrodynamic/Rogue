@@ -9,20 +9,20 @@ import (
 )
 
 type Application struct {
-	gui             service.UI
-	gameStateStore  service.StateStore
-	statisticsStore service.StatsStore
+	gui   service.UI
+	state service.StateStore
+	stats service.StatsStore
 }
 
 func NewApplication() *Application {
 	window := tui.NewWindow()
-	gameStateStore := storage.NewStateStore("saves")
-	statisticsStore := storage.NewStatsStore("saves")
+	state := storage.NewStateStore("saves")
+	stats := storage.NewStatsStore("saves")
 
 	return &Application{
-		gui:             window,
-		gameStateStore:  gameStateStore,
-		statisticsStore: statisticsStore,
+		gui:   window,
+		state: state,
+		stats: stats,
 	}
 }
 
@@ -32,7 +32,7 @@ func (a *Application) Run() error {
 	}
 	defer a.gui.Close()
 
-	game := service.NewGame(a.gui, a.gameStateStore, a.statisticsStore)
+	game := service.NewGame(a.gui, a.state, a.stats)
 	game.Run()
 
 	return nil

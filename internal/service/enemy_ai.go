@@ -7,7 +7,7 @@ import (
 func (g *Game) ProcessEnemyTurns() {
 	enemies := g.World.Level.GetAllEnemies()
 	aiCtx := NewAICtx(g)
-	playerPos := g.World.Player.Point
+	pPos := g.World.Player.Point
 	level := g.World.Level
 
 	for _, enemy := range enemies {
@@ -15,7 +15,7 @@ func (g *Game) ProcessEnemyTurns() {
 			continue
 		}
 
-		enemy.ProcessTurn(aiCtx, level, playerPos)
+		enemy.ProcessTurn(aiCtx, level, pPos)
 	}
 }
 
@@ -72,10 +72,10 @@ func (g *Game) findPathToPlayer(from, to domain.Point, level *domain.Level) doma
 	return domain.Point{X: -1, Y: -1}
 }
 
-func (g *Game) findRandomTeleportPosition(level *domain.Level, currentPos domain.Point) domain.Point {
+func (g *Game) findRandomTeleportPosition(level *domain.Level, pos domain.Point) domain.Point {
 	var currentRoom *domain.Room
 	for i := range level.Rooms {
-		if level.Rooms[i].Contains(currentPos) {
+		if level.Rooms[i].Contains(pos) {
 			currentRoom = &level.Rooms[i]
 			break
 		}
@@ -85,8 +85,8 @@ func (g *Game) findRandomTeleportPosition(level *domain.Level, currentPos domain
 		return domain.Point{X: -1, Y: -1}
 	}
 
-	return g.generator.findRandomPositionInRoom(level, *currentRoom, func(pos domain.Point) bool {
-		return level.Tiles[pos.Y][pos.X].Kind == domain.TileFloor &&
-			level.GetEnemy(pos) == nil && pos != currentPos
+	return g.gen.findRandomPositionInRoom(level, *currentRoom, func(nPos domain.Point) bool {
+		return level.Tiles[nPos.Y][nPos.X].Kind == domain.TileFloor &&
+			level.GetEnemy(nPos) == nil && nPos != pos
 	})
 }

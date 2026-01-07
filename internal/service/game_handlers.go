@@ -20,7 +20,7 @@ func (g *Game) handle(cmd Command) {
 		return
 	}
 
-	if g.selection != nil && g.selection.IsActive() {
+	if g.sel != nil && g.sel.IsActive() {
 		g.handleSelection(cmd)
 		return
 	}
@@ -100,21 +100,21 @@ func (g *Game) returnToMenu() {
 }
 
 func (g *Game) handleSelection(cmd Command) {
-	if g.selection == nil {
+	if g.sel == nil {
 		return
 	}
 
 	switch cmd {
 	case CmdSelectCancel:
-		g.selection.Cancel()
-		g.selection = nil
+		g.sel.Cancel()
+		g.sel = nil
 	case CmdSelectUp:
-		g.selection.MoveUp()
+		g.sel.MoveUp()
 	case CmdSelectDown:
-		g.selection.MoveDown()
+		g.sel.MoveDown()
 	case CmdSelectConfirm:
-		if g.selection.Confirm() {
-			g.selection = nil
+		if g.sel.Confirm() {
+			g.sel = nil
 		}
 	}
 }

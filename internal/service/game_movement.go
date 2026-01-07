@@ -50,7 +50,7 @@ func (g *Game) onMove(actor *domain.Actor, dir domain.Point) {
 		g.SaveStatistics()
 		g.SaveGameState()
 		g.World.GameState.AdvanceLevel()
-		g.generator.Generate(g.World)
+		g.gen.Generate(g.World)
 		g.UpdateVisibility()
 		g.ui.AddLog(fmt.Sprintf("Enter %d", g.World.GetDepth()))
 		return

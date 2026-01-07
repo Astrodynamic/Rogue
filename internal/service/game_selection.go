@@ -10,8 +10,8 @@ func (g *Game) startItemSelection(kind domain.ItemKind, isDrop bool) {
 		return
 	}
 
-	selectionItems := g.buildSelectionItemsFromStacks(stacks, kind)
-	if len(selectionItems) == 0 {
+	items := g.buildSelectionItemsFromStacks(stacks, kind)
+	if len(items) == 0 {
 		return
 	}
 
@@ -22,7 +22,7 @@ func (g *Game) startItemSelection(kind domain.ItemKind, isDrop bool) {
 		handler = NewUseItemHandler(g, kind)
 	}
 
-	g.selection = NewSelectionModel(selectionItems, handler)
+	g.sel = NewSelectionModel(items, handler)
 }
 
 func (g *Game) startDropItemSelection() {
@@ -34,12 +34,12 @@ func (g *Game) startDropItemSelection() {
 		domain.ItemArmor,
 	}
 
-	selectionItems := make([]SelectionItem, 0)
+	items := make([]SelectionItem, 0)
 	for _, kind := range allKinds {
 		stacks := g.World.Player.Backpack.GetStacks(kind)
 		for stackIndex, stack := range stacks {
 			if item := stack.Peek(); item != nil {
-				selectionItems = append(selectionItems, &ItemSelItem{
+				items = append(items, &ItemSelItem{
 					Item:       item,
 					ItemKind:   kind,
 					StackIndex: stackIndex,
@@ -48,11 +48,11 @@ func (g *Game) startDropItemSelection() {
 		}
 	}
 
-	if len(selectionItems) == 0 {
+	if len(items) == 0 {
 		return
 	}
 
-	g.selection = NewSelectionModel(selectionItems, NewDropItemHandler(g))
+	g.sel = NewSelectionModel(items, NewDropItemHandler(g))
 }
 
 func (g *Game) startEquipItemSelection() {
@@ -61,14 +61,14 @@ func (g *Game) startEquipItemSelection() {
 		domain.ItemArmor,
 	}
 
-	selectionItems := make([]SelectionItem, 0)
+	items := make([]SelectionItem, 0)
 	for _, kind := range equippableKinds {
 		stacks := g.World.Player.Backpack.GetStacks(kind)
 		for stackIndex, stack := range stacks {
 			if item := stack.Peek(); item != nil {
 				_, canEquip := domain.GetEquipPart(item)
 				if canEquip {
-					selectionItems = append(selectionItems, &ItemSelItem{
+					items = append(items, &ItemSelItem{
 						Item:       item,
 						ItemKind:   kind,
 						StackIndex: stackIndex,
@@ -78,44 +78,44 @@ func (g *Game) startEquipItemSelection() {
 		}
 	}
 
-	if len(selectionItems) == 0 {
+	if len(items) == 0 {
 		return
 	}
 
-		g.selection = NewSelectionModel(selectionItems, NewEquipHdl(g))
+		g.sel = NewSelectionModel(items, NewEquipHdl(g))
 }
 
 func (g *Game) startUnequipItemSelection() {
 	parts := domain.GetAllParts()
 
-	selectionItems := make([]SelectionItem, 0)
+	items := make([]SelectionItem, 0)
 	for _, part := range parts {
 		item := g.World.Player.Equipment.Get(part)
 		if item != nil {
-			selectionItems = append(selectionItems, &EquipSelItem{
+			items = append(items, &EquipSelItem{
 				Part: part,
 				Item: item,
 			})
 		}
 	}
 
-	if len(selectionItems) == 0 {
+	if len(items) == 0 {
 		return
 	}
 
-		g.selection = NewSelectionModel(selectionItems, NewUnequipHdl(g))
+		g.sel = NewSelectionModel(items, NewUnequipHdl(g))
 }
 
 func (g *Game) buildSelectionItemsFromStacks(stacks []*domain.ItemStack, kind domain.ItemKind) []SelectionItem {
-	selectionItems := make([]SelectionItem, 0)
+	items := make([]SelectionItem, 0)
 	for i, stack := range stacks {
 		if item := stack.Peek(); item != nil {
-			selectionItems = append(selectionItems, &ItemSelItem{
+			items = append(items, &ItemSelItem{
 				Item:       item,
 				ItemKind:   kind,
 				StackIndex: i,
 			})
 		}
 	}
-	return selectionItems
+	return items
 }
