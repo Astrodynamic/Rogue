@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"rogue/internal/domain"
 	"rogue/internal/service"
+
+	"github.com/gdamore/tcell/v2"
 )
 
 func (w *Window) DrawEquipment(player *domain.Player, rect domain.Rect, selection service.SelectionState) {
@@ -53,7 +55,7 @@ func (w *Window) DrawEquipment(player *domain.Player, rect domain.Rect, selectio
 		if isSelected {
 			w.drawTextHighlighted(rect, line, text)
 		} else {
-			w.drawText(rect, line, text)
+			w.drawTextRaw(rect, line, text, tcell.StyleDefault.Foreground(tcell.ColorWhite))
 		}
 		line++
 	}

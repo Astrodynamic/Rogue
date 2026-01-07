@@ -143,3 +143,18 @@ func (b *Backpack) GetTotalTreasure() int {
 	}
 	return 0
 }
+
+func (b *Backpack) GetAllStacks() map[ItemKind][]*ItemStack {
+	result := make(map[ItemKind][]*ItemStack)
+	for kind, stacks := range b.stacks {
+		result[kind] = stacks
+	}
+	return result
+}
+
+func (b *Backpack) AddStack(kind ItemKind, stack *ItemStack) {
+	if _, exists := b.stacks[kind]; !exists {
+		b.stacks[kind] = make([]*ItemStack, 0)
+	}
+	b.stacks[kind] = append(b.stacks[kind], stack)
+}

@@ -5,9 +5,9 @@ import "rogue/internal/domain"
 func (g *Generator) GenerateItems(level *domain.Level, depth int, startRoom *domain.Room) {
 	level.Items = make(map[domain.Point]domain.Item)
 
-	itemsPerRoom := 1 + depth/3
-	if itemsPerRoom > 3 {
-		itemsPerRoom = 3
+	itemsPerRoom := 3 - depth/7
+	if itemsPerRoom < 1 {
+		itemsPerRoom = 1
 	}
 
 	for _, room := range level.Rooms {

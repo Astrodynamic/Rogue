@@ -38,5 +38,7 @@ type UI interface {
 	Draw(world *domain.World, selection SelectionState)
 	DrawStatistics(playthroughs []*domain.PlaythroughStatistics)
 	HideStatistics()
+	DrawStartMenu(hasSave bool)
+	AddLog(message string)
 	Input() Command
 }

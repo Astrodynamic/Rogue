@@ -72,3 +72,11 @@ func GetPartName(part ActorPart) string {
 	}
 	return partNames[part]
 }
+
+func (e *Equipment) GetAllParts() map[ActorPart]Item {
+	result := make(map[ActorPart]Item)
+	for part, item := range e.Parts {
+		result[part] = item
+	}
+	return result
+}
