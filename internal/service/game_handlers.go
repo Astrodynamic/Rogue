@@ -5,6 +5,11 @@ import (
 )
 
 func (g *Game) handle(cmd Command) {
+	if g.ui.IsNameInput() {
+		g.handleNameInput(cmd)
+		return
+	}
+
 	if g.ui.IsStartMenu() {
 		g.handleStartMenu(cmd)
 		return
@@ -21,6 +26,17 @@ func (g *Game) handle(cmd Command) {
 	}
 
 	g.handleGameCommand(cmd)
+}
+
+func (g *Game) handleNameInput(cmd Command) {
+	if cmd == CmdSelectConfirm {
+		playerName := g.ui.GetPlayerNameInput()
+		if playerName == "" {
+			playerName = "Player"
+		}
+		g.createNewGameWithPlayerName(playerName)
+		g.ui.SetNameInputState(false)
+	}
 }
 
 func (g *Game) handleStartMenu(cmd Command) {

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"rogue/internal/domain"
 )
 
@@ -19,16 +20,20 @@ func (g *Game) onMove(actor *domain.Actor, dir domain.Point) {
 
 	switch g.World.Level.Tiles[next.Y][next.X].Kind {
 	case domain.TileWall:
+		g.ui.AddLog("Cannot move: blocked by wall")
 		return
 	case domain.TileExit:
 		if g.World.GetDepth() >= domain.Depth {
 			g.handleGameCompletion()
 			return
 		}
+		g.ui.AddLog(fmt.Sprintf("Reached level %d", g.World.GetDepth()+1))
 		g.SaveStatistics()
 		g.SaveGameState()
+		g.World.GameState.AdvanceLevel()
 		g.generator.Generate(g.World)
 		g.UpdateVisibility()
+		g.ui.AddLog(fmt.Sprintf("Entered level %d", g.World.GetDepth()))
 		return
 	default:
 		actor.Move(dir)
@@ -53,6 +58,7 @@ func (g *Game) pickupItem(actor *domain.Actor, pos domain.Point) {
 	}
 
 	if !actor.Backpack.HasSpace(item) {
+		g.ui.AddLog("Cannot pick up " + item.Name() + ": backpack full")
 		return
 	}
 
@@ -60,7 +66,10 @@ func (g *Game) pickupItem(actor *domain.Actor, pos domain.Point) {
 		if item.Type() == domain.ItemTreasure {
 			if treasure, ok := item.(*domain.Treasure); ok {
 				g.RecordTreasureCollected(treasure.Value)
+				g.ui.AddLog(fmt.Sprintf("Picked up %s (value: %d)", item.Name(), treasure.Value))
 			}
+		} else {
+			g.ui.AddLog("Picked up " + item.Name())
 		}
 		g.World.Level.RemoveItem(pos)
 	}

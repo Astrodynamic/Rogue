@@ -33,6 +33,10 @@ func (z *Zombie) GetEnemyType() EnemyType {
 	return z.EnemyType
 }
 
+func (z *Zombie) Name() string {
+	return "Zombie"
+}
+
 func (z *Zombie) ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Point) {
 	if !z.IsAlive() {
 		return

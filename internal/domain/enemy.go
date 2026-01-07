@@ -29,6 +29,7 @@ type Enemy interface {
 	CanAttack(playerPos Point) bool
 	IsAlive() bool
 	ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Point)
+	Name() string
 }
 
 type BaseEnemy struct {

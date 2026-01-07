@@ -34,8 +34,8 @@ func (w *Window) drawStatisticsView(playthroughs []*domain.PlaythroughStatistics
 	headerStyle := tcell.StyleDefault.Foreground(tcell.ColorYellow).Bold(true)
 	separatorStyle := tcell.StyleDefault.Foreground(tcell.ColorWhite)
 
-	colWidths := []int{3, 10, 6, 8, 5, 8, 8, 5, 6}
-	colHeaders := []string{"#", "Treasure", "Level", "Enemies", "Food", "Elixirs", "Scrolls", "Hits", "Tiles"}
+	colWidths := []int{3, 12, 10, 6, 8, 5, 8, 8, 5, 6}
+	colHeaders := []string{"#", "Player", "Treasure", "Level", "Enemies", "Food", "Elixirs", "Scrolls", "Hits", "Tiles"}
 
 	x := rect.X + 1
 	y := rect.Y + line
@@ -91,8 +91,17 @@ func (w *Window) drawStatisticsView(playthroughs []*domain.PlaythroughStatistics
 		x = rect.X + 1
 		y = rect.Y + line
 
+		playerName := stats.PlayerName
+		if playerName == "" {
+			playerName = "Player"
+		}
+		if len(playerName) > colWidths[1]-1 {
+			playerName = playerName[:colWidths[1]-1]
+		}
+
 		values := []interface{}{
 			i + 1,
+			playerName,
 			stats.TreasureCollected,
 			stats.DeepestLevel,
 			stats.EnemiesDefeated,
@@ -116,6 +125,8 @@ func (w *Window) drawStatisticsView(playthroughs []*domain.PlaythroughStatistics
 			var text string
 			if j == 0 {
 				text = fmt.Sprintf("%-*d", colWidths[j], val)
+			} else if j == 1 {
+				text = fmt.Sprintf("%-*s", colWidths[j], val)
 			} else {
 				text = fmt.Sprintf("%*d", colWidths[j], val)
 			}

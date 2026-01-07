@@ -1,14 +1,18 @@
 package service
 
-import "rogue/internal/domain"
+import (
+	"fmt"
+	"rogue/internal/domain"
+)
 
-// equipItemFromBackpack equips an item from backpack and handles the old item
 func equipItemFromBackpack(game *Game, part domain.ActorPart, itemObj domain.Item, itemKind domain.ItemKind, stackIndex int) bool {
 	oldItem := game.World.Player.EquipItem(part, itemObj)
 	if !game.World.Player.HandleOldItemOnEquip(oldItem, game.World.Level, game.World.Player.Point) {
 		return false
 	}
 	game.World.Player.Backpack.Remove(itemKind, stackIndex)
+	partName := domain.GetPartName(part)
+	game.ui.AddLog(fmt.Sprintf("Equipped %s on %s", itemObj.Name(), partName))
 	return true
 }
 
@@ -44,16 +48,23 @@ func (h *UseItemHandler) OnConfirm(item SelectionItem) bool {
 	} else {
 		result := h.game.World.Player.Backpack.Use(h.itemKind, itemInfo.StackIndex, &h.game.World.Player.Actor)
 		if !result.Success {
+			h.game.ui.AddLog("Cannot use " + itemObj.Name())
 			return false
+		}
+		if result.Message != "" {
+			h.game.ui.AddLog(result.Message)
 		}
 		if result.Consumed {
 			switch h.itemKind {
 			case domain.ItemFood:
 				h.game.RecordFoodConsumed()
+				h.game.ui.AddLog(fmt.Sprintf("Used %s", itemObj.Name()))
 			case domain.ItemElixir:
 				h.game.RecordElixirDrunk()
+				h.game.ui.AddLog(fmt.Sprintf("Used %s", itemObj.Name()))
 			case domain.ItemScroll:
 				h.game.RecordScrollRead()
+				h.game.ui.AddLog(fmt.Sprintf("Used %s", itemObj.Name()))
 			}
 		}
 	}
@@ -84,6 +95,10 @@ func (h *DropItemHandler) OnConfirm(item SelectionItem) bool {
 		dropPos := h.game.World.Level.GetAdjacentDropPoint(h.game.World.Player.Point)
 		if dropPos.X >= 0 {
 			h.game.World.Level.AddItem(dropPos, droppedItem)
+			h.game.ui.AddLog(fmt.Sprintf("Dropped %s", droppedItem.Name()))
+		} else {
+			h.game.ui.AddLog("Cannot drop item: no space nearby")
+			return false
 		}
 	}
 
@@ -109,8 +124,12 @@ func (h *UnequipEquipmentHandler) OnConfirm(item SelectionItem) bool {
 	}
 
 	unequippedItem := h.game.World.Player.DropEquipment(equipInfo.Part)
-	if !h.game.World.Player.HandleOldItemOnEquip(unequippedItem, h.game.World.Level, h.game.World.Player.Point) {
-		return false
+	if unequippedItem != nil {
+		if !h.game.World.Player.HandleOldItemOnEquip(unequippedItem, h.game.World.Level, h.game.World.Player.Point) {
+			return false
+		}
+		partName := domain.GetPartName(equipInfo.Part)
+		h.game.ui.AddLog(fmt.Sprintf("Unequipped %s from %s", unequippedItem.Name(), partName))
 	}
 
 	h.game.UpdateVisibility()

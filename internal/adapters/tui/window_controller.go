@@ -19,6 +19,10 @@ func (w *Window) KeyMap(key tcell.Key) service.Command {
 		return service.CmdSelectDown
 	case tcell.KeyEnter:
 		return service.CmdSelectConfirm
+	case tcell.KeyBackspace, tcell.KeyBackspace2:
+		if w.menuState.IsNameInput() {
+			return service.CmdBackToGame
+		}
 	}
 	return service.CmdNone
 }

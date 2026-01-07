@@ -52,11 +52,15 @@ func (w *Window) Close() {
 
 func (w *Window) Draw(world *domain.World, selection service.SelectionState) {
 	w.screen.Clear()
-	w.DrawMap(world, w.layout.Map)
-	w.DrawStats(world, w.layout.Stats)
-	w.DrawEquipment(world.Player, w.layout.Equipment, selection)
-	w.DrawInventory(world.Player, w.layout.Inventory, selection)
-	w.DrawLog(w.layout.Log)
+	if w.menuState.IsNameInput() {
+		w.DrawNameInput()
+	} else if world != nil {
+		w.DrawMap(world, w.layout.Map)
+		w.DrawStats(world, w.layout.Stats)
+		w.DrawEquipment(world.Player, w.layout.Equipment, selection)
+		w.DrawInventory(world.Player, w.layout.Inventory, selection)
+		w.DrawLog(w.layout.Log)
+	}
 	w.screen.Show()
 }
 
@@ -64,7 +68,9 @@ func (w *Window) DrawStatistics(playthroughs []*domain.PlaythroughStatistics) {
 	w.menuState.SetStatistics(true)
 	w.statisticsData = playthroughs
 	w.screen.Clear()
-	w.drawStatisticsView(playthroughs, w.layout.Screen)
+	if !w.menuState.IsNameInput() {
+		w.drawStatisticsView(playthroughs, w.layout.Screen)
+	}
 	w.screen.Show()
 }
 
@@ -74,6 +80,18 @@ func (w *Window) IsStartMenu() bool {
 
 func (w *Window) IsStatistics() bool {
 	return w.menuState.IsStatistics()
+}
+
+func (w *Window) IsNameInput() bool {
+	return w.menuState.IsNameInput()
+}
+
+func (w *Window) GetPlayerNameInput() string {
+	return w.menuState.GetPlayerName()
+}
+
+func (w *Window) SetNameInputState(enabled bool) {
+	w.menuState.SetNameInput(enabled)
 }
 
 func (w *Window) GetMenuOption() int {
@@ -185,6 +203,22 @@ func (w *Window) Input() service.Command {
 	case *tcell.EventResize:
 		w.resize()
 	case *tcell.EventKey:
+		if w.menuState.IsNameInput() {
+			cmd := w.KeyMap(ev.Key())
+			var char rune = ev.Rune()
+			if cmd != service.CmdNone && cmd != service.CmdBackToGame {
+				char = 0
+			}
+			w.HandleNameInput(cmd, char)
+			if cmd == service.CmdSelectConfirm {
+				return service.CmdSelectConfirm
+			}
+			if cmd == service.CmdSelectCancel || cmd == service.CmdQuit {
+				return cmd
+			}
+			return service.CmdNone
+		}
+
 		if cmd := w.KeyMap(ev.Key()); cmd != service.CmdNone {
 			return cmd
 		}

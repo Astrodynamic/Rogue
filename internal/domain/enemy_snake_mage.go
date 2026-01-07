@@ -37,6 +37,10 @@ func (s *SnakeMage) GetEnemyType() EnemyType {
 	return s.EnemyType
 }
 
+func (s *SnakeMage) Name() string {
+	return "Snake-Mage"
+}
+
 func (s *SnakeMage) SwitchDirection() {
 	diagonalDirs := []Point{DirUL, DirUR, DirDR, DirDL}
 	s.DirectionClock = (s.DirectionClock + 1) % len(diagonalDirs)

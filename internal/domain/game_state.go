@@ -3,6 +3,7 @@ package domain
 type GameState struct {
 	Statistics Statistics
 	Depth      int
+	PlayerName string
 }
 
 func NewGameState() *GameState {
@@ -54,5 +55,5 @@ func (gs *GameState) GetDeepestLevel() int {
 }
 
 func (gs *GameState) ToPlaythroughStatistics() *PlaythroughStatistics {
-	return NewPlaythroughStatistics(&gs.Statistics)
+	return NewPlaythroughStatistics(&gs.Statistics, gs.PlayerName)
 }

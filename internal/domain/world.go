@@ -14,6 +14,13 @@ func NewWorld(width, height int) *World {
 	}
 }
 
+func NewWorldWithPlayerName(width, height int, playerName string) *World {
+	world := NewWorld(width, height)
+	world.GameState.PlayerName = playerName
+	world.Player.Name = playerName
+	return world
+}
+
 func (w *World) GetDepth() int {
 	return w.GameState.Depth
 }

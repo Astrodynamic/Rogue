@@ -37,6 +37,10 @@ func (g *Ghost) GetEnemyType() EnemyType {
 	return g.EnemyType
 }
 
+func (g *Ghost) Name() string {
+	return "Ghost"
+}
+
 func (g *Ghost) ShouldBeVisible(inCombat bool) bool {
 	if inCombat {
 		return true

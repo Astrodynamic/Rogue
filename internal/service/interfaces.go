@@ -43,6 +43,9 @@ type UI interface {
 	Input() Command
 	IsStartMenu() bool
 	IsStatistics() bool
+	IsNameInput() bool
+	GetPlayerNameInput() string
+	SetNameInputState(enabled bool)
 	GetMenuOption() int
 	HandleMenuNavigation(cmd Command, hasSave bool)
 	ProcessMenuSelection(hasSave bool) Command

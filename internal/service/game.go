@@ -71,10 +71,13 @@ func (g *Game) Run() {
 	for g.isRunning {
 		if g.ui.IsStartMenu() {
 			g.ui.DrawStartMenu(g.HasSaveGame(), g.ui.GetMenuOption())
+		} else if g.ui.IsNameInput() {
+			var emptyWorld *domain.World
+			g.ui.Draw(emptyWorld, SelectionState{})
 		} else if g.ui.IsStatistics() {
 			playthroughs, _ := g.statisticsStore.GetLeaderboard(0)
 			g.ui.DrawStatistics(playthroughs)
-		} else {
+		} else if g.World != nil {
 			selection := SelectionState{
 				Model: g.selection,
 			}

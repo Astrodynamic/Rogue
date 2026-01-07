@@ -39,6 +39,10 @@ func (o *Ogre) GetEnemyType() EnemyType {
 	return o.EnemyType
 }
 
+func (o *Ogre) Name() string {
+	return "Ogre"
+}
+
 func (o *Ogre) StartRest() {
 	o.Resting = true
 	o.RestTurns = OgreRestTurns

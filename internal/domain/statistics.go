@@ -61,11 +61,13 @@ func (s *Statistics) UpdateDeepestLevel(level int) {
 type PlaythroughStatistics struct {
 	Statistics `json:",inline"`
 	Timestamp  time.Time `json:"timestamp"`
+	PlayerName string    `json:"player_name"`
 }
 
-func NewPlaythroughStatistics(session *Statistics) *PlaythroughStatistics {
+func NewPlaythroughStatistics(session *Statistics, playerName string) *PlaythroughStatistics {
 	return &PlaythroughStatistics{
 		Statistics: *session,
 		Timestamp:  time.Now(),
+		PlayerName: playerName,
 	}
 }

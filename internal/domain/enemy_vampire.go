@@ -35,6 +35,10 @@ func (v *Vampire) GetEnemyType() EnemyType {
 	return v.EnemyType
 }
 
+func (v *Vampire) Name() string {
+	return "Vampire"
+}
+
 func (v *Vampire) MarkFirstHitMissed() {
 	v.FirstHitMissed = true
 }
