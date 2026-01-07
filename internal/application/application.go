@@ -3,19 +3,26 @@ package application
 import (
 	"fmt"
 
+	"rogue/internal/adapters/storage"
 	"rogue/internal/adapters/tui"
 	"rogue/internal/service"
 )
 
 type Application struct {
-	gui service.UI
+	gui             service.UI
+	gameStateStore  *storage.GameStateStorage
+	statisticsStore *storage.StatisticsStorage
 }
 
 func NewApplication() *Application {
 	window := tui.NewWindow()
+	gameStateStore := storage.NewGameStateStorage("saves")
+	statisticsStore := storage.NewStatisticsStorage("saves")
 
 	return &Application{
-		gui: window,
+		gui:             window,
+		gameStateStore:  gameStateStore,
+		statisticsStore: statisticsStore,
 	}
 }
 
@@ -25,7 +32,7 @@ func (a *Application) Run() error {
 	}
 	defer a.gui.Close()
 
-	game := service.NewGame(a.gui)
+	game := service.NewGame(a.gui, a.gameStateStore, a.statisticsStore)
 	game.Run()
 
 	return nil

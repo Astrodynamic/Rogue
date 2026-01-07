@@ -20,9 +20,7 @@ type Game struct {
 	generator       *Generator
 }
 
-func NewGame(ui UI) *Game {
-	gameStateStore := storage.NewGameStateStorage("saves")
-
+func NewGame(ui UI, gameStateStore *storage.GameStateStorage, statisticsStore *storage.StatisticsStorage) *Game {
 	seed := uint64(time.Now().UnixNano())
 	randSource := rand.New(rand.NewPCG(seed, seed))
 	rng := NewRandAdapter(randSource)
@@ -32,7 +30,7 @@ func NewGame(ui UI) *Game {
 		FOV:             NewFOV(),
 		isRunning:       true,
 		ui:              ui,
-		statisticsStore: storage.NewStatisticsStorage("saves"),
+		statisticsStore: statisticsStore,
 		gameStateStore:  gameStateStore,
 		rng:             rng,
 		generator:       generator,
@@ -41,7 +39,7 @@ func NewGame(ui UI) *Game {
 	return game
 }
 
-func NewGameWithWorld(ui UI, world *domain.World) *Game {
+func NewGameWithWorld(ui UI, world *domain.World, gameStateStore *storage.GameStateStorage, statisticsStore *storage.StatisticsStorage) *Game {
 	seed := uint64(time.Now().UnixNano())
 	randSource := rand.New(rand.NewPCG(seed, seed))
 	rng := NewRandAdapter(randSource)
@@ -52,8 +50,8 @@ func NewGameWithWorld(ui UI, world *domain.World) *Game {
 		FOV:             NewFOV(),
 		isRunning:       true,
 		ui:              ui,
-		statisticsStore: storage.NewStatisticsStorage("saves"),
-		gameStateStore:  storage.NewGameStateStorage("saves"),
+		statisticsStore: statisticsStore,
+		gameStateStore:  gameStateStore,
 		rng:             rng,
 		generator:       generator,
 	}
