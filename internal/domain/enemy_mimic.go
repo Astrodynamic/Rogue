@@ -57,12 +57,10 @@ func (m *Mimic) ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Point)
 	enemyPos := m.Actor.Point
 	distance := Manhattan(enemyPos, playerPos)
 
-	if distance <= 2 && !m.Revealed {
-		m.Reveal()
-	}
-
 	if m.CanAttack(playerPos) {
-		m.Reveal()
+		if !m.Revealed {
+			m.Reveal()
+		}
 		enemyActor := m.GetActor()
 		playerActor := aiCtx.GetPlayerActor()
 		if enemyActor.State != ActorStateSleep {

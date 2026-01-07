@@ -10,6 +10,12 @@ func (g *Game) initiateCombat(playerActor *domain.Actor, enemy domain.Enemy, ene
 	enemyName := enemy.Name()
 	resolver := NewGameCombatResolver(g)
 
+	if mimic, ok := enemy.(*domain.Mimic); ok {
+		if !mimic.IsRevealed() {
+			mimic.Reveal()
+		}
+	}
+
 	result := playerActor.AttackWithResolver(enemyActor, resolver)
 	g.RecordHitDealt()
 
