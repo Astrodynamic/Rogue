@@ -5,12 +5,19 @@ import (
 )
 
 func (g *Generator) GenerateEnemies(level *domain.Level, depth int, startRoom *domain.Room) {
+	g.GenerateEnemiesWithDifficulty(level, depth, startRoom, 1.0)
+}
+
+func (g *Generator) GenerateEnemiesWithDifficulty(level *domain.Level, depth int, startRoom *domain.Room, difficultyFactor float64) {
 	level.Enemies = make(map[domain.Point]domain.Enemy)
 
-	enemiesPerRoomFloat := float64(domain.EnemyCountBase) + float64(depth)*domain.EnemyCountScaling
+	enemiesPerRoomFloat := (float64(domain.EnemyCountBase) + float64(depth)*domain.EnemyCountScaling) * difficultyFactor
 	enemiesPerRoom := int(enemiesPerRoomFloat)
 	if enemiesPerRoom > domain.EnemyMaxCountPerRoom {
 		enemiesPerRoom = domain.EnemyMaxCountPerRoom
+	}
+	if enemiesPerRoom < 1 {
+		enemiesPerRoom = 1
 	}
 
 	for _, room := range level.Rooms {
@@ -19,7 +26,14 @@ func (g *Generator) GenerateEnemies(level *domain.Level, depth int, startRoom *d
 		}
 
 		for i := 0; i < enemiesPerRoom; i++ {
-			if g.rng.IntN(100) < 70 {
+			spawnChance := domain.EnemySpawnChance
+			if difficultyFactor > 1.0 {
+				spawnChance += 15
+			} else if difficultyFactor < 1.0 {
+				spawnChance -= 15
+			}
+
+			if g.rng.IntN(100) < spawnChance {
 				enemy := g.generateRandomEnemy(depth)
 				if enemy != nil {
 					pos := g.getRandomEnemyPoint(level, room)
@@ -62,6 +76,21 @@ func (g *Generator) generateRandomEnemy(depth int) domain.Enemy {
 	if depth >= domain.SnakeMageMinDepth {
 		possibleEnemies = append(possibleEnemies, func(d int) domain.Enemy {
 			return domain.NewSnakeMage(d)
+		})
+	}
+
+	if depth >= domain.MimicMinDepth {
+		possibleEnemies = append(possibleEnemies, func(d int) domain.Enemy {
+
+			disguises := []domain.ItemKind{
+				domain.ItemFood,
+				domain.ItemElixir,
+				domain.ItemScroll,
+				domain.ItemWeapon,
+				domain.ItemTreasure,
+			}
+			disguise := disguises[g.rng.IntN(len(disguises))]
+			return domain.NewMimic(d, disguise)
 		})
 	}
 

@@ -7,6 +7,7 @@ const (
 	ScrollMaxHealth
 	ScrollDexterity
 	ScrollStrength
+	ScrollRegeneration
 )
 
 type Scroll struct {
@@ -72,6 +73,13 @@ func (s *Scroll) Use() ItemUseResult {
 			},
 			Stats: Stats{Strength: s.Amount},
 		}
+	case ScrollRegeneration:
+		effect = &RegenerationEffect{
+			BaseEffect: BaseEffect{
+				duration: -1,
+			},
+			Amount: s.Amount,
+		}
 	}
 
 	return ItemUseResult{
@@ -92,6 +100,8 @@ func (s *Scroll) GetStats() Stats {
 		return Stats{Dexterity: s.Amount}
 	case ScrollStrength:
 		return Stats{Strength: s.Amount}
+	case ScrollRegeneration:
+		return Stats{Health: s.Amount}
 	default:
 		return Stats{}
 	}

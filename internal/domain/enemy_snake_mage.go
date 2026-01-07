@@ -64,8 +64,7 @@ func (s *SnakeMage) ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Po
 			if result.Hit {
 				rng := aiCtx.GetRandomGenerator()
 				if rng.IntN(100) < SnakeMageSleepChance {
-					sleepEffect := NewSleepEffect(1)
-					playerActor.AddEffect(sleepEffect)
+					playerActor.State = ActorStateSleep
 				}
 			}
 			aiCtx.OnEnemyAttack(s, result)

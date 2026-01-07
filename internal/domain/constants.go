@@ -8,65 +8,72 @@ const (
 )
 
 const (
-	PlayerStartMaxHealth = 100
-	PlayerStartHealth    = 100
-	PlayerStartDexterity = 10
-	PlayerStartStrength  = 10
+	PlayerStartMaxHealth = 150
+	PlayerStartHealth    = 150
+	PlayerStartDexterity = 12
+	PlayerStartStrength  = 8
 )
 
 const (
-	ZombieBaseHealth    = 50
-	ZombieBaseDexterity = 5
-	ZombieBaseStrength  = 8
-	ZombieBaseHostility = 5
+	ZombieBaseHealth    = 25
+	ZombieBaseDexterity = 3
+	ZombieBaseStrength  = 4
+	ZombieBaseHostility = 4
 )
 
 const (
-	VampireBaseHealth         = 80
-	VampireBaseDexterity      = 15
-	VampireBaseStrength       = 10
-	VampireBaseHostility      = 10
-	VampireMaxHealthReduction = 5
+	VampireBaseHealth         = 40
+	VampireBaseDexterity      = 10
+	VampireBaseStrength       = 6
+	VampireBaseHostility      = 8
+	VampireMaxHealthReduction = 3
 )
 
 const (
-	GhostBaseHealth     = 30
-	GhostBaseDexterity  = 15
-	GhostBaseStrength   = 4
+	GhostBaseHealth     = 15
+	GhostBaseDexterity  = 12
+	GhostBaseStrength   = 2
 	GhostBaseHostility  = 3
-	GhostTeleportChance = 30
-	GhostInvisibleTurns = 3
+	GhostTeleportChance = 25
+	GhostInvisibleTurns = 2
 )
 
 const (
-	OgreBaseHealth    = 100
-	OgreBaseDexterity = 4
-	OgreBaseStrength  = 20
-	OgreBaseHostility = 6
+	OgreBaseHealth    = 60
+	OgreBaseDexterity = 3
+	OgreBaseStrength  = 12
+	OgreBaseHostility = 5
 	OgreMovesPerTurn  = 2
 	OgreRestTurns     = 1
 )
 
 const (
-	SnakeMageBaseHealth    = 40
-	SnakeMageBaseDexterity = 20
-	SnakeMageBaseStrength  = 6
-	SnakeMageBaseHostility = 12
-	SnakeMageSleepChance   = 30
+	SnakeMageBaseHealth    = 20
+	SnakeMageBaseDexterity = 14
+	SnakeMageBaseStrength  = 3
+	SnakeMageBaseHostility = 10
+	SnakeMageSleepChance   = 20
 )
 
 const (
-	HitChanceBase       = 50.0
-	HitChanceDexScale   = 2.0
+	MimicBaseHealth    = 30
+	MimicBaseDexterity = 10
+	MimicBaseStrength  = 3
+	MimicBaseHostility = 2
+)
+
+const (
+	HitChanceBase       = 60.0
+	HitChanceDexScale   = 3.0
 	DamageBase          = 1
-	DamageStrengthScale = 1.5
+	DamageStrengthScale = 1.0
 )
 
 const (
-	EnemyScalingFactor   = 0.1
+	EnemyScalingFactor   = 0.05
 	EnemyCountBase       = 1
-	EnemyCountScaling    = 0.3
-	EnemyMaxCountPerRoom = 5
+	EnemyCountScaling    = 0.15
+	EnemyMaxCountPerRoom = 3
 )
 
 const (
@@ -76,9 +83,19 @@ const (
 )
 
 const (
-	ZombieMaxDepth    = 10
-	VampireMinDepth   = 5
-	GhostMinDepth     = 3
-	OgreMinDepth      = 8
-	SnakeMageMinDepth = 10
+	ZombieMaxDepth    = 12
+	VampireMinDepth   = 7
+	GhostMinDepth     = 4
+	OgreMinDepth      = 10
+	SnakeMageMinDepth = 14
+	MimicMinDepth     = 6
+)
+
+const (
+	FoodBaseHealth     = 20
+	FoodHealthPerDepth = 3
+	ItemsPerRoomBase   = 4
+	ItemSpawnChance    = 70
+	FoodSpawnWeight    = 35
+	EnemySpawnChance   = 50
 )

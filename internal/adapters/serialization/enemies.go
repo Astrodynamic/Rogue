@@ -32,6 +32,9 @@ func (s *Serializer) marshalEnemy(enemy domain.Enemy) serializableEnemy {
 	case *domain.SnakeMage:
 		enemyType = "snake_mage"
 		data, err = json.Marshal(v)
+	case *domain.Mimic:
+		enemyType = "mimic"
+		data, err = json.Marshal(v)
 	default:
 		return serializableEnemy{Type: "unknown", Data: nil}
 	}
@@ -80,6 +83,12 @@ func (s *Serializer) unmarshalEnemy(se serializableEnemy) (domain.Enemy, error) 
 			return nil, err
 		}
 		return &snakeMage, nil
+	case "mimic":
+		var mimic domain.Mimic
+		if err := json.Unmarshal(se.Data, &mimic); err != nil {
+			return nil, err
+		}
+		return &mimic, nil
 	default:
 		return nil, fmt.Errorf("unknown enemy type: %s", se.Type)
 	}

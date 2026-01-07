@@ -13,12 +13,16 @@ type Log struct {
 
 func NewLog(maxLines int) *Log {
 	return &Log{
-		messages: make([]string, 0, maxLines),
-		maxLines: maxLines,
+		messages: make([]string, 0, maxLines*2),
+		maxLines: maxLines * 2,
 	}
 }
 
 func (l *Log) Add(message string) {
+	if message == "" {
+		return
+	}
+
 	l.messages = append(l.messages, message)
 	if len(l.messages) > l.maxLines {
 		l.messages = l.messages[1:]
@@ -37,23 +41,33 @@ func (w *Window) DrawLog(rect domain.Rect) {
 	w.drawBox(rect, "Log")
 
 	messages := w.log.GetMessages()
+	availableLines := rect.H - 2
+	if availableLines < 1 {
+		return
+	}
+
 	startLine := 0
-	if len(messages) > rect.H-2 {
-		startLine = len(messages) - (rect.H - 2)
+	if len(messages) > availableLines {
+		startLine = len(messages) - availableLines
 	}
 
 	line := 1
 	style := tcell.StyleDefault.Foreground(tcell.ColorGray)
+	maxWidth := rect.W - 2
+
 	for i := startLine; i < len(messages) && line < rect.H-1; i++ {
 		msg := messages[i]
-		if len(msg) > rect.W-2 {
-			msg = msg[:rect.W-2]
+		if len(msg) > maxWidth {
+			msg = msg[:maxWidth]
 		}
-		for j, r := range msg {
-			if j >= rect.W-2 {
+
+		x := rect.X + 1
+		for _, r := range msg {
+			if x >= rect.X+rect.W-1 {
 				break
 			}
-			w.screen.SetContent(rect.X+1+j, rect.Y+line, r, nil, style)
+			w.screen.SetContent(x, rect.Y+line, r, nil, style)
+			x++
 		}
 		line++
 	}

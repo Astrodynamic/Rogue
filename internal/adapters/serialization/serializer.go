@@ -46,7 +46,7 @@ func (s *Serializer) UnmarshalWorld(data []byte) (*domain.World, error) {
 }
 
 type serializableWorld struct {
-	Level     *serializableLevel `json:"level"`
+	Level     *serializableLevel  `json:"level"`
 	Player    *serializablePlayer `json:"player"`
 	GameState *domain.GameState   `json:"game_state"`
 }
@@ -62,8 +62,8 @@ type serializableLevel struct {
 }
 
 type serializableLevelItem struct {
-	Point domain.Point      `json:"point"`
-	Item  serializableItem  `json:"item"`
+	Point domain.Point     `json:"point"`
+	Item  serializableItem `json:"item"`
 }
 
 type serializableLevelEnemy struct {
@@ -72,17 +72,17 @@ type serializableLevelEnemy struct {
 }
 
 type serializablePlayer struct {
-	Actor     *serializableActor    `json:"actor"`
+	Actor     *serializableActor     `json:"actor"`
 	Equipment *serializableEquipment `json:"equipment"`
 }
 
 type serializableActor struct {
-	Point    domain.Point            `json:"point"`
-	Stats    domain.Stats            `json:"stats"`
-	Name     string                  `json:"name"`
-	State    domain.ActorState       `json:"state"`
-	Effects  []serializableEffect    `json:"effects"`
-	Backpack *serializableBackpack   `json:"backpack"`
+	Point    domain.Point          `json:"point"`
+	Stats    domain.Stats          `json:"stats"`
+	Name     string                `json:"name"`
+	State    domain.ActorState     `json:"state"`
+	Effects  []serializableEffect  `json:"effects"`
+	Backpack *serializableBackpack `json:"backpack"`
 }
 
 type serializableBackpack struct {

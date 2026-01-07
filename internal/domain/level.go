@@ -141,7 +141,9 @@ func (l *Level) UpdateExplored() {
 
 func (l *Level) AddItem(p Point, item Item) {
 	if l.Contains(p) && (l.Tiles[p.Y][p.X].Kind == TileFloor || l.Tiles[p.Y][p.X].Kind == TileCorridor) {
-		l.Items[p] = item
+		if l.Items[p] == nil {
+			l.Items[p] = item
+		}
 	}
 }
 

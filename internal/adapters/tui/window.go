@@ -26,7 +26,7 @@ type Window struct {
 
 func NewWindow() *Window {
 	return &Window{
-		log:       NewLog(10),
+		log:       NewLog(50),
 		menuState: NewMenuState(),
 	}
 }

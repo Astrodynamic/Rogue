@@ -6,6 +6,19 @@ import (
 )
 
 func (g *Game) onMove(actor *domain.Actor, dir domain.Point) {
+
+	if actor.State == domain.ActorStateSleep {
+		g.ui.AddLog("Awake")
+		actor.State = domain.ActorStateNormal
+		actor.TickEffects()
+		g.UpdateVisibility()
+		g.ProcessEnemyTurns()
+		if g.World.Player.Health <= 0 {
+			g.handlePlayerDeath()
+		}
+		return
+	}
+
 	next := actor.Point.Add(dir)
 
 	if !g.World.Level.Contains(next) {
@@ -20,20 +33,30 @@ func (g *Game) onMove(actor *domain.Actor, dir domain.Point) {
 
 	switch g.World.Level.Tiles[next.Y][next.X].Kind {
 	case domain.TileWall:
-		g.ui.AddLog("Cannot move: blocked by wall")
+		g.ui.AddLog("Blocked")
+
+		actor.TickEffects()
+		g.UpdateVisibility()
+		g.ProcessEnemyTurns()
+		if g.World.Player.Health <= 0 {
+			g.handlePlayerDeath()
+		}
 		return
 	case domain.TileExit:
 		if g.World.GetDepth() >= domain.Depth {
 			g.handleGameCompletion()
 			return
 		}
-		g.ui.AddLog(fmt.Sprintf("Reached level %d", g.World.GetDepth()+1))
+		g.ui.AddLog(fmt.Sprintf("Level %d", g.World.GetDepth()+1))
+
+		g.World.GameState.AdjustDifficulty(g.World.Player.Health, g.World.Player.MaxHealth)
+
 		g.SaveStatistics()
 		g.SaveGameState()
 		g.World.GameState.AdvanceLevel()
 		g.generator.Generate(g.World)
 		g.UpdateVisibility()
-		g.ui.AddLog(fmt.Sprintf("Entered level %d", g.World.GetDepth()))
+		g.ui.AddLog(fmt.Sprintf("Enter %d", g.World.GetDepth()))
 		return
 	default:
 		actor.Move(dir)
@@ -58,7 +81,7 @@ func (g *Game) pickupItem(actor *domain.Actor, pos domain.Point) {
 	}
 
 	if !actor.Backpack.HasSpace(item) {
-		g.ui.AddLog("Cannot pick up " + item.Name() + ": backpack full")
+		g.ui.AddLog("Backpack full")
 		return
 	}
 
@@ -66,10 +89,10 @@ func (g *Game) pickupItem(actor *domain.Actor, pos domain.Point) {
 		if item.Type() == domain.ItemTreasure {
 			if treasure, ok := item.(*domain.Treasure); ok {
 				g.RecordTreasureCollected(treasure.Value)
-				g.ui.AddLog(fmt.Sprintf("Picked up %s (value: %d)", item.Name(), treasure.Value))
+				g.ui.AddLog(fmt.Sprintf("Got $%d", treasure.Value))
 			}
 		} else {
-			g.ui.AddLog("Picked up " + item.Name())
+			g.ui.AddLog("Got " + item.Name())
 		}
 		g.World.Level.RemoveItem(pos)
 	}

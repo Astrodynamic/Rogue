@@ -64,6 +64,10 @@ func (o *Ogre) ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Point) 
 
 	o.TickRest()
 
+	if o.Resting {
+		return
+	}
+
 	enemyPos := o.Actor.Point
 	distance := Manhattan(enemyPos, playerPos)
 
@@ -79,7 +83,7 @@ func (o *Ogre) ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Point) 
 		return
 	}
 
-	if distance <= o.Hostility && !o.Resting && o.MovesLeft > 0 {
+	if distance <= o.Hostility && o.MovesLeft > 0 {
 		newPos := aiCtx.FindPathTo(enemyPos, playerPos, level)
 		if newPos.X >= 0 && newPos.Y >= 0 {
 			aiCtx.MoveEnemy(enemyPos, newPos, level)

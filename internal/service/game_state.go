@@ -9,7 +9,7 @@ import (
 func (g *Game) loadGame() {
 	saves, err := g.gameStateStore.ListSaves()
 	if err != nil || len(saves) == 0 {
-		g.ui.AddLog("No saved games found. Starting new game...")
+		g.ui.AddLog("No save")
 		g.startNewGame()
 		return
 	}
@@ -23,9 +23,9 @@ func (g *Game) loadGame() {
 	if err == nil && world != nil {
 		g.World = world
 		g.UpdateVisibility()
-		g.ui.AddLog("Game loaded successfully for " + playerName + "!")
+		g.ui.AddLog("Loaded")
 	} else {
-		g.ui.AddLog("Failed to load game. Starting new game...")
+		g.ui.AddLog("Load failed")
 		g.startNewGame()
 	}
 }
@@ -36,9 +36,8 @@ func (g *Game) startNewGame() {
 
 func (g *Game) handleGameCompletion() {
 	g.SaveStatistics()
-	g.ui.AddLog("Congratulations! You have completed all 21 levels!")
-	g.ui.AddLog("Game completed! Final score: " + fmt.Sprintf("%d", g.World.GameState.Statistics.TreasureCollected))
-	g.ui.AddLog("Starting new game...")
+		g.ui.AddLog("Victory!")
+		g.ui.AddLog(fmt.Sprintf("Score: $%d", g.World.GameState.Statistics.TreasureCollected))
 	g.startNewGame()
 }
 
@@ -56,7 +55,7 @@ func (g *Game) SaveGameState() error {
 	}
 	err := g.gameStateStore.Save(g.World)
 	if err == nil {
-		g.ui.AddLog("Game saved successfully")
+		g.ui.AddLog("Saved")
 	}
 	return err
 }
@@ -81,5 +80,5 @@ func (g *Game) createNewGameWithPlayerName(playerName string) {
 	g.generator.Generate(world)
 	g.World = world
 	g.UpdateVisibility()
-	g.ui.AddLog("New game started for " + playerName)
+		g.ui.AddLog("New game")
 }

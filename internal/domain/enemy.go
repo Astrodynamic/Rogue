@@ -8,6 +8,7 @@ const (
 	EnemyTypeGhost
 	EnemyTypeOgre
 	EnemyTypeSnakeMage
+	EnemyTypeMimic
 )
 
 type EnemyAIContext interface {

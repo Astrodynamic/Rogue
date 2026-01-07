@@ -185,7 +185,6 @@ func (w *Window) DrawEnemies(world *domain.World, rect domain.Rect, offsetX, off
 			continue
 		}
 
-		// Ghost visibility check
 		if ghost, ok := enemy.(*domain.Ghost); ok {
 			distance := domain.Manhattan(pos, world.Player.Point)
 			inCombat := distance <= 1
@@ -204,6 +203,15 @@ func (w *Window) DrawEnemies(world *domain.World, rect domain.Rect, offsetX, off
 		screenPos := domain.Point{X: screenEnemyX, Y: screenEnemyY}
 		if !rect.Contains(screenPos) {
 			continue
+		}
+
+		if mimic, ok := enemy.(*domain.Mimic); ok {
+			if !mimic.IsRevealed() {
+
+				char, style := w.runeMimicDisguise(mimic.DisguisedItem)
+				w.screen.SetContent(screenEnemyX, screenEnemyY, char, nil, style)
+				continue
+			}
 		}
 
 		char, color := w.runeEnemy(enemy.GetEnemyType())
@@ -301,6 +309,8 @@ func (w *Window) runeItem(item domain.Item) (rune, tcell.Style) {
 		return 's', tcell.StyleDefault.Foreground(tcell.ColorPurple)
 	case domain.ItemWeapon:
 		return 'w', tcell.StyleDefault.Foreground(tcell.ColorRed)
+	case domain.ItemArmor:
+		return 'a', tcell.StyleDefault.Foreground(tcell.ColorLightCyan)
 	case domain.ItemTreasure:
 		return '$', tcell.StyleDefault.Foreground(tcell.ColorYellow)
 	default:
@@ -320,7 +330,26 @@ func (w *Window) runeEnemy(enemyType domain.EnemyType) (rune, tcell.Color) {
 		return 'O', tcell.ColorYellow
 	case domain.EnemyTypeSnakeMage:
 		return 's', tcell.ColorWhite
+	case domain.EnemyTypeMimic:
+		return 'm', tcell.ColorWhite
 	default:
 		return '?', tcell.ColorWhite
+	}
+}
+
+func (w *Window) runeMimicDisguise(itemKind domain.ItemKind) (rune, tcell.Style) {
+	switch itemKind {
+	case domain.ItemFood:
+		return 'f', tcell.StyleDefault.Foreground(tcell.ColorGreen)
+	case domain.ItemElixir:
+		return 'e', tcell.StyleDefault.Foreground(tcell.ColorBlue)
+	case domain.ItemScroll:
+		return 's', tcell.StyleDefault.Foreground(tcell.ColorPurple)
+	case domain.ItemWeapon:
+		return 'w', tcell.StyleDefault.Foreground(tcell.ColorRed)
+	case domain.ItemTreasure:
+		return '$', tcell.StyleDefault.Foreground(tcell.ColorYellow)
+	default:
+		return '?', tcell.StyleDefault.Foreground(tcell.ColorWhite)
 	}
 }

@@ -54,7 +54,8 @@ func (r *GameCombatResolver) GetAttackModifiers(attacker *domain.Actor, target *
 			enemyActor := enemyWithPos.Enemy.GetActor()
 			if enemyActor == attacker {
 				if ogre, ok := enemyWithPos.Enemy.(*domain.Ogre); ok {
-					if ogre.Resting {
+
+					if !ogre.Resting && ogre.RestTurns == 0 {
 						modifiers.GuaranteedHit = true
 					}
 				}

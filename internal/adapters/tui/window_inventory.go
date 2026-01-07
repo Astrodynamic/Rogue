@@ -46,6 +46,8 @@ func (w *Window) formatItemProperties(item domain.Item) string {
 				statName = "D"
 			case domain.ScrollStrength:
 				statName = "S"
+			case domain.ScrollRegeneration:
+				statName = "R"
 			default:
 				statName = "?"
 			}

@@ -10,22 +10,29 @@ func (g *Game) initiateCombat(playerActor *domain.Actor, enemy domain.Enemy, ene
 	enemyName := enemy.Name()
 	resolver := NewGameCombatResolver(g)
 
-	g.handleVampireFirstHit(enemy)
-
 	result := playerActor.AttackWithResolver(enemyActor, resolver)
 	g.RecordHitDealt()
 
+	if vampire, ok := enemy.(*domain.Vampire); ok {
+		if !vampire.FirstHitMissed {
+			vampire.MarkFirstHitMissed()
+			if !result.Hit {
+				g.ui.AddLog("Dodge!")
+			}
+		}
+	}
+
 	if result.Hit && result.Killed {
-		g.ui.AddLog(fmt.Sprintf("Defeated %s!", enemyName))
+		g.ui.AddLog(fmt.Sprintf("Killed %s", enemyName))
 		g.handleEnemyDeath(enemy, enemyPos)
 		g.RecordEnemyDefeated()
 		return
 	}
 
 	if result.Hit {
-		g.ui.AddLog(fmt.Sprintf("Hit %s for %d damage", enemyName, result.Damage))
+		g.ui.AddLog(fmt.Sprintf("Hit %s %ddmg", enemyName, result.Damage))
 	} else {
-		g.ui.AddLog(fmt.Sprintf("Missed %s", enemyName))
+		g.ui.AddLog("Miss")
 	}
 
 	if enemy.IsAlive() && enemyActor.State != domain.ActorStateSleep {
@@ -33,15 +40,6 @@ func (g *Game) initiateCombat(playerActor *domain.Actor, enemy domain.Enemy, ene
 	}
 
 	g.UpdateVisibility()
-}
-
-func (g *Game) handleVampireFirstHit(enemy domain.Enemy) {
-	if vampire, ok := enemy.(*domain.Vampire); ok {
-		if !vampire.FirstHitMissed {
-			vampire.MarkFirstHitMissed()
-			g.ui.AddLog("Vampire first hit missed!")
-		}
-	}
 }
 
 func (g *Game) processEnemyAttack(enemy domain.Enemy, enemyActor *domain.Actor, resolver domain.CombatResolver) {
@@ -60,28 +58,13 @@ func (g *Game) processEnemyAttack(enemy domain.Enemy, enemyActor *domain.Actor, 
 }
 
 func (g *Game) processOgreAttack(ogre *domain.Ogre, enemyActor, playerActor *domain.Actor, resolver domain.CombatResolver) {
-	if ogre.Resting {
-		enemyResult := enemyActor.AttackWithResolver(playerActor, resolver)
-		g.RecordHitReceived()
-		if enemyResult.Hit {
-			g.ui.AddLog(fmt.Sprintf("Ogre hit you for %d damage", enemyResult.Damage))
-		} else {
-			g.ui.AddLog("Ogre missed!")
-		}
-		if enemyResult.Killed {
-			g.handlePlayerDeath()
-			return
-		}
-		ogre.StartRest()
-		return
-	}
 
 	enemyResult := enemyActor.AttackWithResolver(playerActor, resolver)
 	g.RecordHitReceived()
 	if enemyResult.Hit {
-		g.ui.AddLog(fmt.Sprintf("Ogre hit you for %d damage", enemyResult.Damage))
+		g.ui.AddLog(fmt.Sprintf("Hit %ddmg", enemyResult.Damage))
 	} else {
-		g.ui.AddLog("Ogre missed!")
+		g.ui.AddLog("Miss")
 	}
 	if enemyResult.Killed {
 		g.handlePlayerDeath()
@@ -94,14 +77,13 @@ func (g *Game) processSnakeMageAttack(snakeMage *domain.SnakeMage, enemyActor, p
 	enemyResult := enemyActor.AttackWithResolver(playerActor, resolver)
 	g.RecordHitReceived()
 	if enemyResult.Hit {
-		g.ui.AddLog(fmt.Sprintf("Snake-Mage hit you for %d damage", enemyResult.Damage))
+		g.ui.AddLog(fmt.Sprintf("Hit %ddmg", enemyResult.Damage))
 		if g.rng.IntN(100) < domain.SnakeMageSleepChance {
-			sleepEffect := domain.NewSleepEffect(1)
-			playerActor.AddEffect(sleepEffect)
-			g.ui.AddLog("Put to sleep by Snake-Mage!")
+			playerActor.State = domain.ActorStateSleep
+			g.ui.AddLog("Sleep!")
 		}
 	} else {
-		g.ui.AddLog("Snake-Mage missed!")
+		g.ui.AddLog("Miss")
 	}
 	if enemyResult.Killed {
 		g.handlePlayerDeath()
@@ -112,12 +94,12 @@ func (g *Game) processVampireAttack(vampire *domain.Vampire, enemyActor, playerA
 	enemyResult := enemyActor.AttackWithResolver(playerActor, resolver)
 	g.RecordHitReceived()
 	if enemyResult.Hit {
-		g.ui.AddLog(fmt.Sprintf("Vampire hit you for %d damage", enemyResult.Damage))
+		g.ui.AddLog(fmt.Sprintf("Hit %ddmg", enemyResult.Damage))
 		reductionEffect := domain.NewMaxHealthEffect(-domain.VampireMaxHealthReduction, -1)
 		playerActor.AddEffect(reductionEffect)
-		g.ui.AddLog(fmt.Sprintf("Maximum health reduced by %d!", domain.VampireMaxHealthReduction))
+		g.ui.AddLog(fmt.Sprintf("MaxHP-%d", domain.VampireMaxHealthReduction))
 	} else {
-		g.ui.AddLog("Vampire missed!")
+		g.ui.AddLog("Miss")
 	}
 	if enemyResult.Killed {
 		g.handlePlayerDeath()
@@ -128,9 +110,9 @@ func (g *Game) processDefaultEnemyAttack(enemyActor, playerActor *domain.Actor, 
 	enemyResult := enemyActor.AttackWithResolver(playerActor, resolver)
 	g.RecordHitReceived()
 	if enemyResult.Hit {
-		g.ui.AddLog(fmt.Sprintf("Received %d damage", enemyResult.Damage))
+		g.ui.AddLog(fmt.Sprintf("Hit %ddmg", enemyResult.Damage))
 	} else {
-		g.ui.AddLog("Enemy missed!")
+		g.ui.AddLog("Miss")
 	}
 	if enemyResult.Killed {
 		g.handlePlayerDeath()
@@ -143,14 +125,14 @@ func (g *Game) handleEnemyDeath(enemy domain.Enemy, enemyPos domain.Point) {
 
 	if treasure != nil {
 		g.World.Level.AddItem(enemyPos, treasure)
-		g.ui.AddLog(fmt.Sprintf("Dropped %s (value: %d)", treasure.Name(), treasure.Value))
+		g.ui.AddLog(fmt.Sprintf("Drop $%d", treasure.Value))
 	}
 
 	g.World.Level.RemoveEnemy(enemyPos)
 }
 
 func (g *Game) handlePlayerDeath() {
-	g.ui.AddLog("You died! Restarting game...")
+	g.ui.AddLog("Died!")
 	g.SaveStatistics()
 	world := domain.NewWorld(domain.Width, domain.Height)
 	g.World = world

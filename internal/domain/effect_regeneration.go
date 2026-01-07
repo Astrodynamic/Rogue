@@ -14,8 +14,12 @@ func (e *RegenerationEffect) Revert(target *Actor) error {
 }
 
 func (e *RegenerationEffect) Tick(target *Actor) bool {
-	if e.duration > 0 {
-		target.AddHealth(e.Amount)
+
+	target.AddHealth(e.Amount)
+	
+
+	if e.duration < 0 {
+		return false
 	}
 	return e.BaseEffect.Tick(target)
 }

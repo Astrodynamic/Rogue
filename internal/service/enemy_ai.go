@@ -57,6 +57,7 @@ func (g *Game) findPathToPlayer(from, to domain.Point, level *domain.Level) doma
 				continue
 			}
 			tile := level.Tiles[next.Y][next.X]
+
 			if tile.Kind != domain.TileFloor && tile.Kind != domain.TileCorridor {
 				continue
 			}

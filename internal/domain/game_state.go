@@ -1,15 +1,17 @@
 package domain
 
 type GameState struct {
-	Statistics Statistics
-	Depth      int
-	PlayerName string
+	Statistics       Statistics
+	Depth            int
+	PlayerName       string
+	DifficultyFactor float64
 }
 
 func NewGameState() *GameState {
 	return &GameState{
-		Statistics: *NewStatistics(),
-		Depth:      0,
+		Statistics:       *NewStatistics(),
+		Depth:            1,
+		DifficultyFactor: 1.0,
 	}
 }
 
@@ -56,4 +58,42 @@ func (gs *GameState) GetDeepestLevel() int {
 
 func (gs *GameState) ToPlaythroughStatistics() *PlaythroughStatistics {
 	return NewPlaythroughStatistics(&gs.Statistics, gs.PlayerName)
+}
+
+func (gs *GameState) AdjustDifficulty(playerHealth, playerMaxHealth int) {
+
+	hitRatio := 0.0
+	if gs.Statistics.HitsDealt+gs.Statistics.HitsReceived > 0 {
+		hitRatio = float64(gs.Statistics.HitsDealt) / float64(gs.Statistics.HitsDealt+gs.Statistics.HitsReceived)
+	}
+
+	healthRatio := float64(playerHealth) / float64(playerMaxHealth)
+
+	adjustment := 0.0
+
+	if healthRatio > 0.7 {
+		adjustment += 0.05
+	} else if healthRatio < 0.3 {
+		adjustment -= 0.05
+	}
+
+	if hitRatio > 0.6 {
+		adjustment += 0.03
+	} else if hitRatio < 0.4 {
+		adjustment -= 0.03
+	}
+
+	foodPerLevel := float64(gs.Statistics.FoodConsumed) / float64(gs.Depth)
+	if foodPerLevel > 3 {
+		adjustment -= 0.02
+	}
+
+	gs.DifficultyFactor += adjustment
+
+	if gs.DifficultyFactor < 0.5 {
+		gs.DifficultyFactor = 0.5
+	}
+	if gs.DifficultyFactor > 1.5 {
+		gs.DifficultyFactor = 1.5
+	}
 }

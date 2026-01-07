@@ -29,9 +29,6 @@ func (s *Serializer) marshalEffect(effect domain.Effect) serializableEffect {
 	case *domain.StrengthEffect:
 		effectType = "strength"
 		data, err = json.Marshal(v)
-	case *domain.SleepEffect:
-		effectType = "sleep"
-		data, err = json.Marshal(v)
 	case *domain.RegenerationEffect:
 		effectType = "regeneration"
 		data, err = json.Marshal(v)
@@ -77,18 +74,15 @@ func (s *Serializer) unmarshalEffect(se serializableEffect) (domain.Effect, erro
 			return nil, err
 		}
 		return &effect, nil
-	case "sleep":
-		var effect domain.SleepEffect
-		if err := json.Unmarshal(se.Data, &effect); err != nil {
-			return nil, err
-		}
-		return &effect, nil
 	case "regeneration":
 		var effect domain.RegenerationEffect
 		if err := json.Unmarshal(se.Data, &effect); err != nil {
 			return nil, err
 		}
 		return &effect, nil
+	case "sleep":
+
+		return nil, nil
 	default:
 		return nil, fmt.Errorf("unknown effect type: %s", se.Type)
 	}
