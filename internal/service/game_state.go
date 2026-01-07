@@ -42,7 +42,8 @@ func (g *Game) SaveStatistics() error {
 	if g.World == nil || g.World.GameState == nil {
 		return nil
 	}
-	playthrough := g.World.GameState.ToPlaythroughStatistics()
+
+	playthrough := g.World.GameState.ToPlaythroughStatistics(g.World.Player.Name)
 	return g.statisticsStore.SavePlaythrough(playthrough)
 }
 
@@ -70,10 +71,7 @@ func (g *Game) HasSaveGame() bool {
 }
 
 func (g *Game) createNewGameWithPlayerName(playerName string) {
-	if playerName == "" {
-		playerName = "Player"
-	}
-	world := domain.NewWorldWithPlayerName(domain.Width, domain.Height, playerName)
+	world := domain.NewWorld(domain.Width, domain.Height, playerName)
 	g.generator.Generate(world)
 	g.World = world
 	g.UpdateVisibility()

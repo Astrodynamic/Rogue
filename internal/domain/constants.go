@@ -174,3 +174,7 @@ const (
 	UIStatsHeight        = 6
 	UIEquipmentHeight    = 8
 )
+
+const (
+	MaxUniqueItems = 20
+)

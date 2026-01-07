@@ -5,7 +5,10 @@ type Player struct {
 	Equipment *Equipment
 }
 
-func NewPlayer() *Player {
+func NewPlayer(name string) *Player {
+	if name == "" {
+		name = "Player"
+	}
 	return &Player{
 		Actor: Actor{
 			Point: Point{X: 0, Y: 0},
@@ -15,6 +18,7 @@ func NewPlayer() *Player {
 				Dexterity: PlayerStartDexterity,
 				Strength:  PlayerStartStrength,
 			},
+			Name:     name,
 			State:    ActorStateNormal,
 			Backpack: NewBackpack(),
 		},

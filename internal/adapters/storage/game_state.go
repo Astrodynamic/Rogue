@@ -32,18 +32,13 @@ func (s *GameStateStorage) Save(world *domain.World) error {
 	if world == nil || world.GameState == nil {
 		return fmt.Errorf("world or game state is nil")
 	}
-	
-	playerName := world.GameState.PlayerName
-	if playerName == "" {
-		playerName = "Player"
-	}
 
 	data, err := s.serializer.MarshalWorld(world)
 	if err != nil {
 		return fmt.Errorf("failed to marshal game state: %w", err)
 	}
 
-	filePath := s.getFilePath(playerName)
+	filePath := s.getFilePath(world.Player.Name)
 	dir := filepath.Dir(filePath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return fmt.Errorf("failed to create saves directory: %w", err)

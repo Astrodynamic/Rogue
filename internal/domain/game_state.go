@@ -3,7 +3,6 @@ package domain
 type GameState struct {
 	Statistics       Statistics
 	Depth            int
-	PlayerName       string
 	DifficultyFactor float64
 }
 
@@ -56,8 +55,8 @@ func (gs *GameState) GetDeepestLevel() int {
 	return gs.Statistics.DeepestLevel
 }
 
-func (gs *GameState) ToPlaythroughStatistics() *PlaythroughStatistics {
-	return NewPlaythroughStatistics(&gs.Statistics, gs.PlayerName)
+func (gs *GameState) ToPlaythroughStatistics(playerName string) *PlaythroughStatistics {
+	return NewPlaythroughStatistics(&gs.Statistics, playerName)
 }
 
 func (gs *GameState) AdjustDifficulty(playerHealth, playerMaxHealth int) {

@@ -1,10 +1,5 @@
 package domain
 
-type EnemyWithPos struct {
-	Enemy Enemy
-	Pos   Point
-}
-
 type Level struct {
 	Rect
 	Tiles     [][]Tile
@@ -227,26 +222,20 @@ func (l *Level) MoveEnemy(oldPos, newPos Point) bool {
 	return true
 }
 
-func (l *Level) GetEnemiesInRoom(room Room) []EnemyWithPos {
-	var enemies []EnemyWithPos
+func (l *Level) GetEnemiesInRoom(room Room) []Enemy {
+	var enemies []Enemy
 	for pos, enemy := range l.Enemies {
 		if room.Contains(pos) {
-			enemies = append(enemies, EnemyWithPos{
-				Enemy: enemy,
-				Pos:   pos,
-			})
+			enemies = append(enemies, enemy)
 		}
 	}
 	return enemies
 }
 
-func (l *Level) GetAllEnemies() []EnemyWithPos {
-	var enemies []EnemyWithPos
-	for pos, enemy := range l.Enemies {
-		enemies = append(enemies, EnemyWithPos{
-			Enemy: enemy,
-			Pos:   pos,
-		})
+func (l *Level) GetAllEnemies() []Enemy {
+	var enemies []Enemy
+	for _, enemy := range l.Enemies {
+		enemies = append(enemies, enemy)
 	}
 	return enemies
 }

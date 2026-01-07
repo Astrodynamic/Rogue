@@ -37,7 +37,7 @@ func (r *GameCombatResolver) GetAttackModifiers(attacker *domain.Actor, target *
 
 	if target != nil {
 		if e := r.findEnemyByActor(target); e != nil {
-			if v, ok := e.Enemy.(*domain.Vampire); ok {
+			if v, ok := e.(*domain.Vampire); ok {
 				modifiers.FirstHitMiss = !v.FirstHitMissed
 			}
 		}
@@ -45,7 +45,7 @@ func (r *GameCombatResolver) GetAttackModifiers(attacker *domain.Actor, target *
 
 	if attacker != nil {
 		if e := r.findEnemyByActor(attacker); e != nil {
-			if o, ok := e.Enemy.(*domain.Ogre); ok && !o.Resting && o.RestTurns == 0 {
+			if o, ok := e.(*domain.Ogre); ok && !o.Resting && o.RestTurns == 0 {
 				modifiers.GuaranteedHit = true
 			}
 		}
@@ -54,11 +54,11 @@ func (r *GameCombatResolver) GetAttackModifiers(attacker *domain.Actor, target *
 	return modifiers
 }
 
-func (r *GameCombatResolver) findEnemyByActor(actor *domain.Actor) *domain.EnemyWithPos {
+func (r *GameCombatResolver) findEnemyByActor(actor *domain.Actor) domain.Enemy {
 	enemies := r.game.World.Level.GetAllEnemies()
-	for i := range enemies {
-		if enemies[i].Enemy.GetActor() == actor {
-			return &enemies[i]
+	for _, enemy := range enemies {
+		if enemy.GetActor() == actor {
+			return enemy
 		}
 	}
 	return nil

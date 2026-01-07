@@ -133,7 +133,7 @@ func (g *Game) handleEnemyDeath(enemy domain.Enemy, enemyPos domain.Point) {
 func (g *Game) handlePlayerDeath() {
 	g.ui.AddLog("Died!")
 	g.SaveStatistics()
-	world := domain.NewWorld(domain.Width, domain.Height)
+	world := domain.NewWorld(domain.Width, domain.Height, g.World.Player.Name)
 	g.World = world
 	g.generator.Generate(g.World)
 	g.UpdateVisibility()

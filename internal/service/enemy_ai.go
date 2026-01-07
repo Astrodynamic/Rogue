@@ -10,12 +10,12 @@ func (g *Game) ProcessEnemyTurns() {
 	playerPos := g.World.Player.Point
 	level := g.World.Level
 
-	for _, enemyWithPos := range enemies {
-		if enemyWithPos.Enemy == nil || !enemyWithPos.Enemy.IsAlive() {
+	for _, enemy := range enemies {
+		if enemy == nil || !enemy.IsAlive() {
 			continue
 		}
 
-		enemyWithPos.Enemy.ProcessTurn(aiCtx, level, playerPos)
+		enemy.ProcessTurn(aiCtx, level, playerPos)
 	}
 }
 

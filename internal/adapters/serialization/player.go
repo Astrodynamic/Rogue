@@ -77,10 +77,14 @@ func (s *Serializer) unmarshalActor(sa *serializableActor) (*domain.Actor, error
 		return nil, fmt.Errorf("failed to unmarshal backpack: %w", err)
 	}
 
+	name := sa.Name
+	if name == "" {
+		name = "Player"
+	}
 	return &domain.Actor{
 		Point:    sa.Point,
 		Stats:    sa.Stats,
-		Name:     sa.Name,
+		Name:     name,
 		State:    sa.State,
 		Effects:  effects,
 		Backpack: backpack,

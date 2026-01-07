@@ -1,9 +1,5 @@
 package domain
 
-const (
-	MaxUniqueItems = 20
-)
-
 type Backpack struct {
 	stacks map[ItemKind][]*ItemStack
 }
@@ -42,8 +38,7 @@ func (b *Backpack) Add(item Item) bool {
 		b.stacks[itemType] = make([]*ItemStack, 0)
 	}
 
-	newStack := NewItemStack(item)
-	b.stacks[itemType] = append(b.stacks[itemType], newStack)
+	b.stacks[itemType] = append(b.stacks[itemType], NewItemStack(item))
 	return true
 }
 

@@ -4,7 +4,6 @@ import (
 	"math/rand/v2"
 	"time"
 
-	"rogue/internal/adapters/storage"
 	"rogue/internal/domain"
 )
 
@@ -14,13 +13,13 @@ type Game struct {
 	isRunning       bool
 	ui              UI
 	selection       *SelectionModel
-	statisticsStore *storage.StatisticsStorage
-	gameStateStore  *storage.GameStateStorage
+	statisticsStore StatisticsStorage
+	gameStateStore  GameStateStorage
 	rng             domain.RandomGenerator
 	generator       *Generator
 }
 
-func NewGame(ui UI, gameStateStore *storage.GameStateStorage, statisticsStore *storage.StatisticsStorage) *Game {
+func NewGame(ui UI, gameStateStore GameStateStorage, statisticsStore StatisticsStorage) *Game {
 	seed := uint64(time.Now().UnixNano())
 	randSource := rand.New(rand.NewPCG(seed, seed))
 	rng := NewRandAdapter(randSource)
@@ -39,7 +38,7 @@ func NewGame(ui UI, gameStateStore *storage.GameStateStorage, statisticsStore *s
 	return game
 }
 
-func NewGameWithWorld(ui UI, world *domain.World, gameStateStore *storage.GameStateStorage, statisticsStore *storage.StatisticsStorage) *Game {
+func NewGameWithWorld(ui UI, world *domain.World, gameStateStore GameStateStorage, statisticsStore StatisticsStorage) *Game {
 	seed := uint64(time.Now().UnixNano())
 	randSource := rand.New(rand.NewPCG(seed, seed))
 	rng := NewRandAdapter(randSource)

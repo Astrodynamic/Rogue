@@ -16,7 +16,6 @@ func (e *RegenerationEffect) Revert(target *Actor) error {
 func (e *RegenerationEffect) Tick(target *Actor) bool {
 
 	target.AddHealth(e.Amount)
-	
 
 	if e.duration < 0 {
 		return false

@@ -30,10 +30,6 @@ type attackOptions struct {
 	RandomGenerator RandomGenerator
 }
 
-func (a *Actor) Attack(target *Actor) CombatResult {
-	return a.attackWithResolver(target, globalCombatResolver)
-}
-
 func (a *Actor) attackWithResolver(target *Actor, resolver CombatResolver) CombatResult {
 	options := a.buildAttackOptions(target, resolver)
 	return a.executeAttack(target, options)
@@ -87,12 +83,6 @@ func (a *Actor) executeAttack(target *Actor, options attackOptions) CombatResult
 		Damage: damage,
 		Killed: killed,
 	}
-}
-
-var globalCombatResolver CombatResolver
-
-func SetGlobalCombatResolver(resolver CombatResolver) {
-	globalCombatResolver = resolver
 }
 
 func (a *Actor) AttackWithResolver(target *Actor, resolver CombatResolver) CombatResult {
