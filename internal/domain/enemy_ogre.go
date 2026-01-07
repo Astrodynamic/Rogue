@@ -8,27 +8,17 @@ type Ogre struct {
 }
 
 func NewOgre(depth int) *Ogre {
-	scaling := 1.0 + float64(depth)*EnemyScalingFactor
-	health := int(float64(OgreBaseHealth) * scaling)
-	dexterity := int(float64(OgreBaseDexterity) * scaling)
-	strength := int(float64(OgreBaseStrength) * scaling)
-	hostility := int(float64(OgreBaseHostility) * scaling)
+	config := EnemyConfig{
+		BaseHealth:    OgreBaseHealth,
+		BaseDexterity: OgreBaseDexterity,
+		BaseStrength:  OgreBaseStrength,
+		BaseHostility: OgreBaseHostility,
+	}
+	stats := ScaleEnemyStats(config, depth)
+	hostility := ScaleHostility(config.BaseHostility, depth)
 
 	return &Ogre{
-		BaseEnemy: BaseEnemy{
-			Actor: Actor{
-				Stats: Stats{
-					MaxHealth: health,
-					Health:    health,
-					Dexterity: dexterity,
-					Strength:  strength,
-				},
-				State:    ActorStateNormal,
-				Backpack: NewBackpack(),
-			},
-			EnemyType: EnemyTypeOgre,
-			Hostility: hostility,
-		},
+		BaseEnemy: NewBaseEnemy(EnemyTypeOgre, stats, hostility),
 		Resting:   false,
 		RestTurns: 0,
 		MovesLeft: OgreMovesPerTurn,

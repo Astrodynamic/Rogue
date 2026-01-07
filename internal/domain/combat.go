@@ -98,7 +98,7 @@ func (a *Actor) calculateHit(target *Actor, rng RandomGenerator) bool {
 	targetDex := target.GetDexterity()
 
 	dexDiff := float64(attackerDex - targetDex)
-	hitChance := HitChanceBase + (dexDiff * HitChanceDexScale)
+	hitChance := Combat.HitChanceBase + (dexDiff * Combat.HitChanceDexScale)
 
 	if hitChance < 0 {
 		hitChance = 0
@@ -113,7 +113,7 @@ func (a *Actor) calculateHit(target *Actor, rng RandomGenerator) bool {
 
 func (a *Actor) calculateDamage(weaponStrength int) int {
 	totalStrength := a.GetStrength() + weaponStrength
-	damage := int(float64(DamageBase+totalStrength) * DamageStrengthScale)
+	damage := int(float64(Combat.DamageBase+totalStrength) * Combat.DamageStrengthScale)
 
 	if damage < 1 {
 		damage = 1

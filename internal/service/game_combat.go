@@ -58,63 +58,38 @@ func (g *Game) logAttackResult(result domain.CombatResult) {
 
 func (g *Game) processEnemyAttack(enemy domain.Enemy, actor *domain.Actor, resolver domain.CombatResolver) {
 	playerActor := &g.World.Player.Actor
+	enemyResult := actor.AttackWithResolver(playerActor, resolver)
 
-	switch e := enemy.(type) {
-	case *domain.Ogre:
-		g.processOgreAttack(e, actor, playerActor, resolver)
-	case *domain.SnakeMage:
-		g.processSnakeMageAttack(e, actor, playerActor, resolver)
-	case *domain.Vampire:
-		g.processVampireAttack(e, actor, playerActor, resolver)
-	default:
-		g.processDefaultEnemyAttack(actor, playerActor, resolver)
-	}
-}
-
-func (g *Game) processOgreAttack(ogre *domain.Ogre, enemyActor, playerActor *domain.Actor, resolver domain.CombatResolver) {
-	enemyResult := enemyActor.AttackWithResolver(playerActor, resolver)
 	g.RecordHitReceived()
 	g.logAttackResult(enemyResult)
+
+	g.applyEnemyAttackEffects(enemy, enemyResult, playerActor)
+
 	if enemyResult.Killed {
 		g.handlePlayerDeath()
 		return
 	}
-	ogre.StartRest()
-}
 
-func (g *Game) processSnakeMageAttack(snakeMage *domain.SnakeMage, enemyActor, playerActor *domain.Actor, resolver domain.CombatResolver) {
-	enemyResult := enemyActor.AttackWithResolver(playerActor, resolver)
-	g.RecordHitReceived()
-	g.logAttackResult(enemyResult)
-	if enemyResult.Hit && g.rng.IntN(domain.PercentBase) < domain.SnakeMageSleepChance {
-		playerActor.State = domain.ActorStateSleep
-		g.ui.AddLog("Sleep!")
-	}
-	if enemyResult.Killed {
-		g.handlePlayerDeath()
+	if ogre, ok := enemy.(*domain.Ogre); ok {
+		ogre.StartRest()
 	}
 }
 
-func (g *Game) processVampireAttack(vampire *domain.Vampire, enemyActor, playerActor *domain.Actor, resolver domain.CombatResolver) {
-	enemyResult := enemyActor.AttackWithResolver(playerActor, resolver)
-	g.RecordHitReceived()
-	g.logAttackResult(enemyResult)
-	if enemyResult.Hit {
+func (g *Game) applyEnemyAttackEffects(enemy domain.Enemy, result domain.CombatResult, playerActor *domain.Actor) {
+	if !result.Hit {
+		return
+	}
+
+	switch enemy.(type) {
+	case *domain.SnakeMage:
+		if g.rng.IntN(domain.Combat.PercentBase) < domain.SnakeMageSleepChance {
+			playerActor.State = domain.ActorStateSleep
+			g.ui.AddLog("Sleep!")
+		}
+	case *domain.Vampire:
 		reductionEffect := domain.NewMaxHealthEffect(-domain.VampireMaxHealthReduction, -1)
 		playerActor.AddEffect(reductionEffect)
 		g.ui.AddLog(fmt.Sprintf("MaxHP-%d", domain.VampireMaxHealthReduction))
-	}
-	if enemyResult.Killed {
-		g.handlePlayerDeath()
-	}
-}
-
-func (g *Game) processDefaultEnemyAttack(enemyActor, playerActor *domain.Actor, resolver domain.CombatResolver) {
-	enemyResult := enemyActor.AttackWithResolver(playerActor, resolver)
-	g.RecordHitReceived()
-	g.logAttackResult(enemyResult)
-	if enemyResult.Killed {
-		g.handlePlayerDeath()
 	}
 }
 
@@ -133,7 +108,7 @@ func (g *Game) handleEnemyDeath(enemy domain.Enemy, enemyPos domain.Point) {
 func (g *Game) handlePlayerDeath() {
 	g.ui.AddLog("Died!")
 	g.SaveStatistics()
-	world := domain.NewWorld(domain.Width, domain.Height, g.World.Player.Name)
+	world := domain.NewWorld(domain.WorldConfig.Width, domain.WorldConfig.Height, g.World.Player.Name)
 	g.World = world
 	g.generator.Generate(g.World)
 	g.UpdateVisibility()

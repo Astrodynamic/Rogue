@@ -42,48 +42,7 @@ func (e *Elixir) Equals(other Item) bool {
 	return e.ElixirKind == otherElixir.ElixirKind && e.Amount == otherElixir.Amount && e.Duration == otherElixir.Duration
 }
 
-func (e *Elixir) Use() ItemUseResult {
-	var effect Effect
-	switch e.ElixirKind {
-	case ElixirHealth:
-		effect = &HealthEffect{
-			BaseEffect: BaseEffect{
-				duration: 0,
-			},
-			Stats: Stats{Health: e.Amount},
-		}
-	case ElixirMaxHealth:
-		effect = &MaxHealthEffect{
-			BaseEffect: BaseEffect{
-				duration: e.Duration,
-			},
-			Stats: Stats{MaxHealth: e.Amount},
-		}
-	case ElixirDexterity:
-		effect = &DexterityEffect{
-			BaseEffect: BaseEffect{
-				duration: e.Duration,
-			},
-			Stats: Stats{Dexterity: e.Amount},
-		}
-	case ElixirStrength:
-		effect = &StrengthEffect{
-			BaseEffect: BaseEffect{
-				duration: e.Duration,
-			},
-			Stats: Stats{Strength: e.Amount},
-		}
-	}
-
-	return ItemUseResult{
-		Success:  true,
-		Consumed: true,
-		Message:  e.Name() + " consumed",
-		Effects:  []Effect{effect},
-	}
-}
-
-func (e *Elixir) GetStats() Stats {
+func (e *Elixir) getEffectStats() Stats {
 	switch e.ElixirKind {
 	case ElixirHealth:
 		return Stats{Health: e.Amount}
@@ -96,4 +55,23 @@ func (e *Elixir) GetStats() Stats {
 	default:
 		return Stats{}
 	}
+}
+
+func (e *Elixir) Use() ItemUseResult {
+	stats := e.getEffectStats()
+	duration := e.Duration
+	if e.ElixirKind == ElixirHealth {
+		duration = 0
+	}
+
+	return ItemUseResult{
+		Success:  true,
+		Consumed: true,
+		Message:  e.Name() + " consumed",
+		Effects:  []Effect{NewStatEffect(stats, duration)},
+	}
+}
+
+func (e *Elixir) GetStats() Stats {
+	return e.getEffectStats()
 }

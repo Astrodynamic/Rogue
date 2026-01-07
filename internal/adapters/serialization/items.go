@@ -3,95 +3,109 @@ package serialization
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 
 	"rogue/internal/domain"
 )
+
+type itemUnmarshaler func([]byte) (domain.Item, error)
+
+var (
+	itemRegistry   = make(map[string]itemUnmarshaler)
+	itemTypeMap    = make(map[domain.ItemKind]string)
+	itemRegistryMu sync.RWMutex
+)
+
+func init() {
+	registerItem("food", domain.ItemFood, func(data []byte) (domain.Item, error) {
+		var food domain.Food
+		if err := json.Unmarshal(data, &food); err != nil {
+			return nil, err
+		}
+		return &food, nil
+	})
+	registerItem("elixir", domain.ItemElixir, func(data []byte) (domain.Item, error) {
+		var elixir domain.Elixir
+		if err := json.Unmarshal(data, &elixir); err != nil {
+			return nil, err
+		}
+		return &elixir, nil
+	})
+	registerItem("scroll", domain.ItemScroll, func(data []byte) (domain.Item, error) {
+		var scroll domain.Scroll
+		if err := json.Unmarshal(data, &scroll); err != nil {
+			return nil, err
+		}
+		return &scroll, nil
+	})
+	registerItem("weapon", domain.ItemWeapon, func(data []byte) (domain.Item, error) {
+		var weapon domain.Weapon
+		if err := json.Unmarshal(data, &weapon); err != nil {
+			return nil, err
+		}
+		return &weapon, nil
+	})
+	registerItem("armor", domain.ItemArmor, func(data []byte) (domain.Item, error) {
+		var armor domain.Armor
+		if err := json.Unmarshal(data, &armor); err != nil {
+			return nil, err
+		}
+		return &armor, nil
+	})
+	registerItem("treasure", domain.ItemTreasure, func(data []byte) (domain.Item, error) {
+		var treasure domain.Treasure
+		if err := json.Unmarshal(data, &treasure); err != nil {
+			return nil, err
+		}
+		return &treasure, nil
+	})
+}
+
+func registerItem(typeName string, itemKind domain.ItemKind, unmarshaler itemUnmarshaler) {
+	itemRegistryMu.Lock()
+	defer itemRegistryMu.Unlock()
+	itemRegistry[typeName] = unmarshaler
+	itemTypeMap[itemKind] = typeName
+}
 
 func (s *Serializer) marshalItem(item domain.Item) serializableItem {
 	if item == nil {
 		return serializableItem{Type: "null", Data: nil}
 	}
 
-	var data []byte
-	var err error
-	var itemType string
+	itemRegistryMu.RLock()
+	typeName, ok := itemTypeMap[item.Type()]
+	itemRegistryMu.RUnlock()
 
-	switch v := item.(type) {
-	case *domain.Food:
-		itemType = "food"
-		data, err = json.Marshal(v)
-	case *domain.Elixir:
-		itemType = "elixir"
-		data, err = json.Marshal(v)
-	case *domain.Scroll:
-		itemType = "scroll"
-		data, err = json.Marshal(v)
-	case *domain.Weapon:
-		itemType = "weapon"
-		data, err = json.Marshal(v)
-	case *domain.Armor:
-		itemType = "armor"
-		data, err = json.Marshal(v)
-	case *domain.Treasure:
-		itemType = "treasure"
-		data, err = json.Marshal(v)
-	default:
+	if !ok {
 		return serializableItem{Type: "unknown", Data: nil}
 	}
 
+	data, err := json.Marshal(item)
 	if err != nil {
 		return serializableItem{Type: "error", Data: nil}
 	}
 
 	return serializableItem{
-		Type: itemType,
+		Type: typeName,
 		Data: data,
 	}
 }
 
 func (s *Serializer) unmarshalItem(si serializableItem) (domain.Item, error) {
-	switch si.Type {
-	case "null", "error", "unknown":
+	if si.Type == "null" || si.Type == "error" || si.Type == "unknown" {
 		return nil, nil
-	case "food":
-		var food domain.Food
-		if err := json.Unmarshal(si.Data, &food); err != nil {
-			return nil, err
-		}
-		return &food, nil
-	case "elixir":
-		var elixir domain.Elixir
-		if err := json.Unmarshal(si.Data, &elixir); err != nil {
-			return nil, err
-		}
-		return &elixir, nil
-	case "scroll":
-		var scroll domain.Scroll
-		if err := json.Unmarshal(si.Data, &scroll); err != nil {
-			return nil, err
-		}
-		return &scroll, nil
-	case "weapon":
-		var weapon domain.Weapon
-		if err := json.Unmarshal(si.Data, &weapon); err != nil {
-			return nil, err
-		}
-		return &weapon, nil
-	case "armor":
-		var armor domain.Armor
-		if err := json.Unmarshal(si.Data, &armor); err != nil {
-			return nil, err
-		}
-		return &armor, nil
-	case "treasure":
-		var treasure domain.Treasure
-		if err := json.Unmarshal(si.Data, &treasure); err != nil {
-			return nil, err
-		}
-		return &treasure, nil
-	default:
+	}
+
+	itemRegistryMu.RLock()
+	unmarshaler, ok := itemRegistry[si.Type]
+	itemRegistryMu.RUnlock()
+
+	if !ok {
 		return nil, fmt.Errorf("unknown item type: %s", si.Type)
 	}
+
+	return unmarshaler(si.Data)
 }
 
 func (s *Serializer) marshalBackpack(backpack *domain.Backpack) *serializableBackpack {

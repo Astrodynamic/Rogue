@@ -37,12 +37,7 @@ func (f *Food) Use() ItemUseResult {
 		Consumed: true,
 		Message:  f.Name() + " consumed",
 		Effects: []Effect{
-			&HealthEffect{
-				BaseEffect: BaseEffect{
-					duration: 0,
-				},
-				Stats: Stats{Health: f.Health},
-			},
+			NewStatEffect(Stats{Health: f.Health}, 0),
 		},
 	}
 }

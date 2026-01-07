@@ -37,7 +37,7 @@ func (a *Actor) AddEffect(effect Effect) error {
 		return err
 	}
 
-	if effect.Duration() > 0 {
+	if effect.Duration() != 0 {
 		a.Effects = append(a.Effects, effect)
 	}
 

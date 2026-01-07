@@ -8,7 +8,7 @@ type FOV struct {
 
 func NewFOV() *FOV {
 	return &FOV{
-		Radius: domain.Radius,
+		Radius: domain.WorldConfig.Radius,
 	}
 }
 

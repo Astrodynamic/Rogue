@@ -7,27 +7,17 @@ type Mimic struct {
 }
 
 func NewMimic(depth int, disguisedItem ItemKind) *Mimic {
-	scaling := 1.0 + float64(depth)*EnemyScalingFactor
-	health := int(float64(MimicBaseHealth) * scaling)
-	dexterity := int(float64(MimicBaseDexterity) * scaling)
-	strength := int(float64(MimicBaseStrength) * scaling)
-	hostility := int(float64(MimicBaseHostility) * scaling)
+	config := EnemyConfig{
+		BaseHealth:    MimicBaseHealth,
+		BaseDexterity: MimicBaseDexterity,
+		BaseStrength:  MimicBaseStrength,
+		BaseHostility: MimicBaseHostility,
+	}
+	stats := ScaleEnemyStats(config, depth)
+	hostility := ScaleHostility(config.BaseHostility, depth)
 
 	return &Mimic{
-		BaseEnemy: BaseEnemy{
-			Actor: Actor{
-				Stats: Stats{
-					MaxHealth: health,
-					Health:    health,
-					Dexterity: dexterity,
-					Strength:  strength,
-				},
-				State:    ActorStateNormal,
-				Backpack: NewBackpack(),
-			},
-			EnemyType: EnemyTypeMimic,
-			Hostility: hostility,
-		},
+		BaseEnemy:     NewBaseEnemy(EnemyTypeMimic, stats, hostility),
 		Revealed:      false,
 		DisguisedItem: disguisedItem,
 	}
@@ -61,13 +51,7 @@ func (m *Mimic) ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Point)
 		if !m.Revealed {
 			m.Reveal()
 		}
-		enemyActor := m.GetActor()
-		playerActor := aiCtx.GetPlayerActor()
-		if enemyActor.State != ActorStateSleep {
-			resolver := aiCtx.GetCombatResolver()
-			result := enemyActor.AttackWithResolver(playerActor, resolver)
-			aiCtx.OnEnemyAttack(m, result)
-		}
+		ProcessAttack(m, aiCtx)
 		return
 	}
 

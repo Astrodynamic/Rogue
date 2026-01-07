@@ -9,7 +9,7 @@ func (g *Generator) GenerateItems(level *domain.Level, depth int, startRoom *dom
 func (g *Generator) GenerateItemsWithDifficulty(level *domain.Level, depth int, startRoom *domain.Room, difficultyFactor float64) {
 	level.Items = make(map[domain.Point]domain.Item)
 
-	itemsPerRoom := domain.ItemsPerRoomBase - depth/domain.ItemDepthDivisor
+	itemsPerRoom := domain.ItemGeneration.ItemsPerRoomBase - depth/domain.ItemDepthDivisor
 	if itemsPerRoom < domain.ItemMinPerRoom {
 		itemsPerRoom = domain.ItemMinPerRoom
 	}
@@ -23,12 +23,12 @@ func (g *Generator) GenerateItemsWithDifficulty(level *domain.Level, depth int, 
 		}
 
 		for i := 0; i < itemsPerRoom; i++ {
-			spawnChance := domain.ItemSpawnChance
+			spawnChance := domain.ItemGeneration.ItemSpawnChance
 			if difficultyFactor < 1.0 {
 				spawnChance += domain.ItemDifficultyBonus
 			}
 
-			if g.rng.IntN(domain.PercentBase) < spawnChance {
+			if g.rng.IntN(domain.Combat.PercentBase) < spawnChance {
 				item := g.generateRandomItemWithDifficulty(depth, difficultyFactor)
 				if item != nil {
 					pos := g.getRandomFloorPoint(level, room)
@@ -69,9 +69,9 @@ func (g *Generator) generateRandomItem(depth int) domain.Item {
 }
 
 func (g *Generator) generateRandomItemWithDifficulty(depth int, difficultyFactor float64) domain.Item {
-	roll := g.rng.IntN(domain.PercentBase)
+	roll := g.rng.IntN(domain.Combat.PercentBase)
 
-	foodThreshold := domain.FoodSpawnWeight
+	foodThreshold := domain.ItemGeneration.FoodSpawnWeight
 	elixirThreshold := foodThreshold + domain.ItemElixirThresholdOffset
 	scrollThreshold := elixirThreshold + domain.ItemScrollThresholdOffset
 	treasureThreshold := scrollThreshold + domain.ItemTreasureThresholdOffset
@@ -85,7 +85,7 @@ func (g *Generator) generateRandomItemWithDifficulty(depth int, difficultyFactor
 	switch {
 	case roll < foodThreshold:
 		return &domain.Food{
-			Health: domain.FoodBaseHealth + depth*domain.FoodHealthPerDepth,
+			Health: domain.ItemGeneration.FoodBaseHealth + depth*domain.ItemGeneration.FoodHealthPerDepth,
 		}
 	case roll < elixirThreshold:
 		elixirType := domain.ElixirKind(g.rng.IntN(domain.ElixirKindCount))

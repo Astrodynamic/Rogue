@@ -13,10 +13,10 @@ func NewPlayer(name string) *Player {
 		Actor: Actor{
 			Point: Point{X: 0, Y: 0},
 			Stats: Stats{
-				MaxHealth: PlayerStartMaxHealth,
-				Health:    PlayerStartHealth,
-				Dexterity: PlayerStartDexterity,
-				Strength:  PlayerStartStrength,
+				MaxHealth: PlayerConfig.StartMaxHealth,
+				Health:    PlayerConfig.StartHealth,
+				Dexterity: PlayerConfig.StartDexterity,
+				Strength:  PlayerConfig.StartStrength,
 			},
 			Name:     name,
 			State:    ActorStateNormal,

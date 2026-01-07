@@ -7,27 +7,17 @@ type Ghost struct {
 }
 
 func NewGhost(depth int) *Ghost {
-	scaling := 1.0 + float64(depth)*EnemyScalingFactor
-	health := int(float64(GhostBaseHealth) * scaling)
-	dexterity := int(float64(GhostBaseDexterity) * scaling)
-	strength := int(float64(GhostBaseStrength) * scaling)
-	hostility := int(float64(GhostBaseHostility) * scaling)
+	config := EnemyConfig{
+		BaseHealth:    GhostBaseHealth,
+		BaseDexterity: GhostBaseDexterity,
+		BaseStrength:  GhostBaseStrength,
+		BaseHostility: GhostBaseHostility,
+	}
+	stats := ScaleEnemyStats(config, depth)
+	hostility := ScaleHostility(config.BaseHostility, depth)
 
 	return &Ghost{
-		BaseEnemy: BaseEnemy{
-			Actor: Actor{
-				Stats: Stats{
-					MaxHealth: health,
-					Health:    health,
-					Dexterity: dexterity,
-					Strength:  strength,
-				},
-				State:    ActorStateNormal,
-				Backpack: NewBackpack(),
-			},
-			EnemyType: EnemyTypeGhost,
-			Hostility: hostility,
-		},
+		BaseEnemy:      NewBaseEnemy(EnemyTypeGhost, stats, hostility),
 		InvisibleTurns: 0,
 		InCombat:       false,
 	}
@@ -64,14 +54,7 @@ func (g *Ghost) ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Point)
 	enemyPos := g.Actor.Point
 	distance := Manhattan(enemyPos, playerPos)
 
-	if g.CanAttack(playerPos) {
-		enemyActor := g.GetActor()
-		playerActor := aiCtx.GetPlayerActor()
-		if enemyActor.State != ActorStateSleep {
-			resolver := aiCtx.GetCombatResolver()
-			result := enemyActor.AttackWithResolver(playerActor, resolver)
-			aiCtx.OnEnemyAttack(g, result)
-		}
+	if ProcessAttack(g, aiCtx) {
 		return
 	}
 

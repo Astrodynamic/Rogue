@@ -11,10 +11,10 @@ func (g *Generator) GenerateEnemies(level *domain.Level, depth int, startRoom *d
 func (g *Generator) GenerateEnemiesWithDifficulty(level *domain.Level, depth int, startRoom *domain.Room, difficultyFactor float64) {
 	level.Enemies = make(map[domain.Point]domain.Enemy)
 
-	enemiesPerRoomFloat := (float64(domain.EnemyCountBase) + float64(depth)*domain.EnemyCountScaling) * difficultyFactor
+	enemiesPerRoomFloat := (float64(domain.EnemyGeneration.CountBase) + float64(depth)*domain.EnemyGeneration.CountScaling) * difficultyFactor
 	enemiesPerRoom := int(enemiesPerRoomFloat)
-	if enemiesPerRoom > domain.EnemyMaxCountPerRoom {
-		enemiesPerRoom = domain.EnemyMaxCountPerRoom
+	if enemiesPerRoom > domain.EnemyGeneration.MaxCountPerRoom {
+		enemiesPerRoom = domain.EnemyGeneration.MaxCountPerRoom
 	}
 	if enemiesPerRoom < 1 {
 		enemiesPerRoom = 1
@@ -26,14 +26,14 @@ func (g *Generator) GenerateEnemiesWithDifficulty(level *domain.Level, depth int
 		}
 
 		for i := 0; i < enemiesPerRoom; i++ {
-			spawnChance := domain.EnemySpawnChance
+			spawnChance := domain.EnemyGeneration.SpawnChance
 			if difficultyFactor > 1.0 {
 				spawnChance += domain.EnemySpawnChanceDifficultyBonus
 			} else if difficultyFactor < 1.0 {
 				spawnChance -= domain.EnemySpawnChanceDifficultyPenalty
 			}
 
-			if g.rng.IntN(domain.PercentBase) < spawnChance {
+			if g.rng.IntN(domain.Combat.PercentBase) < spawnChance {
 				enemy := g.generateRandomEnemy(depth)
 				if enemy != nil {
 					pos := g.getRandomEnemyPoint(level, room)

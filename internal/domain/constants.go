@@ -1,18 +1,28 @@
 package domain
 
-const (
-	Depth  = 21
-	Width  = 120
-	Height = 40
-	Radius = 7
-)
+var WorldConfig = struct {
+	Depth  int
+	Width  int
+	Height int
+	Radius int
+}{
+	Depth:  21,
+	Width:  120,
+	Height: 40,
+	Radius: 7,
+}
 
-const (
-	PlayerStartMaxHealth = 150
-	PlayerStartHealth    = 150
-	PlayerStartDexterity = 12
-	PlayerStartStrength  = 8
-)
+var PlayerConfig = struct {
+	StartMaxHealth int
+	StartHealth    int
+	StartDexterity int
+	StartStrength  int
+}{
+	StartMaxHealth: 150,
+	StartHealth:    150,
+	StartDexterity: 12,
+	StartStrength:  8,
+}
 
 const (
 	ZombieBaseHealth    = 25
@@ -62,19 +72,35 @@ const (
 	MimicBaseHostility = 2
 )
 
-const (
-	HitChanceBase       = 60.0
-	HitChanceDexScale   = 3.0
-	DamageBase          = 1
-	DamageStrengthScale = 1.0
-)
+var Combat = struct {
+	HitChanceBase       float64
+	HitChanceDexScale   float64
+	DamageBase          int
+	DamageStrengthScale float64
+	AttackDistance      int
+	PercentBase         int
+}{
+	HitChanceBase:       60.0,
+	HitChanceDexScale:   3.0,
+	DamageBase:          1,
+	DamageStrengthScale: 1.0,
+	AttackDistance:      1,
+	PercentBase:         100,
+}
 
-const (
-	EnemyScalingFactor   = 0.05
-	EnemyCountBase       = 1
-	EnemyCountScaling    = 0.15
-	EnemyMaxCountPerRoom = 3
-)
+var EnemyGeneration = struct {
+	ScalingFactor   float64
+	CountBase       int
+	CountScaling    float64
+	MaxCountPerRoom int
+	SpawnChance     int
+}{
+	ScalingFactor:   0.05,
+	CountBase:       1,
+	CountScaling:    0.15,
+	MaxCountPerRoom: 3,
+	SpawnChance:     50,
+}
 
 const (
 	TreasureBaseValue      = 5
@@ -91,31 +117,35 @@ const (
 	MimicMinDepth     = 6
 )
 
-const (
-	FoodBaseHealth     = 20
-	FoodHealthPerDepth = 3
-	ItemsPerRoomBase   = 4
-	ItemSpawnChance    = 70
-	FoodSpawnWeight    = 35
-	EnemySpawnChance   = 50
-)
+var ItemGeneration = struct {
+	FoodBaseHealth     int
+	FoodHealthPerDepth int
+	ItemsPerRoomBase   int
+	ItemSpawnChance    int
+	FoodSpawnWeight    int
+}{
+	FoodBaseHealth:     20,
+	FoodHealthPerDepth: 3,
+	ItemsPerRoomBase:   4,
+	ItemSpawnChance:    70,
+	FoodSpawnWeight:    35,
+}
 
-const (
-	PercentBase    = 100
-	AttackDistance = 1
-)
-
-const (
-	MaxStartPositionAttempts  = 50
-	MaxRandomPositionAttempts = 20
-)
-
-const (
-	RoomGridSize  = 3
-	MinRoomWidth  = 6
-	MinRoomHeight = 4
-	RoomPadding   = 2
-)
+var LevelGeneration = struct {
+	RoomGridSize              int
+	MinRoomWidth              int
+	MinRoomHeight             int
+	RoomPadding               int
+	MaxStartPositionAttempts  int
+	MaxRandomPositionAttempts int
+}{
+	RoomGridSize:              3,
+	MinRoomWidth:              6,
+	MinRoomHeight:             4,
+	RoomPadding:               2,
+	MaxStartPositionAttempts:  50,
+	MaxRandomPositionAttempts: 20,
+}
 
 const (
 	ItemElixirThresholdOffset   = 20

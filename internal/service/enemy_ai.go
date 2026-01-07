@@ -29,7 +29,7 @@ func (g *Game) findPathToPlayer(from, to domain.Point, level *domain.Level) doma
 		current := queue[0]
 		queue = queue[1:]
 
-		if domain.Manhattan(current, to) == domain.AttackDistance {
+		if domain.Manhattan(current, to) == domain.Combat.AttackDistance {
 			path := []domain.Point{}
 			pos := current
 			for {

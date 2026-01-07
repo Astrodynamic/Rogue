@@ -7,27 +7,17 @@ type SnakeMage struct {
 }
 
 func NewSnakeMage(depth int) *SnakeMage {
-	scaling := 1.0 + float64(depth)*EnemyScalingFactor
-	health := int(float64(SnakeMageBaseHealth) * scaling)
-	dexterity := int(float64(SnakeMageBaseDexterity) * scaling)
-	strength := int(float64(SnakeMageBaseStrength) * scaling)
-	hostility := int(float64(SnakeMageBaseHostility) * scaling)
+	config := EnemyConfig{
+		BaseHealth:    SnakeMageBaseHealth,
+		BaseDexterity: SnakeMageBaseDexterity,
+		BaseStrength:  SnakeMageBaseStrength,
+		BaseHostility: SnakeMageBaseHostility,
+	}
+	stats := ScaleEnemyStats(config, depth)
+	hostility := ScaleHostility(config.BaseHostility, depth)
 
 	return &SnakeMage{
-		BaseEnemy: BaseEnemy{
-			Actor: Actor{
-				Stats: Stats{
-					MaxHealth: health,
-					Health:    health,
-					Dexterity: dexterity,
-					Strength:  strength,
-				},
-				State:    ActorStateNormal,
-				Backpack: NewBackpack(),
-			},
-			EnemyType: EnemyTypeSnakeMage,
-			Hostility: hostility,
-		},
+		BaseEnemy:      NewBaseEnemy(EnemyTypeSnakeMage, stats, hostility),
 		Direction:      DirUR,
 		DirectionClock: 0,
 	}
@@ -38,7 +28,7 @@ func (s *SnakeMage) GetEnemyType() EnemyType {
 }
 
 func (s *SnakeMage) Name() string {
-	return "Snake-Mage"
+	return "Snake Mage"
 }
 
 func (s *SnakeMage) SwitchDirection() {

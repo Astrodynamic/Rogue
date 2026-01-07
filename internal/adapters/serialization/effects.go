@@ -3,9 +3,68 @@ package serialization
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 
 	"rogue/internal/domain"
 )
+
+type effectUnmarshaler func([]byte) (domain.Effect, error)
+
+var (
+	effectRegistry   = make(map[string]effectUnmarshaler)
+	effectRegistryMu sync.RWMutex
+)
+
+func init() {
+	registerEffect("health", func(data []byte) (domain.Effect, error) {
+		var effect domain.StatEffect
+		if err := json.Unmarshal(data, &effect); err != nil {
+			return nil, err
+		}
+		return &effect, nil
+	})
+	registerEffect("max_health", func(data []byte) (domain.Effect, error) {
+		var effect domain.StatEffect
+		if err := json.Unmarshal(data, &effect); err != nil {
+			return nil, err
+		}
+		return &effect, nil
+	})
+	registerEffect("dexterity", func(data []byte) (domain.Effect, error) {
+		var effect domain.StatEffect
+		if err := json.Unmarshal(data, &effect); err != nil {
+			return nil, err
+		}
+		return &effect, nil
+	})
+	registerEffect("strength", func(data []byte) (domain.Effect, error) {
+		var effect domain.StatEffect
+		if err := json.Unmarshal(data, &effect); err != nil {
+			return nil, err
+		}
+		return &effect, nil
+	})
+	registerEffect("stat", func(data []byte) (domain.Effect, error) {
+		var effect domain.StatEffect
+		if err := json.Unmarshal(data, &effect); err != nil {
+			return nil, err
+		}
+		return &effect, nil
+	})
+	registerEffect("regeneration", func(data []byte) (domain.Effect, error) {
+		var effect domain.RegenerationEffect
+		if err := json.Unmarshal(data, &effect); err != nil {
+			return nil, err
+		}
+		return &effect, nil
+	})
+}
+
+func registerEffect(typeName string, unmarshaler effectUnmarshaler) {
+	effectRegistryMu.Lock()
+	defer effectRegistryMu.Unlock()
+	effectRegistry[typeName] = unmarshaler
+}
 
 func (s *Serializer) marshalEffect(effect domain.Effect) serializableEffect {
 	if effect == nil {
@@ -17,17 +76,18 @@ func (s *Serializer) marshalEffect(effect domain.Effect) serializableEffect {
 	var effectType string
 
 	switch v := effect.(type) {
-	case *domain.HealthEffect:
-		effectType = "health"
-		data, err = json.Marshal(v)
-	case *domain.MaxHealthEffect:
-		effectType = "max_health"
-		data, err = json.Marshal(v)
-	case *domain.DexterityEffect:
-		effectType = "dexterity"
-		data, err = json.Marshal(v)
-	case *domain.StrengthEffect:
-		effectType = "strength"
+	case *domain.StatEffect:
+		if v.Stats.Health != 0 && v.Stats.MaxHealth == 0 && v.Stats.Dexterity == 0 && v.Stats.Strength == 0 {
+			effectType = "health"
+		} else if v.Stats.MaxHealth != 0 {
+			effectType = "max_health"
+		} else if v.Stats.Dexterity != 0 {
+			effectType = "dexterity"
+		} else if v.Stats.Strength != 0 {
+			effectType = "strength"
+		} else {
+			effectType = "stat"
+		}
 		data, err = json.Marshal(v)
 	case *domain.RegenerationEffect:
 		effectType = "regeneration"
@@ -47,43 +107,17 @@ func (s *Serializer) marshalEffect(effect domain.Effect) serializableEffect {
 }
 
 func (s *Serializer) unmarshalEffect(se serializableEffect) (domain.Effect, error) {
-	switch se.Type {
-	case "null", "error", "unknown":
+	if se.Type == "null" || se.Type == "error" || se.Type == "unknown" || se.Type == "sleep" {
 		return nil, nil
-	case "health":
-		var effect domain.HealthEffect
-		if err := json.Unmarshal(se.Data, &effect); err != nil {
-			return nil, err
-		}
-		return &effect, nil
-	case "max_health":
-		var effect domain.MaxHealthEffect
-		if err := json.Unmarshal(se.Data, &effect); err != nil {
-			return nil, err
-		}
-		return &effect, nil
-	case "dexterity":
-		var effect domain.DexterityEffect
-		if err := json.Unmarshal(se.Data, &effect); err != nil {
-			return nil, err
-		}
-		return &effect, nil
-	case "strength":
-		var effect domain.StrengthEffect
-		if err := json.Unmarshal(se.Data, &effect); err != nil {
-			return nil, err
-		}
-		return &effect, nil
-	case "regeneration":
-		var effect domain.RegenerationEffect
-		if err := json.Unmarshal(se.Data, &effect); err != nil {
-			return nil, err
-		}
-		return &effect, nil
-	case "sleep":
+	}
 
-		return nil, nil
-	default:
+	effectRegistryMu.RLock()
+	unmarshaler, ok := effectRegistry[se.Type]
+	effectRegistryMu.RUnlock()
+
+	if !ok {
 		return nil, fmt.Errorf("unknown effect type: %s", se.Type)
 	}
+
+	return unmarshaler(se.Data)
 }

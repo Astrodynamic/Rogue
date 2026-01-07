@@ -39,7 +39,7 @@ func (g *Game) onMove(actor *domain.Actor, dir domain.Point) {
 		g.checkPlayerHealth()
 		return
 	case domain.TileExit:
-		if g.World.GetDepth() >= domain.Depth {
+		if g.World.GetDepth() >= domain.WorldConfig.Depth {
 			g.handleGameCompletion()
 			return
 		}

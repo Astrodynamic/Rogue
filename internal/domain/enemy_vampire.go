@@ -6,27 +6,17 @@ type Vampire struct {
 }
 
 func NewVampire(depth int) *Vampire {
-	scaling := 1.0 + float64(depth)*EnemyScalingFactor
-	health := int(float64(VampireBaseHealth) * scaling)
-	dexterity := int(float64(VampireBaseDexterity) * scaling)
-	strength := int(float64(VampireBaseStrength) * scaling)
-	hostility := int(float64(VampireBaseHostility) * scaling)
+	config := EnemyConfig{
+		BaseHealth:    VampireBaseHealth,
+		BaseDexterity: VampireBaseDexterity,
+		BaseStrength:  VampireBaseStrength,
+		BaseHostility: VampireBaseHostility,
+	}
+	stats := ScaleEnemyStats(config, depth)
+	hostility := ScaleHostility(config.BaseHostility, depth)
 
 	return &Vampire{
-		BaseEnemy: BaseEnemy{
-			Actor: Actor{
-				Stats: Stats{
-					MaxHealth: health,
-					Health:    health,
-					Dexterity: dexterity,
-					Strength:  strength,
-				},
-				State:    ActorStateNormal,
-				Backpack: NewBackpack(),
-			},
-			EnemyType: EnemyTypeVampire,
-			Hostility: hostility,
-		},
+		BaseEnemy:       NewBaseEnemy(EnemyTypeVampire, stats, hostility),
 		FirstHitMissed: false,
 	}
 }
@@ -72,17 +62,6 @@ func (v *Vampire) ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Poin
 			aiCtx.MoveEnemy(enemyPos, newPos, level)
 		}
 	} else {
-		dirs := Dirs4
-		rng := aiCtx.GetRandomGenerator()
-		for i := len(dirs) - 1; i > 0; i-- {
-			j := rng.IntN(i + 1)
-			dirs[i], dirs[j] = dirs[j], dirs[i]
-		}
-		for _, dir := range dirs {
-			newPos := enemyPos.Add(dir)
-			if aiCtx.MoveEnemy(enemyPos, newPos, level) {
-				break
-			}
-		}
+		ProcessRandomMove(aiCtx, level, enemyPos)
 	}
 }

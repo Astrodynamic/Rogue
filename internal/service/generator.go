@@ -25,10 +25,10 @@ func (g *Generator) Generate(world *domain.World) {
 }
 
 func (g *Generator) findRandomPositionInRoom(level *domain.Level, room domain.Room, validator func(domain.Point) bool) domain.Point {
-	maxAttempts := domain.MaxRandomPositionAttempts
+	maxAttempts := domain.LevelGeneration.MaxRandomPositionAttempts
 	for i := 0; i < maxAttempts; i++ {
-		x := g.rng.IntN(room.W-domain.RoomPadding) + room.X + 1
-		y := g.rng.IntN(room.H-domain.RoomPadding) + room.Y + 1
+		x := g.rng.IntN(room.W-domain.LevelGeneration.RoomPadding) + room.X + 1
+		y := g.rng.IntN(room.H-domain.LevelGeneration.RoomPadding) + room.Y + 1
 		p := domain.Point{X: x, Y: y}
 
 		if validator(p) {

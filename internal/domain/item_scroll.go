@@ -42,43 +42,47 @@ func (s *Scroll) Equals(other Item) bool {
 	return s.ScrollKind == otherScroll.ScrollKind && s.Amount == otherScroll.Amount
 }
 
-func (s *Scroll) Use() ItemUseResult {
-	var effect Effect
+func (s *Scroll) createEffect() Effect {
 	switch s.ScrollKind {
 	case ScrollHealth:
-		effect = &HealthEffect{
-			BaseEffect: BaseEffect{
-				duration: 0,
-			},
-			Stats: Stats{Health: s.Amount},
-		}
+		return NewStatEffect(Stats{Health: s.Amount}, 0)
 	case ScrollMaxHealth:
-		effect = &MaxHealthEffect{
-			BaseEffect: BaseEffect{
-				duration: 0,
-			},
-			Stats: Stats{MaxHealth: s.Amount},
-		}
+		return NewStatEffect(Stats{MaxHealth: s.Amount}, 0)
 	case ScrollDexterity:
-		effect = &DexterityEffect{
-			BaseEffect: BaseEffect{
-				duration: 0,
-			},
-			Stats: Stats{Dexterity: s.Amount},
-		}
+		return NewStatEffect(Stats{Dexterity: s.Amount}, 0)
 	case ScrollStrength:
-		effect = &StrengthEffect{
-			BaseEffect: BaseEffect{
-				duration: 0,
-			},
-			Stats: Stats{Strength: s.Amount},
-		}
+		return NewStatEffect(Stats{Strength: s.Amount}, 0)
 	case ScrollRegeneration:
-		effect = &RegenerationEffect{
-			BaseEffect: BaseEffect{
-				duration: -1,
-			},
-			Amount: s.Amount,
+		return &RegenerationEffect{
+			BaseEffect: BaseEffect{duration: -1},
+			Amount:     s.Amount,
+		}
+	default:
+		return nil
+	}
+}
+
+func (s *Scroll) getEffectStats() Stats {
+	switch s.ScrollKind {
+	case ScrollHealth, ScrollRegeneration:
+		return Stats{Health: s.Amount}
+	case ScrollMaxHealth:
+		return Stats{MaxHealth: s.Amount}
+	case ScrollDexterity:
+		return Stats{Dexterity: s.Amount}
+	case ScrollStrength:
+		return Stats{Strength: s.Amount}
+	default:
+		return Stats{}
+	}
+}
+
+func (s *Scroll) Use() ItemUseResult {
+	effect := s.createEffect()
+	if effect == nil {
+		return ItemUseResult{
+			Success: false,
+			Message: "Invalid scroll",
 		}
 	}
 
@@ -91,18 +95,5 @@ func (s *Scroll) Use() ItemUseResult {
 }
 
 func (s *Scroll) GetStats() Stats {
-	switch s.ScrollKind {
-	case ScrollHealth:
-		return Stats{Health: s.Amount}
-	case ScrollMaxHealth:
-		return Stats{MaxHealth: s.Amount}
-	case ScrollDexterity:
-		return Stats{Dexterity: s.Amount}
-	case ScrollStrength:
-		return Stats{Strength: s.Amount}
-	case ScrollRegeneration:
-		return Stats{Health: s.Amount}
-	default:
-		return Stats{}
-	}
+	return s.getEffectStats()
 }

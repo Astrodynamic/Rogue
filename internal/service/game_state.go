@@ -71,7 +71,7 @@ func (g *Game) HasSaveGame() bool {
 }
 
 func (g *Game) createNewGameWithPlayerName(playerName string) {
-	world := domain.NewWorld(domain.Width, domain.Height, playerName)
+	world := domain.NewWorld(domain.WorldConfig.Width, domain.WorldConfig.Height, playerName)
 	g.generator.Generate(world)
 	g.World = world
 	g.UpdateVisibility()
