@@ -4,6 +4,12 @@ type SleepEffect struct {
 	BaseEffect
 }
 
+func NewSleepEffect(duration int) *SleepEffect {
+	return &SleepEffect{
+		BaseEffect: BaseEffect{duration: duration},
+	}
+}
+
 func (e *SleepEffect) Apply(target *Actor) error {
 	target.State = ActorStateSleep
 	return nil

@@ -5,6 +5,13 @@ type MaxHealthEffect struct {
 	Stats Stats
 }
 
+func NewMaxHealthEffect(amount int, duration int) *MaxHealthEffect {
+	return &MaxHealthEffect{
+		BaseEffect: BaseEffect{duration: duration},
+		Stats:      Stats{MaxHealth: amount},
+	}
+}
+
 func (e *MaxHealthEffect) Apply(target *Actor) error {
 	target.Stats.Apply(e.Stats)
 	return nil

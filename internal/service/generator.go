@@ -23,6 +23,7 @@ func (g *Generator) Generate(world *domain.World) {
 	room := g.GenerateStartPosition(world)
 	depth := world.GetDepth()
 	g.GenerateItems(world.Level, depth, room)
+	g.GenerateEnemies(world.Level, depth, room)
 	world.GameState.AdvanceLevel()
 }
 

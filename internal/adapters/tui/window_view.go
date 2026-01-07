@@ -32,6 +32,7 @@ func (w *Window) DrawMap(world *domain.World, rect domain.Rect) {
 func (w *Window) DrawWorld(world *domain.World, rect domain.Rect, offsetX, offsetY int) {
 	w.DrawLevel(world, rect, offsetX, offsetY)
 	w.DrawItems(world, rect, offsetX, offsetY)
+	w.DrawEnemies(world, rect, offsetX, offsetY)
 	w.DrawPlayer(world.Player, rect, offsetX, offsetY)
 }
 
@@ -109,6 +110,50 @@ func (w *Window) DrawItems(world *domain.World, rect domain.Rect, offsetX, offse
 
 		char, style := w.runeItem(item)
 		w.screen.SetContent(screenItemX, screenItemY, char, nil, style)
+	}
+}
+
+func (w *Window) DrawEnemies(world *domain.World, rect domain.Rect, offsetX, offsetY int) {
+	level := world.Level
+
+	for pos, enemy := range level.Enemies {
+		if !level.Contains(pos) {
+			continue
+		}
+
+		if !enemy.IsAlive() {
+			continue
+		}
+
+		tile := level.Tiles[pos.Y][pos.X]
+		if !tile.TestFlags(domain.TileExplored) {
+			continue
+		}
+
+		// Ghost visibility check
+		if ghost, ok := enemy.(*domain.Ghost); ok {
+			distance := domain.Manhattan(pos, world.Player.Point)
+			inCombat := distance <= 1
+			if !ghost.ShouldBeVisible(inCombat) {
+				continue
+			}
+		}
+
+		if !tile.TestFlags(domain.TileVisible) {
+			continue
+		}
+
+		screenEnemyX := pos.X - offsetX + rect.X
+		screenEnemyY := pos.Y - offsetY + rect.Y
+
+		screenPos := domain.Point{X: screenEnemyX, Y: screenEnemyY}
+		if !rect.Contains(screenPos) {
+			continue
+		}
+
+		char, color := w.runeEnemy(enemy.GetEnemyType())
+		style := tcell.StyleDefault.Foreground(color)
+		w.screen.SetContent(screenEnemyX, screenEnemyY, char, nil, style)
 	}
 }
 
@@ -205,5 +250,22 @@ func (w *Window) runeItem(item domain.Item) (rune, tcell.Style) {
 		return '$', tcell.StyleDefault.Foreground(tcell.ColorYellow)
 	default:
 		return '?', tcell.StyleDefault.Foreground(tcell.ColorWhite)
+	}
+}
+
+func (w *Window) runeEnemy(enemyType domain.EnemyType) (rune, tcell.Color) {
+	switch enemyType {
+	case domain.EnemyTypeZombie:
+		return 'z', tcell.ColorGreen
+	case domain.EnemyTypeVampire:
+		return 'v', tcell.ColorRed
+	case domain.EnemyTypeGhost:
+		return 'g', tcell.ColorWhite
+	case domain.EnemyTypeOgre:
+		return 'O', tcell.ColorYellow
+	case domain.EnemyTypeSnakeMage:
+		return 's', tcell.ColorWhite
+	default:
+		return '?', tcell.ColorWhite
 	}
 }

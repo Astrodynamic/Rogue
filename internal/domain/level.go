@@ -1,5 +1,10 @@
 package domain
 
+type EnemyWithPos struct {
+	Enemy Enemy
+	Pos   Point
+}
+
 type Level struct {
 	Rect
 	Tiles     [][]Tile
@@ -7,6 +12,7 @@ type Level struct {
 	Corridors []Corridor
 	Exits     []Point
 	Items     map[Point]Item
+	Enemies   map[Point]Enemy
 }
 
 func NewLevel(width, height int) *Level {
@@ -22,11 +28,14 @@ func NewLevel(width, height int) *Level {
 		Corridors: make([]Corridor, 0),
 		Exits:     make([]Point, 0),
 		Items:     make(map[Point]Item),
+		Enemies:   make(map[Point]Enemy),
 	}
 }
 
 func (l *Level) Clear() {
 	l.ClearTiles()
+	l.Enemies = make(map[Point]Enemy)
+	l.Items = make(map[Point]Item)
 }
 
 func (l *Level) ClearTiles() {
@@ -161,7 +170,78 @@ func (l *Level) GetAdjacentDropPoint(from Point) Point {
 		if l.GetItem(pos) != nil {
 			continue
 		}
+		if l.GetEnemy(pos) != nil {
+			continue
+		}
 		return pos
 	}
 	return Point{X: -1, Y: -1}
+}
+
+func (l *Level) AddEnemy(p Point, enemy Enemy) {
+	if l.Contains(p) && (l.Tiles[p.Y][p.X].Kind == TileFloor || l.Tiles[p.Y][p.X].Kind == TileCorridor) {
+		if enemy.GetActor() != nil {
+			enemy.GetActor().Point = p
+		}
+		l.Enemies[p] = enemy
+	}
+}
+
+func (l *Level) RemoveEnemy(p Point) Enemy {
+	enemy, exists := l.Enemies[p]
+	if exists {
+		delete(l.Enemies, p)
+	}
+	return enemy
+}
+
+func (l *Level) GetEnemy(p Point) Enemy {
+	return l.Enemies[p]
+}
+
+func (l *Level) MoveEnemy(oldPos, newPos Point) bool {
+	enemy := l.Enemies[oldPos]
+	if enemy == nil {
+		return false
+	}
+	if !l.Contains(newPos) {
+		return false
+	}
+	tile := l.Tiles[newPos.Y][newPos.X]
+	if tile.Kind != TileFloor && tile.Kind != TileCorridor {
+		return false
+	}
+	if l.GetEnemy(newPos) != nil {
+		return false
+	}
+	delete(l.Enemies, oldPos)
+	l.Enemies[newPos] = enemy
+	if enemy.GetActor() != nil {
+		enemy.GetActor().Point = newPos
+	}
+	return true
+}
+
+func (l *Level) GetEnemiesInRoom(room Room) []EnemyWithPos {
+	var enemies []EnemyWithPos
+	for pos, enemy := range l.Enemies {
+		if room.Contains(pos) {
+			enemies = append(enemies, EnemyWithPos{
+				Enemy: enemy,
+				Pos:   pos,
+			})
+		}
+	}
+	return enemies
+}
+
+func (l *Level) GetAllEnemies() []EnemyWithPos {
+	var enemies []EnemyWithPos
+	for pos, enemy := range l.Enemies {
+		enemies = append(enemies, EnemyWithPos{
+			Enemy: enemy,
+			Pos:   pos,
+		})
+	}
+	return enemies
 }

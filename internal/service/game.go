@@ -1,6 +1,9 @@
 package service
 
 import (
+	"math/rand/v2"
+	"time"
+
 	"rogue/internal/adapters/storage"
 	"rogue/internal/domain"
 )
@@ -13,12 +16,18 @@ type Game struct {
 	selection       *SelectionModel
 	statisticsStore *storage.StatisticsStorage
 	showStatistics  bool
+	rng             domain.RandomGenerator
 }
 
 func NewGame(ui UI) *Game {
 	world := domain.NewWorld(domain.Width, domain.Height)
 
 	NewGenerator().Generate(world)
+
+	// Create random generator for combat
+	seed := uint64(time.Now().UnixNano())
+	randSource := rand.New(rand.NewPCG(seed, seed))
+	rng := NewRandAdapter(randSource)
 
 	game := &Game{
 		World:           world,
@@ -27,6 +36,7 @@ func NewGame(ui UI) *Game {
 		ui:              ui,
 		statisticsStore: storage.NewStatisticsStorage("saves"),
 		showStatistics:  false,
+		rng:             rng,
 	}
 
 	game.UpdateVisibility()

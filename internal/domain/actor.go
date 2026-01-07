@@ -32,10 +32,6 @@ func (a *Actor) Move(dir Point) {
 	a.Point = a.Point.Add(dir)
 }
 
-func (a *Actor) Attack(target *Actor) {
-
-}
-
 func (a *Actor) AddEffect(effect Effect) error {
 	if err := effect.Apply(a); err != nil {
 		return err

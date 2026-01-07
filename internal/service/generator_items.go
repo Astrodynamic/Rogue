@@ -43,6 +43,23 @@ func (g *Generator) getRandomFloorPoint(level *domain.Level, room domain.Room) d
 	return domain.Point{X: -1, Y: -1}
 }
 
+func (g *Generator) GenerateTreasureFromEnemyWithDepth(enemy domain.Enemy, depth int) *domain.Treasure {
+	if enemy == nil {
+		return nil
+	}
+	actor := enemy.GetActor()
+	if actor == nil {
+		return nil
+	}
+
+	statValue := enemy.GetHostility() + actor.GetStrength() + actor.GetDexterity() + actor.GetMaxHealth()
+	value := domain.TreasureBaseValue + (statValue * domain.TreasureStatMultiplier) + (depth * domain.TreasureDepthBonus)
+
+	return &domain.Treasure{
+		Value: value,
+	}
+}
+
 func (g *Generator) generateRandomItem(depth int) domain.Item {
 	roll := g.rng.IntN(100)
 

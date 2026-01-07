@@ -8,7 +8,14 @@ type Player struct {
 func NewPlayer() *Player {
 	return &Player{
 		Actor: Actor{
-			Point:    Point{X: 0, Y: 0},
+			Point: Point{X: 0, Y: 0},
+			Stats: Stats{
+				MaxHealth: PlayerStartMaxHealth,
+				Health:    PlayerStartHealth,
+				Dexterity: PlayerStartDexterity,
+				Strength:  PlayerStartStrength,
+			},
+			State:    ActorStateNormal,
 			Backpack: NewBackpack(),
 		},
 		Equipment: NewEquipment(),
