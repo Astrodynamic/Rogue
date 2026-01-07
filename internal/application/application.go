@@ -10,8 +10,8 @@ import (
 
 type Application struct {
 	gui             service.UI
-	gameStateStore  *storage.StateStore
-	statisticsStore *storage.StatsStore
+	gameStateStore  service.StateStore
+	statisticsStore service.StatsStore
 }
 
 func NewApplication() *Application {
