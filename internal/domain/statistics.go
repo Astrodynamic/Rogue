@@ -3,15 +3,15 @@ package domain
 import "time"
 
 type Statistics struct {
-	TreasureCollected int `json:"treasure_collected"`
-	DeepestLevel      int `json:"deepest_level"`
-	EnemiesDefeated   int `json:"enemies_defeated"`
-	FoodConsumed      int `json:"food_consumed"`
-	ElixirsDrunk      int `json:"elixirs_drunk"`
-	ScrollsRead       int `json:"scrolls_read"`
-	HitsDealt         int `json:"hits_dealt"`
-	HitsReceived      int `json:"hits_received"`
-	TilesTraveled     int `json:"tiles_traveled"`
+	TreasureCollected int
+	DeepestLevel      int
+	EnemiesDefeated   int
+	FoodConsumed      int
+	ElixirsDrunk      int
+	ScrollsRead       int
+	HitsDealt         int
+	HitsReceived      int
+	TilesTraveled     int
 }
 
 func NewStatistics() *Statistics {
@@ -59,9 +59,9 @@ func (s *Statistics) UpdateDeepestLevel(level int) {
 }
 
 type PlayStats struct {
-	Statistics `json:",inline"`
-	Timestamp  time.Time `json:"timestamp"`
-	PlayerName string    `json:"player_name"`
+	Statistics
+	Timestamp  time.Time
+	PlayerName string
 }
 
 func NewPlayStats(session *Statistics, playerName string) *PlayStats {

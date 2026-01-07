@@ -7,9 +7,58 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"rogue/internal/domain"
 )
+
+type playStatsDTO struct {
+	TreasureCollected int       `json:"treasure_collected"`
+	DeepestLevel      int       `json:"deepest_level"`
+	EnemiesDefeated   int       `json:"enemies_defeated"`
+	FoodConsumed      int       `json:"food_consumed"`
+	ElixirsDrunk      int       `json:"elixirs_drunk"`
+	ScrollsRead       int       `json:"scrolls_read"`
+	HitsDealt         int       `json:"hits_dealt"`
+	HitsReceived      int       `json:"hits_received"`
+	TilesTraveled     int       `json:"tiles_traveled"`
+	Timestamp         time.Time `json:"timestamp"`
+	PlayerName        string    `json:"player_name"`
+}
+
+func toDTO(stats *domain.PlayStats) *playStatsDTO {
+	return &playStatsDTO{
+		TreasureCollected: stats.TreasureCollected,
+		DeepestLevel:      stats.DeepestLevel,
+		EnemiesDefeated:   stats.EnemiesDefeated,
+		FoodConsumed:      stats.FoodConsumed,
+		ElixirsDrunk:      stats.ElixirsDrunk,
+		ScrollsRead:       stats.ScrollsRead,
+		HitsDealt:         stats.HitsDealt,
+		HitsReceived:      stats.HitsReceived,
+		TilesTraveled:     stats.TilesTraveled,
+		Timestamp:         stats.Timestamp,
+		PlayerName:        stats.PlayerName,
+	}
+}
+
+func fromDTO(dto *playStatsDTO) *domain.PlayStats {
+	return &domain.PlayStats{
+		Statistics: domain.Statistics{
+			TreasureCollected: dto.TreasureCollected,
+			DeepestLevel:      dto.DeepestLevel,
+			EnemiesDefeated:   dto.EnemiesDefeated,
+			FoodConsumed:      dto.FoodConsumed,
+			ElixirsDrunk:      dto.ElixirsDrunk,
+			ScrollsRead:       dto.ScrollsRead,
+			HitsDealt:         dto.HitsDealt,
+			HitsReceived:      dto.HitsReceived,
+			TilesTraveled:     dto.TilesTraveled,
+		},
+		Timestamp:  dto.Timestamp,
+		PlayerName: dto.PlayerName,
+	}
+}
 
 type StatsStore struct {
 	savesDir string
@@ -44,7 +93,12 @@ func (s *StatsStore) SavePlaythrough(stats *domain.PlayStats) error {
 
 	playthroughs = append(playthroughs, stats)
 
-	data, err := json.MarshalIndent(playthroughs, "", "  ")
+	dtos := make([]*playStatsDTO, len(playthroughs))
+	for i, p := range playthroughs {
+		dtos[i] = toDTO(p)
+	}
+
+	data, err := json.MarshalIndent(dtos, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal statistics: %w", err)
 	}
@@ -69,9 +123,14 @@ func (s *StatsStore) loadPlayerPlaythroughs(playerName string) ([]*domain.PlaySt
 		return nil, err
 	}
 
-	var playthroughs []*domain.PlayStats
-	if err := json.Unmarshal(data, &playthroughs); err != nil {
+	var dtos []*playStatsDTO
+	if err := json.Unmarshal(data, &dtos); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal statistics: %w", err)
+	}
+
+	playthroughs := make([]*domain.PlayStats, len(dtos))
+	for i, dto := range dtos {
+		playthroughs[i] = fromDTO(dto)
 	}
 
 	return playthroughs, nil
