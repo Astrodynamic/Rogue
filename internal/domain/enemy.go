@@ -56,5 +56,5 @@ func (be *BaseEnemy) CanAttack(playerPos Point) bool {
 		return false
 	}
 	distance := Manhattan(be.Actor.Point, playerPos)
-	return distance <= 1
+	return distance <= AttackDistance
 }

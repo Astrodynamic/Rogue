@@ -36,33 +36,30 @@ func (r *GameCombatResolver) GetAttackModifiers(attacker *domain.Actor, target *
 	}
 
 	if target != nil {
-		enemies := r.game.World.Level.GetAllEnemies()
-		for _, enemyWithPos := range enemies {
-			enemyActor := enemyWithPos.Enemy.GetActor()
-			if enemyActor == target {
-				if vampire, ok := enemyWithPos.Enemy.(*domain.Vampire); ok {
-					modifiers.FirstHitMiss = !vampire.FirstHitMissed
-				}
-				break
+		if e := r.findEnemyByActor(target); e != nil {
+			if v, ok := e.Enemy.(*domain.Vampire); ok {
+				modifiers.FirstHitMiss = !v.FirstHitMissed
 			}
 		}
 	}
 
 	if attacker != nil {
-		enemies := r.game.World.Level.GetAllEnemies()
-		for _, enemyWithPos := range enemies {
-			enemyActor := enemyWithPos.Enemy.GetActor()
-			if enemyActor == attacker {
-				if ogre, ok := enemyWithPos.Enemy.(*domain.Ogre); ok {
-
-					if !ogre.Resting && ogre.RestTurns == 0 {
-						modifiers.GuaranteedHit = true
-					}
-				}
-				break
+		if e := r.findEnemyByActor(attacker); e != nil {
+			if o, ok := e.Enemy.(*domain.Ogre); ok && !o.Resting && o.RestTurns == 0 {
+				modifiers.GuaranteedHit = true
 			}
 		}
 	}
 
 	return modifiers
+}
+
+func (r *GameCombatResolver) findEnemyByActor(actor *domain.Actor) *domain.EnemyWithPos {
+	enemies := r.game.World.Level.GetAllEnemies()
+	for i := range enemies {
+		if enemies[i].Enemy.GetActor() == actor {
+			return &enemies[i]
+		}
+	}
+	return nil
 }

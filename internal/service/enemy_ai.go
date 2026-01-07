@@ -29,7 +29,7 @@ func (g *Game) findPathToPlayer(from, to domain.Point, level *domain.Level) doma
 		current := queue[0]
 		queue = queue[1:]
 
-		if domain.Manhattan(current, to) == 1 {
+		if domain.Manhattan(current, to) == domain.AttackDistance {
 			path := []domain.Point{}
 			pos := current
 			for {
@@ -56,9 +56,7 @@ func (g *Game) findPathToPlayer(from, to domain.Point, level *domain.Level) doma
 			if visited[next] {
 				continue
 			}
-			tile := level.Tiles[next.Y][next.X]
-
-			if tile.Kind != domain.TileFloor && tile.Kind != domain.TileCorridor {
+			if !level.IsWalkableTile(next) {
 				continue
 			}
 			if level.GetEnemy(next) != nil {
@@ -87,18 +85,8 @@ func (g *Game) findRandomTeleportPosition(level *domain.Level, currentPos domain
 		return domain.Point{X: -1, Y: -1}
 	}
 
-	maxAttempts := 20
-	for i := 0; i < maxAttempts; i++ {
-		x := g.rng.IntN(currentRoom.W-2) + currentRoom.X + 1
-		y := g.rng.IntN(currentRoom.H-2) + currentRoom.Y + 1
-		pos := domain.Point{X: x, Y: y}
-
-		if level.Tiles[y][x].Kind == domain.TileFloor {
-			if level.GetEnemy(pos) == nil && pos != currentPos {
-				return pos
-			}
-		}
-	}
-
-	return domain.Point{X: -1, Y: -1}
+	return g.generator.findRandomPositionInRoom(level, *currentRoom, func(pos domain.Point) bool {
+		return level.Tiles[pos.Y][pos.X].Kind == domain.TileFloor &&
+			level.GetEnemy(pos) == nil && pos != currentPos
+	})
 }

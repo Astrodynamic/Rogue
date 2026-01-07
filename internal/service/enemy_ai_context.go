@@ -26,20 +26,14 @@ func (ctx *EnemyAIContextImpl) GetRandomPositionInRoom(currentPos domain.Point, 
 
 func (ctx *EnemyAIContextImpl) FindDiagonalMove(from, to domain.Point, level *domain.Level, direction domain.Point, directions []domain.Point) domain.Point {
 	newPos := from.Add(direction)
-	if level.Contains(newPos) {
-		tile := level.Tiles[newPos.Y][newPos.X]
-		if (tile.Kind == domain.TileFloor || tile.Kind == domain.TileCorridor) && level.GetEnemy(newPos) == nil {
-			return newPos
-		}
+	if level.IsWalkableTile(newPos) && level.GetEnemy(newPos) == nil {
+		return newPos
 	}
 
 	for _, dir := range directions {
 		newPos := from.Add(dir)
-		if level.Contains(newPos) {
-			tile := level.Tiles[newPos.Y][newPos.X]
-			if (tile.Kind == domain.TileFloor || tile.Kind == domain.TileCorridor) && level.GetEnemy(newPos) == nil {
-				return newPos
-			}
+		if level.IsWalkableTile(newPos) && level.GetEnemy(newPos) == nil {
+			return newPos
 		}
 	}
 

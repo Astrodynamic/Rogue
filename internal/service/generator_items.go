@@ -9,12 +9,12 @@ func (g *Generator) GenerateItems(level *domain.Level, depth int, startRoom *dom
 func (g *Generator) GenerateItemsWithDifficulty(level *domain.Level, depth int, startRoom *domain.Room, difficultyFactor float64) {
 	level.Items = make(map[domain.Point]domain.Item)
 
-	itemsPerRoom := domain.ItemsPerRoomBase - depth/7
-	if itemsPerRoom < 2 {
-		itemsPerRoom = 2
+	itemsPerRoom := domain.ItemsPerRoomBase - depth/domain.ItemDepthDivisor
+	if itemsPerRoom < domain.ItemMinPerRoom {
+		itemsPerRoom = domain.ItemMinPerRoom
 	}
 	if difficultyFactor < 1.0 {
-		itemsPerRoom += 1
+		itemsPerRoom++
 	}
 
 	for _, room := range level.Rooms {
@@ -25,10 +25,10 @@ func (g *Generator) GenerateItemsWithDifficulty(level *domain.Level, depth int, 
 		for i := 0; i < itemsPerRoom; i++ {
 			spawnChance := domain.ItemSpawnChance
 			if difficultyFactor < 1.0 {
-				spawnChance += 10
+				spawnChance += domain.ItemDifficultyBonus
 			}
 
-			if g.rng.IntN(100) < spawnChance {
+			if g.rng.IntN(domain.PercentBase) < spawnChance {
 				item := g.generateRandomItemWithDifficulty(depth, difficultyFactor)
 				if item != nil {
 					pos := g.getRandomFloorPoint(level, room)
@@ -42,17 +42,9 @@ func (g *Generator) GenerateItemsWithDifficulty(level *domain.Level, depth int, 
 }
 
 func (g *Generator) getRandomFloorPoint(level *domain.Level, room domain.Room) domain.Point {
-	maxAttempts := 20
-	for i := 0; i < maxAttempts; i++ {
-		x := g.rng.IntN(room.W-2) + room.X + 1
-		y := g.rng.IntN(room.H-2) + room.Y + 1
-		p := domain.Point{X: x, Y: y}
-
-		if level.Tiles[y][x].Kind == domain.TileFloor && level.GetItem(p) == nil {
-			return p
-		}
-	}
-	return domain.Point{X: -1, Y: -1}
+	return g.findRandomPositionInRoom(level, room, func(pos domain.Point) bool {
+		return level.Tiles[pos.Y][pos.X].Kind == domain.TileFloor && level.GetItem(pos) == nil
+	})
 }
 
 func (g *Generator) GenerateTreasureFromEnemyWithDepth(enemy domain.Enemy, depth int) *domain.Treasure {
@@ -77,17 +69,17 @@ func (g *Generator) generateRandomItem(depth int) domain.Item {
 }
 
 func (g *Generator) generateRandomItemWithDifficulty(depth int, difficultyFactor float64) domain.Item {
-	roll := g.rng.IntN(100)
+	roll := g.rng.IntN(domain.PercentBase)
 
 	foodThreshold := domain.FoodSpawnWeight
-	elixirThreshold := foodThreshold + 20
-	scrollThreshold := elixirThreshold + 15
-	treasureThreshold := scrollThreshold + 10
-	weaponThreshold := treasureThreshold + 10
+	elixirThreshold := foodThreshold + domain.ItemElixirThresholdOffset
+	scrollThreshold := elixirThreshold + domain.ItemScrollThresholdOffset
+	treasureThreshold := scrollThreshold + domain.ItemTreasureThresholdOffset
+	weaponThreshold := treasureThreshold + domain.ItemWeaponThresholdOffset
 
 	if difficultyFactor < 1.0 {
-		foodThreshold += 10
-		elixirThreshold += 10
+		foodThreshold += domain.ItemDifficultyBonus
+		elixirThreshold += domain.ItemDifficultyBonus
 	}
 
 	switch {
@@ -96,17 +88,17 @@ func (g *Generator) generateRandomItemWithDifficulty(depth int, difficultyFactor
 			Health: domain.FoodBaseHealth + depth*domain.FoodHealthPerDepth,
 		}
 	case roll < elixirThreshold:
-		elixirType := domain.ElixirKind(g.rng.IntN(4))
+		elixirType := domain.ElixirKind(g.rng.IntN(domain.ElixirKindCount))
 		return &domain.Elixir{
 			ElixirKind: elixirType,
-			Amount:     5 + depth,
-			Duration:   8 + depth/2,
+			Amount:     domain.ElixirBaseAmount + depth,
+			Duration:   domain.ElixirBaseDuration + depth/domain.ElixirDurationDivisor,
 		}
 	case roll < scrollThreshold:
-		scrollType := domain.ScrollKind(g.rng.IntN(5))
-		amount := 2 + depth/2
+		scrollType := domain.ScrollKind(g.rng.IntN(domain.ScrollKindCount))
+		amount := domain.ScrollBaseAmount + depth/domain.ScrollAmountDivisor
 		if scrollType == domain.ScrollRegeneration {
-			amount = 2 + depth/4
+			amount = domain.ScrollBaseAmount + depth/domain.ScrollRegenDivisor
 		}
 		return &domain.Scroll{
 			ScrollKind: scrollType,
@@ -114,11 +106,11 @@ func (g *Generator) generateRandomItemWithDifficulty(depth int, difficultyFactor
 		}
 	case roll < treasureThreshold:
 		return &domain.Treasure{
-			Value: 10 + depth*5,
+			Value: domain.TreasureBaseDropValue + depth*domain.TreasureDepthMultiplier,
 		}
 	case roll < weaponThreshold:
 		return &domain.Weapon{
-			Strength: 2 + depth/3,
+			Strength: domain.WeaponBaseStrength + depth/domain.WeaponStrengthDivisor,
 		}
 	default:
 		armorParts := []domain.ActorPart{domain.ActorPartHead, domain.ActorPartBody, domain.ActorPartLegs}
@@ -126,14 +118,14 @@ func (g *Generator) generateRandomItemWithDifficulty(depth int, difficultyFactor
 		part := armorParts[partIndex]
 
 		stats := domain.Stats{}
-		statRoll := g.rng.IntN(3)
+		statRoll := g.rng.IntN(domain.ArmorStatRollCount)
 		switch statRoll {
 		case 0:
-			stats.Strength = 1 + depth/4
+			stats.Strength = domain.ArmorStatBase + depth/domain.ArmorStatDivisor
 		case 1:
-			stats.Dexterity = 1 + depth/4
+			stats.Dexterity = domain.ArmorStatBase + depth/domain.ArmorStatDivisor
 		case 2:
-			stats.MaxHealth = 5 + depth/2
+			stats.MaxHealth = domain.ArmorHealthBase + depth/domain.ArmorHealthDivisor
 		}
 
 		return &domain.Armor{

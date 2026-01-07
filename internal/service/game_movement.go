@@ -13,9 +13,7 @@ func (g *Game) onMove(actor *domain.Actor, dir domain.Point) {
 		actor.TickEffects()
 		g.UpdateVisibility()
 		g.ProcessEnemyTurns()
-		if g.World.Player.Health <= 0 {
-			g.handlePlayerDeath()
-		}
+		g.checkPlayerHealth()
 		return
 	}
 
@@ -38,9 +36,7 @@ func (g *Game) onMove(actor *domain.Actor, dir domain.Point) {
 		actor.TickEffects()
 		g.UpdateVisibility()
 		g.ProcessEnemyTurns()
-		if g.World.Player.Health <= 0 {
-			g.handlePlayerDeath()
-		}
+		g.checkPlayerHealth()
 		return
 	case domain.TileExit:
 		if g.World.GetDepth() >= domain.Depth {
@@ -68,10 +64,7 @@ func (g *Game) onMove(actor *domain.Actor, dir domain.Point) {
 	g.UpdateVisibility()
 
 	g.ProcessEnemyTurns()
-
-	if g.World.Player.Health <= 0 {
-		g.handlePlayerDeath()
-	}
+	g.checkPlayerHealth()
 }
 
 func (g *Game) pickupItem(actor *domain.Actor, pos domain.Point) {
@@ -85,15 +78,17 @@ func (g *Game) pickupItem(actor *domain.Actor, pos domain.Point) {
 		return
 	}
 
-	if actor.Backpack.Add(item) {
-		if item.Type() == domain.ItemTreasure {
-			if treasure, ok := item.(*domain.Treasure); ok {
-				g.RecordTreasureCollected(treasure.Value)
-				g.ui.AddLog(fmt.Sprintf("Got $%d", treasure.Value))
-			}
-		} else {
-			g.ui.AddLog("Got " + item.Name())
-		}
-		g.World.Level.RemoveItem(pos)
+	if !actor.Backpack.Add(item) {
+		return
 	}
+
+	if item.Type() == domain.ItemTreasure {
+		if treasure, ok := item.(*domain.Treasure); ok {
+			g.RecordTreasureCollected(treasure.Value)
+			g.ui.AddLog(fmt.Sprintf("Got $%d", treasure.Value))
+		}
+	} else {
+		g.ui.AddLog("Got " + item.Name())
+	}
+	g.World.Level.RemoveItem(pos)
 }

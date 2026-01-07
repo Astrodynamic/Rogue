@@ -171,8 +171,8 @@ func (w *Window) resize() {
 	logH := logHeight(wH)
 	mapW := wW - panelW
 	mapH := wH
-	statsH := 6
-	equipmentH := 8
+	statsH := domain.UIStatsHeight
+	equipmentH := domain.UIEquipmentHeight
 	invH := wH - statsH - equipmentH - logH
 
 	w.layout.Map = domain.NewRect(0, 0, mapW, mapH)
@@ -183,17 +183,17 @@ func (w *Window) resize() {
 }
 
 func panelWidth(width int) int {
-	if width < 80 {
-		return 20
+	if width < domain.UIMinWidthThreshold {
+		return domain.UIMinPanelWidth
 	}
-	return 28
+	return domain.UIDefaultPanelWidth
 }
 
 func logHeight(height int) int {
-	if height < 30 {
-		return 10
+	if height < domain.UIMinHeightThreshold {
+		return domain.UIMinLogHeight
 	}
-	return 15
+	return domain.UIDefaultLogHeight
 }
 
 func (w *Window) Input() service.Command {

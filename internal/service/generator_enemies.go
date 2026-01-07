@@ -28,12 +28,12 @@ func (g *Generator) GenerateEnemiesWithDifficulty(level *domain.Level, depth int
 		for i := 0; i < enemiesPerRoom; i++ {
 			spawnChance := domain.EnemySpawnChance
 			if difficultyFactor > 1.0 {
-				spawnChance += 15
+				spawnChance += domain.EnemySpawnChanceDifficultyBonus
 			} else if difficultyFactor < 1.0 {
-				spawnChance -= 15
+				spawnChance -= domain.EnemySpawnChanceDifficultyPenalty
 			}
 
-			if g.rng.IntN(100) < spawnChance {
+			if g.rng.IntN(domain.PercentBase) < spawnChance {
 				enemy := g.generateRandomEnemy(depth)
 				if enemy != nil {
 					pos := g.getRandomEnemyPoint(level, room)
@@ -121,17 +121,8 @@ func (g *Generator) generateRandomEnemy(depth int) domain.Enemy {
 }
 
 func (g *Generator) getRandomEnemyPoint(level *domain.Level, room domain.Room) domain.Point {
-	maxAttempts := 20
-	for i := 0; i < maxAttempts; i++ {
-		x := g.rng.IntN(room.W-2) + room.X + 1
-		y := g.rng.IntN(room.H-2) + room.Y + 1
-		p := domain.Point{X: x, Y: y}
-
-		if level.Tiles[y][x].Kind == domain.TileFloor {
-			if level.GetItem(p) == nil && level.GetEnemy(p) == nil {
-				return p
-			}
-		}
-	}
-	return domain.Point{X: -1, Y: -1}
+	return g.findRandomPositionInRoom(level, room, func(pos domain.Point) bool {
+		return level.Tiles[pos.Y][pos.X].Kind == domain.TileFloor &&
+			level.GetItem(pos) == nil && level.GetEnemy(pos) == nil
+	})
 }

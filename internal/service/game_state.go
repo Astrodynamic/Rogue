@@ -15,19 +15,16 @@ func (g *Game) loadGame() {
 	}
 
 	playerName := saves[0]
-	if len(saves) > 1 {
-		playerName = saves[0]
-	}
-
 	world, err := g.LoadGameState(playerName)
-	if err == nil && world != nil {
-		g.World = world
-		g.UpdateVisibility()
-		g.ui.AddLog("Loaded")
-	} else {
+	if err != nil || world == nil {
 		g.ui.AddLog("Load failed")
 		g.startNewGame()
+		return
 	}
+
+	g.World = world
+	g.UpdateVisibility()
+	g.ui.AddLog("Loaded")
 }
 
 func (g *Game) startNewGame() {
@@ -36,8 +33,8 @@ func (g *Game) startNewGame() {
 
 func (g *Game) handleGameCompletion() {
 	g.SaveStatistics()
-		g.ui.AddLog("Victory!")
-		g.ui.AddLog(fmt.Sprintf("Score: $%d", g.World.GameState.Statistics.TreasureCollected))
+	g.ui.AddLog("Victory!")
+	g.ui.AddLog(fmt.Sprintf("Score: $%d", g.World.GameState.Statistics.TreasureCollected))
 	g.startNewGame()
 }
 
@@ -80,5 +77,5 @@ func (g *Game) createNewGameWithPlayerName(playerName string) {
 	g.generator.Generate(world)
 	g.World = world
 	g.UpdateVisibility()
-		g.ui.AddLog("New game")
+	g.ui.AddLog("New game")
 }

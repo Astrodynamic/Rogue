@@ -7,8 +7,7 @@ func (g *Game) dropItemAtPosition(item domain.Item, pos domain.Point) bool {
 		return false
 	}
 
-	tile := g.World.Level.Tiles[pos.Y][pos.X]
-	if tile.Kind != domain.TileFloor && tile.Kind != domain.TileCorridor {
+	if !g.World.Level.IsWalkableTile(pos) {
 		return false
 	}
 

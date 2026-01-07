@@ -67,6 +67,12 @@ func (g *Game) UpdateVisibility() {
 	g.FOV.Update(g.World.Level, g.World.Player.Point)
 }
 
+func (g *Game) checkPlayerHealth() {
+	if g.World != nil && g.World.Player.Health <= 0 {
+		g.handlePlayerDeath()
+	}
+}
+
 func (g *Game) Run() {
 	for g.isRunning {
 		if g.ui.IsStartMenu() {

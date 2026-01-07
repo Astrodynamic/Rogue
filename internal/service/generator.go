@@ -24,21 +24,31 @@ func (g *Generator) Generate(world *domain.World) {
 	g.GenerateEnemiesWithDifficulty(world.Level, depth, room, difficultyFactor)
 }
 
+func (g *Generator) findRandomPositionInRoom(level *domain.Level, room domain.Room, validator func(domain.Point) bool) domain.Point {
+	maxAttempts := domain.MaxRandomPositionAttempts
+	for i := 0; i < maxAttempts; i++ {
+		x := g.rng.IntN(room.W-domain.RoomPadding) + room.X + 1
+		y := g.rng.IntN(room.H-domain.RoomPadding) + room.Y + 1
+		p := domain.Point{X: x, Y: y}
+
+		if validator(p) {
+			return p
+		}
+	}
+	return domain.Point{X: -1, Y: -1}
+}
+
 func (g *Generator) GenerateStartPosition(world *domain.World) *domain.Room {
 	room := world.Level.Rooms[g.rng.IntN(len(world.Level.Rooms))]
 
-	maxAttempts := 50
-	for i := 0; i < maxAttempts; i++ {
-		x := g.rng.IntN(room.W-2) + room.X + 1
-		y := g.rng.IntN(room.H-2) + room.Y + 1
-		p := domain.Point{X: x, Y: y}
+	p := g.findRandomPositionInRoom(world.Level, room, func(pos domain.Point) bool {
+		return world.Level.Tiles[pos.Y][pos.X].Kind == domain.TileFloor
+	})
 
-		if world.Level.Tiles[y][x].Kind == domain.TileFloor {
-			world.Player.Point = p
-			return &room
-		}
+	if p.X >= 0 {
+		world.Player.Point = p
+	} else {
+		world.Player.Point = room.Center()
 	}
-
-	world.Player.Point = room.Center()
 	return &room
 }

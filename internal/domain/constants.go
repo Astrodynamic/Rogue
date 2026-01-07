@@ -99,3 +99,78 @@ const (
 	FoodSpawnWeight    = 35
 	EnemySpawnChance   = 50
 )
+
+const (
+	PercentBase    = 100
+	AttackDistance = 1
+)
+
+const (
+	MaxStartPositionAttempts  = 50
+	MaxRandomPositionAttempts = 20
+)
+
+const (
+	RoomGridSize  = 3
+	MinRoomWidth  = 6
+	MinRoomHeight = 4
+	RoomPadding   = 2
+)
+
+const (
+	ItemElixirThresholdOffset   = 20
+	ItemScrollThresholdOffset   = 15
+	ItemTreasureThresholdOffset = 10
+	ItemWeaponThresholdOffset   = 10
+	ItemDifficultyBonus         = 10
+	ItemMinPerRoom              = 2
+	ItemDepthDivisor            = 7
+	ElixirKindCount             = 4
+	ScrollKindCount             = 5
+	ElixirBaseAmount            = 5
+	ElixirBaseDuration          = 8
+	ElixirDurationDivisor       = 2
+	ScrollBaseAmount            = 2
+	ScrollAmountDivisor         = 2
+	ScrollRegenDivisor          = 4
+	TreasureBaseDropValue       = 10
+	TreasureDepthMultiplier     = 5
+	WeaponBaseStrength          = 2
+	WeaponStrengthDivisor       = 3
+	ArmorStatBase               = 1
+	ArmorStatDivisor            = 4
+	ArmorHealthBase             = 5
+	ArmorHealthDivisor          = 2
+	ArmorStatRollCount          = 3
+)
+
+const (
+	EnemySpawnChanceDifficultyBonus   = 15
+	EnemySpawnChanceDifficultyPenalty = 15
+)
+
+const (
+	DifficultyHealthHighThreshold    = 0.7
+	DifficultyHealthLowThreshold     = 0.3
+	DifficultyHealthHighAdjustment   = 0.05
+	DifficultyHealthLowAdjustment    = -0.05
+	DifficultyHitRatioHighThreshold  = 0.6
+	DifficultyHitRatioLowThreshold   = 0.4
+	DifficultyHitRatioHighAdjustment = 0.03
+	DifficultyHitRatioLowAdjustment  = -0.03
+	DifficultyFoodPerLevelThreshold  = 3.0
+	DifficultyFoodAdjustment         = -0.02
+	DifficultyMinFactor              = 0.5
+	DifficultyMaxFactor              = 1.5
+)
+
+const (
+	UIMinWidthThreshold  = 80
+	UIMinPanelWidth      = 20
+	UIDefaultPanelWidth  = 28
+	UIMinHeightThreshold = 30
+	UIMinLogHeight       = 10
+	UIDefaultLogHeight   = 15
+	UIStatsHeight        = 6
+	UIEquipmentHeight    = 8
+)

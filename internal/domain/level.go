@@ -139,8 +139,16 @@ func (l *Level) UpdateExplored() {
 	}
 }
 
+func (l *Level) IsWalkableTile(p Point) bool {
+	if !l.Contains(p) {
+		return false
+	}
+	tile := l.Tiles[p.Y][p.X]
+	return tile.Kind == TileFloor || tile.Kind == TileCorridor
+}
+
 func (l *Level) AddItem(p Point, item Item) {
-	if l.Contains(p) && (l.Tiles[p.Y][p.X].Kind == TileFloor || l.Tiles[p.Y][p.X].Kind == TileCorridor) {
+	if l.IsWalkableTile(p) {
 		if l.Items[p] == nil {
 			l.Items[p] = item
 		}
@@ -165,8 +173,7 @@ func (l *Level) GetAdjacentDropPoint(from Point) Point {
 		if !l.Contains(pos) {
 			continue
 		}
-		tile := l.Tiles[pos.Y][pos.X]
-		if tile.Kind != TileFloor && tile.Kind != TileCorridor {
+		if !l.IsWalkableTile(pos) {
 			continue
 		}
 		if l.GetItem(pos) != nil {
@@ -181,7 +188,7 @@ func (l *Level) GetAdjacentDropPoint(from Point) Point {
 }
 
 func (l *Level) AddEnemy(p Point, enemy Enemy) {
-	if l.Contains(p) && (l.Tiles[p.Y][p.X].Kind == TileFloor || l.Tiles[p.Y][p.X].Kind == TileCorridor) {
+	if l.IsWalkableTile(p) {
 		if enemy.GetActor() != nil {
 			enemy.GetActor().Point = p
 		}
@@ -206,11 +213,7 @@ func (l *Level) MoveEnemy(oldPos, newPos Point) bool {
 	if enemy == nil {
 		return false
 	}
-	if !l.Contains(newPos) {
-		return false
-	}
-	tile := l.Tiles[newPos.Y][newPos.X]
-	if tile.Kind != TileFloor && tile.Kind != TileCorridor {
+	if !l.IsWalkableTile(newPos) {
 		return false
 	}
 	if l.GetEnemy(newPos) != nil {

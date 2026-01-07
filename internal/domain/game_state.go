@@ -71,29 +71,29 @@ func (gs *GameState) AdjustDifficulty(playerHealth, playerMaxHealth int) {
 
 	adjustment := 0.0
 
-	if healthRatio > 0.7 {
-		adjustment += 0.05
-	} else if healthRatio < 0.3 {
-		adjustment -= 0.05
+	if healthRatio > DifficultyHealthHighThreshold {
+		adjustment += DifficultyHealthHighAdjustment
+	} else if healthRatio < DifficultyHealthLowThreshold {
+		adjustment += DifficultyHealthLowAdjustment
 	}
 
-	if hitRatio > 0.6 {
-		adjustment += 0.03
-	} else if hitRatio < 0.4 {
-		adjustment -= 0.03
+	if hitRatio > DifficultyHitRatioHighThreshold {
+		adjustment += DifficultyHitRatioHighAdjustment
+	} else if hitRatio < DifficultyHitRatioLowThreshold {
+		adjustment += DifficultyHitRatioLowAdjustment
 	}
 
 	foodPerLevel := float64(gs.Statistics.FoodConsumed) / float64(gs.Depth)
-	if foodPerLevel > 3 {
-		adjustment -= 0.02
+	if foodPerLevel > DifficultyFoodPerLevelThreshold {
+		adjustment += DifficultyFoodAdjustment
 	}
 
 	gs.DifficultyFactor += adjustment
 
-	if gs.DifficultyFactor < 0.5 {
-		gs.DifficultyFactor = 0.5
+	if gs.DifficultyFactor < DifficultyMinFactor {
+		gs.DifficultyFactor = DifficultyMinFactor
 	}
-	if gs.DifficultyFactor > 1.5 {
-		gs.DifficultyFactor = 1.5
+	if gs.DifficultyFactor > DifficultyMaxFactor {
+		gs.DifficultyFactor = DifficultyMaxFactor
 	}
 }

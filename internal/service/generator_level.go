@@ -14,14 +14,14 @@ func (g *Generator) GenerateLevel(level *domain.Level) {
 func (g *Generator) GenerateRooms(level *domain.Level) {
 	level.Rooms = level.Rooms[:0]
 
-	secW := level.W / 3
-	secH := level.H / 3
+	secW := level.W / domain.RoomGridSize
+	secH := level.H / domain.RoomGridSize
 
-	for sy := 0; sy < 3; sy++ {
-		for sx := 0; sx < 3; sx++ {
-			minW, minH := 6, 4
-			maxW := secW - 2
-			maxH := secH - 2
+	for sy := 0; sy < domain.RoomGridSize; sy++ {
+		for sx := 0; sx < domain.RoomGridSize; sx++ {
+			minW, minH := domain.MinRoomWidth, domain.MinRoomHeight
+			maxW := secW - domain.RoomPadding
+			maxH := secH - domain.RoomPadding
 			if maxW < minW {
 				maxW = minW
 			}
@@ -86,18 +86,19 @@ func (g *Generator) GenerateCorridors(level *domain.Level) {
 
 func (g *Generator) neighbors(index int) []int {
 	neighbors := make([]int, 0, 4)
-	cx, cy := index%3, index/3
+	cx, cy := index%domain.RoomGridSize, index/domain.RoomGridSize
+	maxIndex := domain.RoomGridSize - 1
 	if cx > 0 {
 		neighbors = append(neighbors, index-1)
 	}
-	if cx < 2 {
+	if cx < maxIndex {
 		neighbors = append(neighbors, index+1)
 	}
 	if cy > 0 {
-		neighbors = append(neighbors, index-3)
+		neighbors = append(neighbors, index-domain.RoomGridSize)
 	}
-	if cy < 2 {
-		neighbors = append(neighbors, index+3)
+	if cy < maxIndex {
+		neighbors = append(neighbors, index+domain.RoomGridSize)
 	}
 	return neighbors
 }
@@ -173,8 +174,8 @@ func (g *Generator) GenerateLine(corridor *domain.Corridor, a, b domain.Point) {
 func (g *Generator) GenerateExit(level *domain.Level) {
 	room := level.Rooms[g.rng.IntN(len(level.Rooms))]
 	exit := domain.Point{
-		X: g.rng.IntN(room.W-2) + room.X + 1,
-		Y: g.rng.IntN(room.H-2) + room.Y + 1,
+		X: g.rng.IntN(room.W-domain.RoomPadding) + room.X + 1,
+		Y: g.rng.IntN(room.H-domain.RoomPadding) + room.Y + 1,
 	}
 	level.AddExit(exit)
 }
