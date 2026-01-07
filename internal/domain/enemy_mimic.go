@@ -8,10 +8,10 @@ type Mimic struct {
 
 func NewMimic(depth int, disguisedItem ItemKind) *Mimic {
 	config := EnemyConfig{
-		BaseHealth:    MimicBaseHealth,
-		BaseDexterity: MimicBaseDexterity,
-		BaseStrength:  MimicBaseStrength,
-		BaseHostility: MimicBaseHostility,
+		BaseHealth:    MimicBaseHP,
+		BaseDexterity: MimicBaseDex,
+		BaseStrength:  MimicBaseStr,
+		BaseHostility: MimicBaseHost,
 	}
 	stats := ScaleEnemyStats(config, depth)
 	hostility := ScaleHostility(config.BaseHostility, depth)

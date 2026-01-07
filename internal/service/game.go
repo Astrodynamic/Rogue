@@ -13,17 +13,17 @@ type Game struct {
 	isRunning       bool
 	ui              UI
 	selection       *SelectionModel
-	statisticsStore StatisticsStorage
-	gameStateStore  GameStateStorage
+	statisticsStore StatsStore
+	gameStateStore  StateStore
 	rng             domain.RandomGenerator
 	generator       *Generator
 }
 
-func NewGame(ui UI, gameStateStore GameStateStorage, statisticsStore StatisticsStorage) *Game {
+func NewGame(ui UI, gameStateStore StateStore, statisticsStore StatsStore) *Game {
 	seed := uint64(time.Now().UnixNano())
 	randSource := rand.New(rand.NewPCG(seed, seed))
 	rng := NewRandAdapter(randSource)
-	generator := NewGeneratorWithRNG(rng)
+	generator := NewGenWithRNG(rng)
 
 	game := &Game{
 		FOV:             NewFOV(),
@@ -38,11 +38,11 @@ func NewGame(ui UI, gameStateStore GameStateStorage, statisticsStore StatisticsS
 	return game
 }
 
-func NewGameWithWorld(ui UI, world *domain.World, gameStateStore GameStateStorage, statisticsStore StatisticsStorage) *Game {
+func NewGameWithW(ui UI, world *domain.World, gameStateStore StateStore, statisticsStore StatsStore) *Game {
 	seed := uint64(time.Now().UnixNano())
 	randSource := rand.New(rand.NewPCG(seed, seed))
 	rng := NewRandAdapter(randSource)
-	generator := NewGeneratorWithRNG(rng)
+	generator := NewGenWithRNG(rng)
 
 	game := &Game{
 		World:           world,

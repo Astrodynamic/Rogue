@@ -1,19 +1,19 @@
 package domain
 
-type RegenerationEffect struct {
+type RegenEffect struct {
 	BaseEffect
 	Amount int
 }
 
-func (e *RegenerationEffect) Apply(target *Actor) error {
+func (e *RegenEffect) Apply(target *Actor) error {
 	return nil
 }
 
-func (e *RegenerationEffect) Revert(target *Actor) error {
+func (e *RegenEffect) Revert(target *Actor) error {
 	return nil
 }
 
-func (e *RegenerationEffect) Tick(target *Actor) bool {
+func (e *RegenEffect) Tick(target *Actor) bool {
 
 	target.AddHealth(e.Amount)
 

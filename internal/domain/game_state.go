@@ -55,8 +55,8 @@ func (gs *GameState) GetDeepestLevel() int {
 	return gs.Statistics.DeepestLevel
 }
 
-func (gs *GameState) ToPlaythroughStatistics(playerName string) *PlaythroughStatistics {
-	return NewPlaythroughStatistics(&gs.Statistics, playerName)
+func (gs *GameState) ToPlayStats(playerName string) *PlayStats {
+	return NewPlayStats(&gs.Statistics, playerName)
 }
 
 func (gs *GameState) AdjustDifficulty(playerHealth, playerMaxHealth int) {

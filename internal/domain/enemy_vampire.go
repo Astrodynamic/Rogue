@@ -7,10 +7,10 @@ type Vampire struct {
 
 func NewVampire(depth int) *Vampire {
 	config := EnemyConfig{
-		BaseHealth:    VampireBaseHealth,
-		BaseDexterity: VampireBaseDexterity,
-		BaseStrength:  VampireBaseStrength,
-		BaseHostility: VampireBaseHostility,
+		BaseHealth:    VampireBaseHP,
+		BaseDexterity: VampireBaseDex,
+		BaseStrength:  VampireBaseStr,
+		BaseHostility: VampireBaseHost,
 	}
 	stats := ScaleEnemyStats(config, depth)
 	hostility := ScaleHostility(config.BaseHostility, depth)
@@ -48,7 +48,7 @@ func (v *Vampire) ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Poin
 			resolver := aiCtx.GetCombatResolver()
 			result := enemyActor.AttackWithResolver(playerActor, resolver)
 			if result.Hit {
-				reductionEffect := NewMaxHealthEffect(-VampireMaxHealthReduction, -1)
+				reductionEffect := NewMaxHPEffect(-VampireMaxHPRed, -1)
 				playerActor.AddEffect(reductionEffect)
 			}
 			aiCtx.OnEnemyAttack(v, result)
@@ -62,6 +62,6 @@ func (v *Vampire) ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Poin
 			aiCtx.MoveEnemy(enemyPos, newPos, level)
 		}
 	} else {
-		ProcessRandomMove(aiCtx, level, enemyPos)
+		ProcessRandMove(aiCtx, level, enemyPos)
 	}
 }

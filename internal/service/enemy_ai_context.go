@@ -4,27 +4,27 @@ import (
 	"rogue/internal/domain"
 )
 
-type EnemyAIContextImpl struct {
+type AICtxImpl struct {
 	game *Game
 }
 
-func NewEnemyAIContext(game *Game) *EnemyAIContextImpl {
-	return &EnemyAIContextImpl{game: game}
+func NewAICtx(game *Game) *AICtxImpl {
+	return &AICtxImpl{game: game}
 }
 
-func (ctx *EnemyAIContextImpl) FindPathTo(from, to domain.Point, level *domain.Level) domain.Point {
+func (ctx *AICtxImpl) FindPathTo(from, to domain.Point, level *domain.Level) domain.Point {
 	return ctx.game.findPathToPlayer(from, to, level)
 }
 
-func (ctx *EnemyAIContextImpl) MoveEnemy(oldPos, newPos domain.Point, level *domain.Level) bool {
+func (ctx *AICtxImpl) MoveEnemy(oldPos, newPos domain.Point, level *domain.Level) bool {
 	return level.MoveEnemy(oldPos, newPos)
 }
 
-func (ctx *EnemyAIContextImpl) GetRandomPositionInRoom(currentPos domain.Point, level *domain.Level) domain.Point {
+func (ctx *AICtxImpl) GetRandomPositionInRoom(currentPos domain.Point, level *domain.Level) domain.Point {
 	return ctx.game.findRandomTeleportPosition(level, currentPos)
 }
 
-func (ctx *EnemyAIContextImpl) FindDiagonalMove(from, to domain.Point, level *domain.Level, direction domain.Point, directions []domain.Point) domain.Point {
+func (ctx *AICtxImpl) FindDiagonalMove(from, to domain.Point, level *domain.Level, direction domain.Point, directions []domain.Point) domain.Point {
 	newPos := from.Add(direction)
 	if level.IsWalkableTile(newPos) && level.GetEnemy(newPos) == nil {
 		return newPos
@@ -40,25 +40,25 @@ func (ctx *EnemyAIContextImpl) FindDiagonalMove(from, to domain.Point, level *do
 	return domain.Point{X: -1, Y: -1}
 }
 
-func (ctx *EnemyAIContextImpl) GetRandomGenerator() domain.RandomGenerator {
+func (ctx *AICtxImpl) GetRandomGenerator() domain.RandomGenerator {
 	return ctx.game.rng
 }
 
-func (ctx *EnemyAIContextImpl) GetCombatResolver() domain.CombatResolver {
-	return NewGameCombatResolver(ctx.game)
+func (ctx *AICtxImpl) GetCombatResolver() domain.CombatResolver {
+	return NewCombatRes(ctx.game)
 }
 
-func (ctx *EnemyAIContextImpl) GetPlayerActor() *domain.Actor {
+func (ctx *AICtxImpl) GetPlayerActor() *domain.Actor {
 	return &ctx.game.World.Player.Actor
 }
 
-func (ctx *EnemyAIContextImpl) OnEnemyAttack(enemy domain.Enemy, result domain.CombatResult) {
+func (ctx *AICtxImpl) OnEnemyAttack(enemy domain.Enemy, result domain.CombatResult) {
 	ctx.game.RecordHitReceived()
 	if result.Killed {
 		ctx.game.handlePlayerDeath()
 	}
 }
 
-func (ctx *EnemyAIContextImpl) OnPlayerDeath() {
+func (ctx *AICtxImpl) OnPlayerDeath() {
 	ctx.game.handlePlayerDeath()
 }

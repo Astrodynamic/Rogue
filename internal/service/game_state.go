@@ -43,7 +43,7 @@ func (g *Game) SaveStatistics() error {
 		return nil
 	}
 
-	playthrough := g.World.GameState.ToPlaythroughStatistics(g.World.Player.Name)
+	playthrough := g.World.GameState.ToPlayStats(g.World.Player.Name)
 	return g.statisticsStore.SavePlaythrough(playthrough)
 }
 

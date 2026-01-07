@@ -21,7 +21,7 @@ type Window struct {
 	log            *Log
 	layout         Layout
 	menuState      *MenuState
-	statisticsData []*domain.PlaythroughStatistics
+	statisticsData []*domain.PlayStats
 }
 
 func NewWindow() *Window {
@@ -64,7 +64,7 @@ func (w *Window) Draw(world *domain.World, selection service.SelectionState) {
 	w.screen.Show()
 }
 
-func (w *Window) DrawStatistics(playthroughs []*domain.PlaythroughStatistics) {
+func (w *Window) DrawStatistics(playthroughs []*domain.PlayStats) {
 	w.menuState.SetStatistics(true)
 	w.statisticsData = playthroughs
 	w.screen.Clear()

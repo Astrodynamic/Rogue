@@ -4,15 +4,15 @@ import (
 	"rogue/internal/domain"
 )
 
-type GameCombatResolver struct {
+type CombatRes struct {
 	game *Game
 }
 
-func NewGameCombatResolver(game *Game) *GameCombatResolver {
-	return &GameCombatResolver{game: game}
+func NewCombatRes(game *Game) *CombatRes {
+	return &CombatRes{game: game}
 }
 
-func (r *GameCombatResolver) GetWeaponStrength(actor *domain.Actor) int {
+func (r *CombatRes) GetWeaponStrength(actor *domain.Actor) int {
 	playerActor := &r.game.World.Player.Actor
 	if actor == playerActor {
 		if r.game.World.Player.Equipment != nil {
@@ -25,11 +25,11 @@ func (r *GameCombatResolver) GetWeaponStrength(actor *domain.Actor) int {
 	return 0
 }
 
-func (r *GameCombatResolver) GetRandomGenerator() domain.RandomGenerator {
+func (r *CombatRes) GetRandomGenerator() domain.RandomGenerator {
 	return r.game.rng
 }
 
-func (r *GameCombatResolver) GetAttackModifiers(attacker *domain.Actor, target *domain.Actor) domain.AttackModifiers {
+func (r *CombatRes) GetAttackModifiers(attacker *domain.Actor, target *domain.Actor) domain.AttackModifiers {
 	modifiers := domain.AttackModifiers{
 		GuaranteedHit: false,
 		FirstHitMiss:  false,
@@ -54,7 +54,7 @@ func (r *GameCombatResolver) GetAttackModifiers(attacker *domain.Actor, target *
 	return modifiers
 }
 
-func (r *GameCombatResolver) findEnemyByActor(actor *domain.Actor) domain.Enemy {
+func (r *CombatRes) findEnemyByActor(actor *domain.Actor) domain.Enemy {
 	enemies := r.game.World.Level.GetAllEnemies()
 	for _, enemy := range enemies {
 		if enemy.GetActor() == actor {

@@ -6,10 +6,10 @@ type Zombie struct {
 
 func NewZombie(depth int) *Zombie {
 	config := EnemyConfig{
-		BaseHealth:    ZombieBaseHealth,
-		BaseDexterity: ZombieBaseDexterity,
-		BaseStrength:  ZombieBaseStrength,
-		BaseHostility: ZombieBaseHostility,
+		BaseHealth:    ZombieBaseHP,
+		BaseDexterity: ZombieBaseDex,
+		BaseStrength:  ZombieBaseStr,
+		BaseHostility: ZombieBaseHost,
 	}
 	stats := ScaleEnemyStats(config, depth)
 	hostility := ScaleHostility(config.BaseHostility, depth)
@@ -28,5 +28,5 @@ func (z *Zombie) Name() string {
 }
 
 func (z *Zombie) ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Point) {
-	ProcessStandardTurn(z, aiCtx, level, playerPos)
+	ProcessStdTurn(z, aiCtx, level, playerPos)
 }

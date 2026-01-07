@@ -53,7 +53,7 @@ func (s *Scroll) createEffect() Effect {
 	case ScrollStrength:
 		return NewStatEffect(Stats{Strength: s.Amount}, 0)
 	case ScrollRegeneration:
-		return &RegenerationEffect{
+		return &RegenEffect{
 			BaseEffect: BaseEffect{duration: -1},
 			Amount:     s.Amount,
 		}

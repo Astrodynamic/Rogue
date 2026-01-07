@@ -39,7 +39,7 @@ func (g *Game) startDropItemSelection() {
 		stacks := g.World.Player.Backpack.GetStacks(kind)
 		for stackIndex, stack := range stacks {
 			if item := stack.Peek(); item != nil {
-				selectionItems = append(selectionItems, &ItemSelectionItem{
+				selectionItems = append(selectionItems, &ItemSelItem{
 					Item:       item,
 					ItemKind:   kind,
 					StackIndex: stackIndex,
@@ -68,7 +68,7 @@ func (g *Game) startEquipItemSelection() {
 			if item := stack.Peek(); item != nil {
 				_, canEquip := domain.GetEquipPart(item)
 				if canEquip {
-					selectionItems = append(selectionItems, &ItemSelectionItem{
+					selectionItems = append(selectionItems, &ItemSelItem{
 						Item:       item,
 						ItemKind:   kind,
 						StackIndex: stackIndex,
@@ -82,7 +82,7 @@ func (g *Game) startEquipItemSelection() {
 		return
 	}
 
-	g.selection = NewSelectionModel(selectionItems, NewEquipItemHandler(g))
+		g.selection = NewSelectionModel(selectionItems, NewEquipHdl(g))
 }
 
 func (g *Game) startUnequipItemSelection() {
@@ -92,7 +92,7 @@ func (g *Game) startUnequipItemSelection() {
 	for _, part := range parts {
 		item := g.World.Player.Equipment.Get(part)
 		if item != nil {
-			selectionItems = append(selectionItems, &EquipmentSelectionItem{
+			selectionItems = append(selectionItems, &EquipSelItem{
 				Part: part,
 				Item: item,
 			})
@@ -103,14 +103,14 @@ func (g *Game) startUnequipItemSelection() {
 		return
 	}
 
-	g.selection = NewSelectionModel(selectionItems, NewUnequipEquipmentHandler(g))
+		g.selection = NewSelectionModel(selectionItems, NewUnequipHdl(g))
 }
 
 func (g *Game) buildSelectionItemsFromStacks(stacks []*domain.ItemStack, kind domain.ItemKind) []SelectionItem {
 	selectionItems := make([]SelectionItem, 0)
 	for i, stack := range stacks {
 		if item := stack.Peek(); item != nil {
-			selectionItems = append(selectionItems, &ItemSelectionItem{
+			selectionItems = append(selectionItems, &ItemSelItem{
 				Item:       item,
 				ItemKind:   kind,
 				StackIndex: i,

@@ -14,14 +14,14 @@ func (g *Generator) GenerateLevel(level *domain.Level) {
 func (g *Generator) GenerateRooms(level *domain.Level) {
 	level.Rooms = level.Rooms[:0]
 
-	secW := level.W / domain.LevelGeneration.RoomGridSize
-	secH := level.H / domain.LevelGeneration.RoomGridSize
+	secW := level.W / domain.LevelGen.RoomGridSize
+	secH := level.H / domain.LevelGen.RoomGridSize
 
-	for sy := 0; sy < domain.LevelGeneration.RoomGridSize; sy++ {
-		for sx := 0; sx < domain.LevelGeneration.RoomGridSize; sx++ {
-			minW, minH := domain.LevelGeneration.MinRoomWidth, domain.LevelGeneration.MinRoomHeight
-			maxW := secW - domain.LevelGeneration.RoomPadding
-			maxH := secH - domain.LevelGeneration.RoomPadding
+	for sy := 0; sy < domain.LevelGen.RoomGridSize; sy++ {
+		for sx := 0; sx < domain.LevelGen.RoomGridSize; sx++ {
+			minW, minH := domain.LevelGen.MinRoomW, domain.LevelGen.MinRoomH
+			maxW := secW - domain.LevelGen.RoomPadding
+			maxH := secH - domain.LevelGen.RoomPadding
 			if maxW < minW {
 				maxW = minW
 			}
@@ -86,8 +86,8 @@ func (g *Generator) GenerateCorridors(level *domain.Level) {
 
 func (g *Generator) neighbors(index int) []int {
 	neighbors := make([]int, 0, 4)
-	cx, cy := index%domain.LevelGeneration.RoomGridSize, index/domain.LevelGeneration.RoomGridSize
-	maxIndex := domain.LevelGeneration.RoomGridSize - 1
+	cx, cy := index%domain.LevelGen.RoomGridSize, index/domain.LevelGen.RoomGridSize
+	maxIndex := domain.LevelGen.RoomGridSize - 1
 	if cx > 0 {
 		neighbors = append(neighbors, index-1)
 	}
@@ -95,10 +95,10 @@ func (g *Generator) neighbors(index int) []int {
 		neighbors = append(neighbors, index+1)
 	}
 	if cy > 0 {
-		neighbors = append(neighbors, index-domain.LevelGeneration.RoomGridSize)
+		neighbors = append(neighbors, index-domain.LevelGen.RoomGridSize)
 	}
 	if cy < maxIndex {
-		neighbors = append(neighbors, index+domain.LevelGeneration.RoomGridSize)
+		neighbors = append(neighbors, index+domain.LevelGen.RoomGridSize)
 	}
 	return neighbors
 }
@@ -174,8 +174,8 @@ func (g *Generator) GenerateLine(corridor *domain.Corridor, a, b domain.Point) {
 func (g *Generator) GenerateExit(level *domain.Level) {
 	room := level.Rooms[g.rng.IntN(len(level.Rooms))]
 	exit := domain.Point{
-		X: g.rng.IntN(room.W-domain.LevelGeneration.RoomPadding) + room.X + 1,
-		Y: g.rng.IntN(room.H-domain.LevelGeneration.RoomPadding) + room.Y + 1,
+		X: g.rng.IntN(room.W-domain.LevelGen.RoomPadding) + room.X + 1,
+		Y: g.rng.IntN(room.H-domain.LevelGen.RoomPadding) + room.Y + 1,
 	}
 	level.AddExit(exit)
 }

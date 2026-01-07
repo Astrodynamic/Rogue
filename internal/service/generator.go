@@ -8,7 +8,7 @@ type Generator struct {
 	rng domain.RandomGenerator
 }
 
-func NewGeneratorWithRNG(rng domain.RandomGenerator) *Generator {
+func NewGenWithRNG(rng domain.RandomGenerator) *Generator {
 	return &Generator{
 		rng: rng,
 	}
@@ -25,10 +25,10 @@ func (g *Generator) Generate(world *domain.World) {
 }
 
 func (g *Generator) findRandomPositionInRoom(level *domain.Level, room domain.Room, validator func(domain.Point) bool) domain.Point {
-	maxAttempts := domain.LevelGeneration.MaxRandomPositionAttempts
+	maxAttempts := domain.LevelGen.MaxRandPosAttempts
 	for i := 0; i < maxAttempts; i++ {
-		x := g.rng.IntN(room.W-domain.LevelGeneration.RoomPadding) + room.X + 1
-		y := g.rng.IntN(room.H-domain.LevelGeneration.RoomPadding) + room.Y + 1
+		x := g.rng.IntN(room.W-domain.LevelGen.RoomPadding) + room.X + 1
+		y := g.rng.IntN(room.H-domain.LevelGen.RoomPadding) + room.Y + 1
 		p := domain.Point{X: x, Y: y}
 
 		if validator(p) {

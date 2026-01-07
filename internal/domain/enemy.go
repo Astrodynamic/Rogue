@@ -100,7 +100,7 @@ func (be *BaseEnemy) CanAttack(playerPos Point) bool {
 func (be *BaseEnemy) ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Point) {
 }
 
-func ProcessStandardTurn(enemy Enemy, aiCtx EnemyAIContext, level *Level, playerPos Point) {
+func ProcessStdTurn(enemy Enemy, aiCtx EnemyAIContext, level *Level, playerPos Point) {
 	if !enemy.IsAlive() {
 		return
 	}
@@ -125,11 +125,11 @@ func ProcessStandardTurn(enemy Enemy, aiCtx EnemyAIContext, level *Level, player
 			aiCtx.MoveEnemy(enemyPos, newPos, level)
 		}
 	} else {
-		ProcessRandomMove(aiCtx, level, enemyPos)
+		ProcessRandMove(aiCtx, level, enemyPos)
 	}
 }
 
-func ProcessRandomMove(aiCtx EnemyAIContext, level *Level, enemyPos Point) {
+func ProcessRandMove(aiCtx EnemyAIContext, level *Level, enemyPos Point) {
 	dirs := Dirs4
 	rng := aiCtx.GetRandomGenerator()
 	for i := len(dirs) - 1; i > 0; i-- {

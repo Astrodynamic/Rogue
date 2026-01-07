@@ -25,51 +25,51 @@ var PlayerConfig = struct {
 }
 
 const (
-	ZombieBaseHealth    = 25
-	ZombieBaseDexterity = 3
-	ZombieBaseStrength  = 4
-	ZombieBaseHostility = 4
+	ZombieBaseHP   = 25
+	ZombieBaseDex  = 3
+	ZombieBaseStr  = 4
+	ZombieBaseHost = 4
 )
 
 const (
-	VampireBaseHealth         = 40
-	VampireBaseDexterity      = 10
-	VampireBaseStrength       = 6
-	VampireBaseHostility      = 8
-	VampireMaxHealthReduction = 3
+	VampireBaseHP   = 40
+	VampireBaseDex  = 10
+	VampireBaseStr  = 6
+	VampireBaseHost = 8
+	VampireMaxHPRed = 3
 )
 
 const (
-	GhostBaseHealth     = 15
-	GhostBaseDexterity  = 12
-	GhostBaseStrength   = 2
-	GhostBaseHostility  = 3
-	GhostTeleportChance = 25
-	GhostInvisibleTurns = 2
+	GhostBaseHP     = 15
+	GhostBaseDex    = 12
+	GhostBaseStr    = 2
+	GhostBaseHost   = 3
+	GhostTeleChance = 25
+	GhostInvisTurns = 2
 )
 
 const (
-	OgreBaseHealth    = 60
-	OgreBaseDexterity = 3
-	OgreBaseStrength  = 12
-	OgreBaseHostility = 5
-	OgreMovesPerTurn  = 2
-	OgreRestTurns     = 1
+	OgreBaseHP    = 60
+	OgreBaseDex   = 3
+	OgreBaseStr   = 12
+	OgreBaseHost  = 5
+	OgreMovesPerT = 2
+	OgreRestTurns = 1
 )
 
 const (
-	SnakeMageBaseHealth    = 20
-	SnakeMageBaseDexterity = 14
-	SnakeMageBaseStrength  = 3
-	SnakeMageBaseHostility = 10
-	SnakeMageSleepChance   = 20
+	SnakeMageBaseHP   = 20
+	SnakeMageBaseDex  = 14
+	SnakeMageBaseStr  = 3
+	SnakeMageBaseHost = 10
+	SnakeMageSleepCh  = 20
 )
 
 const (
-	MimicBaseHealth    = 30
-	MimicBaseDexterity = 10
-	MimicBaseStrength  = 3
-	MimicBaseHostility = 2
+	MimicBaseHP   = 30
+	MimicBaseDex  = 10
+	MimicBaseStr  = 3
+	MimicBaseHost = 2
 )
 
 var Combat = struct {
@@ -103,9 +103,9 @@ var EnemyGeneration = struct {
 }
 
 const (
-	TreasureBaseValue      = 5
-	TreasureStatMultiplier = 2
-	TreasureDepthBonus     = 3
+	TreasureBaseVal  = 5
+	TreasureStatMult = 2
+	TreasureDepthBon = 3
 )
 
 const (
@@ -117,34 +117,34 @@ const (
 	MimicMinDepth     = 6
 )
 
-var ItemGeneration = struct {
-	FoodBaseHealth     int
-	FoodHealthPerDepth int
-	ItemsPerRoomBase   int
-	ItemSpawnChance    int
-	FoodSpawnWeight    int
+var ItemGen = struct {
+	FoodBaseHP     int
+	FoodHPPerDepth int
+	ItemsPerRoom   int
+	ItemSpawnCh    int
+	FoodSpawnWgt   int
 }{
-	FoodBaseHealth:     20,
-	FoodHealthPerDepth: 3,
-	ItemsPerRoomBase:   4,
-	ItemSpawnChance:    70,
-	FoodSpawnWeight:    35,
+	FoodBaseHP:     20,
+	FoodHPPerDepth: 3,
+	ItemsPerRoom:   4,
+	ItemSpawnCh:    70,
+	FoodSpawnWgt:   35,
 }
 
-var LevelGeneration = struct {
-	RoomGridSize              int
-	MinRoomWidth              int
-	MinRoomHeight             int
-	RoomPadding               int
-	MaxStartPositionAttempts  int
-	MaxRandomPositionAttempts int
+var LevelGen = struct {
+	RoomGridSize        int
+	MinRoomW            int
+	MinRoomH            int
+	RoomPadding         int
+	MaxStartPosAttempts int
+	MaxRandPosAttempts  int
 }{
-	RoomGridSize:              3,
-	MinRoomWidth:              6,
-	MinRoomHeight:             4,
-	RoomPadding:               2,
-	MaxStartPositionAttempts:  50,
-	MaxRandomPositionAttempts: 20,
+	RoomGridSize:        3,
+	MinRoomW:            6,
+	MinRoomH:            4,
+	RoomPadding:         2,
+	MaxStartPosAttempts: 50,
+	MaxRandPosAttempts:  20,
 }
 
 const (

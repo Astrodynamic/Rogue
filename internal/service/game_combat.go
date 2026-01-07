@@ -8,7 +8,7 @@ import (
 func (g *Game) initiateCombat(playerActor *domain.Actor, enemy domain.Enemy, enemyPos domain.Point) {
 	enemyActor := enemy.GetActor()
 	enemyName := enemy.Name()
-	resolver := NewGameCombatResolver(g)
+	resolver := NewCombatRes(g)
 
 	if mimic, ok := enemy.(*domain.Mimic); ok {
 		if !mimic.IsRevealed() {
@@ -82,14 +82,14 @@ func (g *Game) applyEnemyAttackEffects(enemy domain.Enemy, result domain.CombatR
 
 	switch enemy.(type) {
 	case *domain.SnakeMage:
-		if g.rng.IntN(domain.Combat.PercentBase) < domain.SnakeMageSleepChance {
+		if g.rng.IntN(domain.Combat.PercentBase) < domain.SnakeMageSleepCh {
 			playerActor.State = domain.ActorStateSleep
 			g.ui.AddLog("Sleep!")
 		}
 	case *domain.Vampire:
-		reductionEffect := domain.NewMaxHealthEffect(-domain.VampireMaxHealthReduction, -1)
+		reductionEffect := domain.NewMaxHPEffect(-domain.VampireMaxHPRed, -1)
 		playerActor.AddEffect(reductionEffect)
-		g.ui.AddLog(fmt.Sprintf("MaxHP-%d", domain.VampireMaxHealthReduction))
+		g.ui.AddLog(fmt.Sprintf("MaxHP-%d", domain.VampireMaxHPRed))
 	}
 }
 

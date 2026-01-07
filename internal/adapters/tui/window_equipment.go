@@ -18,7 +18,7 @@ func (w *Window) DrawEquipment(player *domain.Player, rect domain.Rect, selectio
 	if selection.Model != nil && selection.Model.IsActive() {
 		items := selection.Model.Items()
 		for i, selItem := range items {
-			if equipInfo, ok := selItem.(*service.EquipmentSelectionItem); ok {
+			if equipInfo, ok := selItem.(*service.EquipSelItem); ok {
 				selectionPartMap[equipInfo.Part] = i
 			}
 		}

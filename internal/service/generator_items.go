@@ -9,7 +9,7 @@ func (g *Generator) GenerateItems(level *domain.Level, depth int, startRoom *dom
 func (g *Generator) GenerateItemsWithDifficulty(level *domain.Level, depth int, startRoom *domain.Room, difficultyFactor float64) {
 	level.Items = make(map[domain.Point]domain.Item)
 
-	itemsPerRoom := domain.ItemGeneration.ItemsPerRoomBase - depth/domain.ItemDepthDivisor
+	itemsPerRoom := domain.ItemGen.ItemsPerRoom - depth/domain.ItemDepthDivisor
 	if itemsPerRoom < domain.ItemMinPerRoom {
 		itemsPerRoom = domain.ItemMinPerRoom
 	}
@@ -23,7 +23,7 @@ func (g *Generator) GenerateItemsWithDifficulty(level *domain.Level, depth int, 
 		}
 
 		for i := 0; i < itemsPerRoom; i++ {
-			spawnChance := domain.ItemGeneration.ItemSpawnChance
+			spawnChance := domain.ItemGen.ItemSpawnCh
 			if difficultyFactor < 1.0 {
 				spawnChance += domain.ItemDifficultyBonus
 			}
@@ -57,7 +57,7 @@ func (g *Generator) GenerateTreasureFromEnemyWithDepth(enemy domain.Enemy, depth
 	}
 
 	statValue := enemy.GetHostility() + actor.GetStrength() + actor.GetDexterity() + actor.GetMaxHealth()
-	value := domain.TreasureBaseValue + (statValue * domain.TreasureStatMultiplier) + (depth * domain.TreasureDepthBonus)
+	value := domain.TreasureBaseVal + (statValue * domain.TreasureStatMult) + (depth * domain.TreasureDepthBon)
 
 	return &domain.Treasure{
 		Value: value,
@@ -71,7 +71,7 @@ func (g *Generator) generateRandomItem(depth int) domain.Item {
 func (g *Generator) generateRandomItemWithDifficulty(depth int, difficultyFactor float64) domain.Item {
 	roll := g.rng.IntN(domain.Combat.PercentBase)
 
-	foodThreshold := domain.ItemGeneration.FoodSpawnWeight
+	foodThreshold := domain.ItemGen.FoodSpawnWgt
 	elixirThreshold := foodThreshold + domain.ItemElixirThresholdOffset
 	scrollThreshold := elixirThreshold + domain.ItemScrollThresholdOffset
 	treasureThreshold := scrollThreshold + domain.ItemTreasureThresholdOffset
@@ -85,7 +85,7 @@ func (g *Generator) generateRandomItemWithDifficulty(depth int, difficultyFactor
 	switch {
 	case roll < foodThreshold:
 		return &domain.Food{
-			Health: domain.ItemGeneration.FoodBaseHealth + depth*domain.ItemGeneration.FoodHealthPerDepth,
+			Health: domain.ItemGen.FoodBaseHP + depth*domain.ItemGen.FoodHPPerDepth,
 		}
 	case roll < elixirThreshold:
 		elixirType := domain.ElixirKind(g.rng.IntN(domain.ElixirKindCount))

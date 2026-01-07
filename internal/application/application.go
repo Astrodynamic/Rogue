@@ -10,14 +10,14 @@ import (
 
 type Application struct {
 	gui             service.UI
-	gameStateStore  *storage.GameStateStorage
-	statisticsStore *storage.StatisticsStorage
+	gameStateStore  *storage.StateStore
+	statisticsStore *storage.StatsStore
 }
 
 func NewApplication() *Application {
 	window := tui.NewWindow()
-	gameStateStore := storage.NewGameStateStorage("saves")
-	statisticsStore := storage.NewStatisticsStorage("saves")
+	gameStateStore := storage.NewStateStore("saves")
+	statisticsStore := storage.NewStatsStore("saves")
 
 	return &Application{
 		gui:             window,

@@ -6,7 +6,7 @@ import (
 
 func (g *Game) ProcessEnemyTurns() {
 	enemies := g.World.Level.GetAllEnemies()
-	aiCtx := NewEnemyAIContext(g)
+	aiCtx := NewAICtx(g)
 	playerPos := g.World.Player.Point
 	level := g.World.Level
 

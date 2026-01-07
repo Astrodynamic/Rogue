@@ -8,10 +8,10 @@ type Ghost struct {
 
 func NewGhost(depth int) *Ghost {
 	config := EnemyConfig{
-		BaseHealth:    GhostBaseHealth,
-		BaseDexterity: GhostBaseDexterity,
-		BaseStrength:  GhostBaseStrength,
-		BaseHostility: GhostBaseHostility,
+		BaseHealth:    GhostBaseHP,
+		BaseDexterity: GhostBaseDex,
+		BaseStrength:  GhostBaseStr,
+		BaseHostility: GhostBaseHost,
 	}
 	stats := ScaleEnemyStats(config, depth)
 	hostility := ScaleHostility(config.BaseHostility, depth)
@@ -59,7 +59,7 @@ func (g *Ghost) ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Point)
 	}
 
 	rng := aiCtx.GetRandomGenerator()
-	if rng.IntN(100) < GhostTeleportChance {
+	if rng.IntN(100) < GhostTeleChance {
 		teleportPos := aiCtx.GetRandomPositionInRoom(enemyPos, level)
 		if teleportPos.X >= 0 {
 			aiCtx.MoveEnemy(enemyPos, teleportPos, level)

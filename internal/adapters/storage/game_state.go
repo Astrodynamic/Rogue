@@ -10,25 +10,25 @@ import (
 	"rogue/internal/domain"
 )
 
-type GameStateStorage struct {
+type StateStore struct {
 	savesDir   string
 	serializer *serialization.Serializer
 }
 
-func NewGameStateStorage(savesDir string) *GameStateStorage {
-	return &GameStateStorage{
+func NewStateStore(savesDir string) *StateStore {
+	return &StateStore{
 		savesDir:   savesDir,
 		serializer: serialization.NewSerializer(),
 	}
 }
 
-func (s *GameStateStorage) getFilePath(playerName string) string {
+func (s *StateStore) getFilePath(playerName string) string {
 	sanitized := sanitizePlayerName(playerName)
 	fileName := fmt.Sprintf("%s_game_state.json", sanitized)
 	return filepath.Join(s.savesDir, fileName)
 }
 
-func (s *GameStateStorage) Save(world *domain.World) error {
+func (s *StateStore) Save(world *domain.World) error {
 	if world == nil || world.GameState == nil {
 		return fmt.Errorf("world or game state is nil")
 	}
@@ -51,7 +51,7 @@ func (s *GameStateStorage) Save(world *domain.World) error {
 	return nil
 }
 
-func (s *GameStateStorage) Load(playerName string) (*domain.World, error) {
+func (s *StateStore) Load(playerName string) (*domain.World, error) {
 	if playerName == "" {
 		return nil, fmt.Errorf("player name cannot be empty")
 	}
@@ -73,7 +73,7 @@ func (s *GameStateStorage) Load(playerName string) (*domain.World, error) {
 	return world, nil
 }
 
-func (s *GameStateStorage) HasSave(playerName string) bool {
+func (s *StateStore) HasSave(playerName string) bool {
 	if playerName == "" {
 		return false
 	}
@@ -82,7 +82,7 @@ func (s *GameStateStorage) HasSave(playerName string) bool {
 	return err == nil
 }
 
-func (s *GameStateStorage) ListSaves() ([]string, error) {
+func (s *StateStore) ListSaves() ([]string, error) {
 	if err := os.MkdirAll(s.savesDir, 0755); err != nil {
 		return nil, fmt.Errorf("failed to create saves directory: %w", err)
 	}

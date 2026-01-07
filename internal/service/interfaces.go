@@ -37,7 +37,7 @@ type UI interface {
 	Init() error
 	Close()
 	Draw(world *domain.World, selection SelectionState)
-	DrawStatistics(playthroughs []*domain.PlaythroughStatistics)
+	DrawStatistics(playthroughs []*domain.PlayStats)
 	DrawStartMenu(hasSave bool, currentOption int)
 	AddLog(message string)
 	Input() Command

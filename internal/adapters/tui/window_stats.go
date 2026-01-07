@@ -21,7 +21,7 @@ func (w *Window) DrawStats(world *domain.World, rect domain.Rect) {
 	w.drawText(rect, line, "Depth: %d", world.GetDepth())
 }
 
-func (w *Window) drawStatisticsView(playthroughs []*domain.PlaythroughStatistics, rect domain.Rect) {
+func (w *Window) drawStatisticsView(playthroughs []*domain.PlayStats, rect domain.Rect) {
 	w.drawBox(rect, "Statistics / Leaderboard")
 
 	line := 1

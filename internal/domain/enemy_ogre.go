@@ -9,10 +9,10 @@ type Ogre struct {
 
 func NewOgre(depth int) *Ogre {
 	config := EnemyConfig{
-		BaseHealth:    OgreBaseHealth,
-		BaseDexterity: OgreBaseDexterity,
-		BaseStrength:  OgreBaseStrength,
-		BaseHostility: OgreBaseHostility,
+		BaseHealth:    OgreBaseHP,
+		BaseDexterity: OgreBaseDex,
+		BaseStrength:  OgreBaseStr,
+		BaseHostility: OgreBaseHost,
 	}
 	stats := ScaleEnemyStats(config, depth)
 	hostility := ScaleHostility(config.BaseHostility, depth)
@@ -21,7 +21,7 @@ func NewOgre(depth int) *Ogre {
 		BaseEnemy: NewBaseEnemy(EnemyTypeOgre, stats, hostility),
 		Resting:   false,
 		RestTurns: 0,
-		MovesLeft: OgreMovesPerTurn,
+		MovesLeft: OgreMovesPerT,
 	}
 }
 
@@ -79,7 +79,7 @@ func (o *Ogre) ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Point) 
 			aiCtx.MoveEnemy(enemyPos, newPos, level)
 			o.MovesLeft--
 			if o.MovesLeft <= 0 {
-				o.MovesLeft = OgreMovesPerTurn
+				o.MovesLeft = OgreMovesPerT
 			}
 
 			if o.MovesLeft > 0 {

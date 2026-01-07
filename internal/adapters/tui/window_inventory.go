@@ -101,7 +101,7 @@ func (w *Window) DrawInventory(player *domain.Player, rect domain.Rect, selectio
 	if selection.Model != nil && selection.Model.IsActive() {
 		items := selection.Model.Items()
 		for i, selItem := range items {
-			if itemInfo, ok := selItem.(*service.ItemSelectionItem); ok {
+			if itemInfo, ok := selItem.(*service.ItemSelItem); ok {
 				selectionItemMap[itemInfo.Item] = i
 			}
 		}

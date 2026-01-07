@@ -52,7 +52,7 @@ func init() {
 		return &effect, nil
 	})
 	registerEffect("regeneration", func(data []byte) (domain.Effect, error) {
-		var effect domain.RegenerationEffect
+		var effect domain.RegenEffect
 		if err := json.Unmarshal(data, &effect); err != nil {
 			return nil, err
 		}
@@ -89,7 +89,7 @@ func (s *Serializer) marshalEffect(effect domain.Effect) serializableEffect {
 			effectType = "stat"
 		}
 		data, err = json.Marshal(v)
-	case *domain.RegenerationEffect:
+	case *domain.RegenEffect:
 		effectType = "regeneration"
 		data, err = json.Marshal(v)
 	default:

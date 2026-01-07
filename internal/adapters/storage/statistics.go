@@ -11,23 +11,23 @@ import (
 	"rogue/internal/domain"
 )
 
-type StatisticsStorage struct {
+type StatsStore struct {
 	savesDir string
 }
 
-func NewStatisticsStorage(savesDir string) *StatisticsStorage {
-	return &StatisticsStorage{
+func NewStatsStore(savesDir string) *StatsStore {
+	return &StatsStore{
 		savesDir: savesDir,
 	}
 }
 
-func (s *StatisticsStorage) getFilePath(playerName string) string {
+func (s *StatsStore) getFilePath(playerName string) string {
 	sanitized := sanitizePlayerName(playerName)
 	fileName := fmt.Sprintf("%s_statistics.json", sanitized)
 	return filepath.Join(s.savesDir, fileName)
 }
 
-func (s *StatisticsStorage) SavePlaythrough(stats *domain.PlaythroughStatistics) error {
+func (s *StatsStore) SavePlaythrough(stats *domain.PlayStats) error {
 	if stats == nil {
 		return fmt.Errorf("statistics cannot be nil")
 	}
@@ -62,14 +62,14 @@ func (s *StatisticsStorage) SavePlaythrough(stats *domain.PlaythroughStatistics)
 	return nil
 }
 
-func (s *StatisticsStorage) loadPlayerPlaythroughs(playerName string) ([]*domain.PlaythroughStatistics, error) {
+func (s *StatsStore) loadPlayerPlaythroughs(playerName string) ([]*domain.PlayStats, error) {
 	filePath := s.getFilePath(playerName)
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	var playthroughs []*domain.PlaythroughStatistics
+	var playthroughs []*domain.PlayStats
 	if err := json.Unmarshal(data, &playthroughs); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal statistics: %w", err)
 	}
@@ -77,7 +77,7 @@ func (s *StatisticsStorage) loadPlayerPlaythroughs(playerName string) ([]*domain
 	return playthroughs, nil
 }
 
-func (s *StatisticsStorage) LoadAllPlaythroughs() ([]*domain.PlaythroughStatistics, error) {
+func (s *StatsStore) LoadAllPlaythroughs() ([]*domain.PlayStats, error) {
 	if err := os.MkdirAll(s.savesDir, 0755); err != nil {
 		return nil, fmt.Errorf("failed to create saves directory: %w", err)
 	}
@@ -87,7 +87,7 @@ func (s *StatisticsStorage) LoadAllPlaythroughs() ([]*domain.PlaythroughStatisti
 		return nil, fmt.Errorf("failed to read saves directory: %w", err)
 	}
 
-	var allPlaythroughs []*domain.PlaythroughStatistics
+	var allPlaythroughs []*domain.PlayStats
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
@@ -109,11 +109,11 @@ func (s *StatisticsStorage) LoadAllPlaythroughs() ([]*domain.PlaythroughStatisti
 	return allPlaythroughs, nil
 }
 
-func (s *StatisticsStorage) GetLeaderboard(limit int) ([]*domain.PlaythroughStatistics, error) {
+func (s *StatsStore) GetLeaderboard(limit int) ([]*domain.PlayStats, error) {
 	playthroughs, err := s.LoadAllPlaythroughs()
 	if err != nil {
 		if os.IsNotExist(err) {
-			return []*domain.PlaythroughStatistics{}, nil
+			return []*domain.PlayStats{}, nil
 		}
 		return nil, err
 	}

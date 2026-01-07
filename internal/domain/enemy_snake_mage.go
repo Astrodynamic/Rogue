@@ -8,10 +8,10 @@ type SnakeMage struct {
 
 func NewSnakeMage(depth int) *SnakeMage {
 	config := EnemyConfig{
-		BaseHealth:    SnakeMageBaseHealth,
-		BaseDexterity: SnakeMageBaseDexterity,
-		BaseStrength:  SnakeMageBaseStrength,
-		BaseHostility: SnakeMageBaseHostility,
+		BaseHealth:    SnakeMageBaseHP,
+		BaseDexterity: SnakeMageBaseDex,
+		BaseStrength:  SnakeMageBaseStr,
+		BaseHostility: SnakeMageBaseHost,
 	}
 	stats := ScaleEnemyStats(config, depth)
 	hostility := ScaleHostility(config.BaseHostility, depth)
@@ -53,7 +53,7 @@ func (s *SnakeMage) ProcessTurn(aiCtx EnemyAIContext, level *Level, playerPos Po
 			result := enemyActor.AttackWithResolver(playerActor, resolver)
 			if result.Hit {
 				rng := aiCtx.GetRandomGenerator()
-				if rng.IntN(100) < SnakeMageSleepChance {
+				if rng.IntN(100) < SnakeMageSleepCh {
 					playerActor.State = ActorStateSleep
 				}
 			}

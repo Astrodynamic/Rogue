@@ -2,14 +2,14 @@ package service
 
 import "rogue/internal/domain"
 
-type GameStateStorage interface {
+type StateStore interface {
 	Save(world *domain.World) error
 	Load(playerName string) (*domain.World, error)
 	HasSave(playerName string) bool
 	ListSaves() ([]string, error)
 }
 
-type StatisticsStorage interface {
-	SavePlaythrough(stats *domain.PlaythroughStatistics) error
-	GetLeaderboard(limit int) ([]*domain.PlaythroughStatistics, error)
+type StatsStore interface {
+	SavePlaythrough(stats *domain.PlayStats) error
+	GetLeaderboard(limit int) ([]*domain.PlayStats, error)
 }

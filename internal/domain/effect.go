@@ -55,6 +55,6 @@ func (e *StatEffect) Tick(target *Actor) bool {
 	return e.BaseEffect.Tick(target)
 }
 
-func NewMaxHealthEffect(amount int, duration int) *StatEffect {
+func NewMaxHPEffect(amount int, duration int) *StatEffect {
 	return NewStatEffect(Stats{MaxHealth: amount}, duration)
 }

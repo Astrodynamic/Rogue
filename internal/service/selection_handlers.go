@@ -29,7 +29,7 @@ func NewUseItemHandler(game *Game, itemKind domain.ItemKind) *UseItemHandler {
 }
 
 func (h *UseItemHandler) OnConfirm(item SelectionItem) bool {
-	itemInfo, ok := item.(*ItemSelectionItem)
+	itemInfo, ok := item.(*ItemSelItem)
 	if !ok {
 		return false
 	}
@@ -85,7 +85,7 @@ func NewDropItemHandler(game *Game) *DropItemHandler {
 }
 
 func (h *DropItemHandler) OnConfirm(item SelectionItem) bool {
-	itemInfo, ok := item.(*ItemSelectionItem)
+	itemInfo, ok := item.(*ItemSelItem)
 	if !ok {
 		return false
 	}
@@ -109,16 +109,16 @@ func (h *DropItemHandler) OnConfirm(item SelectionItem) bool {
 func (h *DropItemHandler) OnCancel() {
 }
 
-type UnequipEquipmentHandler struct {
+type UnequipHdl struct {
 	game *Game
 }
 
-func NewUnequipEquipmentHandler(game *Game) *UnequipEquipmentHandler {
-	return &UnequipEquipmentHandler{game: game}
+func NewUnequipHdl(game *Game) *UnequipHdl {
+	return &UnequipHdl{game: game}
 }
 
-func (h *UnequipEquipmentHandler) OnConfirm(item SelectionItem) bool {
-	equipInfo, ok := item.(*EquipmentSelectionItem)
+func (h *UnequipHdl) OnConfirm(item SelectionItem) bool {
+	equipInfo, ok := item.(*EquipSelItem)
 	if !ok {
 		return false
 	}
@@ -136,19 +136,19 @@ func (h *UnequipEquipmentHandler) OnConfirm(item SelectionItem) bool {
 	return true
 }
 
-func (h *UnequipEquipmentHandler) OnCancel() {
+func (h *UnequipHdl) OnCancel() {
 }
 
-type EquipItemHandler struct {
+type EquipHdl struct {
 	game *Game
 }
 
-func NewEquipItemHandler(game *Game) *EquipItemHandler {
-	return &EquipItemHandler{game: game}
+func NewEquipHdl(game *Game) *EquipHdl {
+	return &EquipHdl{game: game}
 }
 
-func (h *EquipItemHandler) OnConfirm(item SelectionItem) bool {
-	itemInfo, ok := item.(*ItemSelectionItem)
+func (h *EquipHdl) OnConfirm(item SelectionItem) bool {
+	itemInfo, ok := item.(*ItemSelItem)
 	if !ok {
 		return false
 	}
@@ -172,5 +172,5 @@ func (h *EquipItemHandler) OnConfirm(item SelectionItem) bool {
 	return true
 }
 
-func (h *EquipItemHandler) OnCancel() {
+func (h *EquipHdl) OnCancel() {
 }
