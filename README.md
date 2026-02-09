@@ -3,6 +3,17 @@ A console-based rogue-like game in Go, inspired by the classic 1980 game *Rogue*
 ![img_0](./doc/img/img_0.png)
 ![img_1](./doc/img/img_1.png)
 
+## Requirements
+
+* Go 1.21 or later
+* [tcell](https://github.com/gdamore/tcell)
+
+## Build
+
+```bash
+make build
+make run
+```
 ## Controls
 
 **Movement:**
@@ -30,15 +41,3 @@ A console-based rogue-like game in Go, inspired by the classic 1980 game *Rogue*
 - `↑` / `↓` — select
 - `Enter` — use
 - `Esc` — cancel
-
-## Requirements
-
-* Go 1.21 or later
-* [tcell](https://github.com/gdamore/tcell)
-
-## Build
-
-```bash
-make build
-make run
-```
